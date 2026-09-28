@@ -1,0 +1,269 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 17px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 10px 14px;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 5px;
+  transform: translateY(-160%);
+}
+.skip-link:focus {
+  transform: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Type ---------- */
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(34px, 4.1vw, 56px);
+  letter-spacing: -0.025em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.lede {
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.6;
+  color: var(--slate);
+  max-width: 62ch;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slate);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: var(--blue);
+  display: inline-block;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  --h: 54px;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: var(--h);
+  padding: 0 32px;
+  border-radius: 5px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), background-color 0.3s;
+}
+.btn--sm {
+  --h: 44px;
+  padding: 0 22px;
+  font-size: 15px;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Black button with a blue glow and a light that travels along the border (Figma "botão") */
+.btn--glow {
+  background: #000;
+  color: var(--on-dark);
+  box-shadow: inset 0 0 0 0.8px #212121;
+}
+.btn--glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(70% 140% at 0% 60%, rgba(13, 0, 200, 0.95), rgba(13, 0, 200, 0) 72%);
+  transition: opacity 0.5s var(--ease-out), transform 0.7s var(--ease-out);
+  transform-origin: 0 50%;
+}
+.btn--glow:hover::before {
+  transform: scaleX(1.35);
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  padding: var(--ring, 1.5px);
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--a),
+    transparent 0 62%,
+    rgba(34, 40, 255, 0.9) 80%,
+    #a9b4ff 92%,
+    transparent 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: ring-spin 5s linear infinite;
+}
+@keyframes ring-spin {
+  to {
+    --a: 360deg;
+  }
+}
+
+.btn--blue {
+  background: var(--blue);
+  color: #fff;
+}
+.btn--blue:hover {
+  background: #5d79ff;
+  box-shadow: 0 10px 40px -10px rgba(75, 107, 255, 0.7);
+}
+
+.btn--ink {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+.btn--ink:hover {
+  background: #1a1f2e;
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  color: inherit;
+}
+.link-arrow span {
+  display: inline-block;
+  transition: transform 0.4s var(--ease-out);
+}
+.link-arrow:hover span {
+  transform: translateX(5px);
+}
+
+/* ---------- Motion safety ---------- */
+.js-anim [data-reveal],
+.js-anim [data-stagger] > [data-item] {
+  visibility: hidden;
+}
+.js-anim [data-reveal='rule'] {
+  transform: scaleX(0);
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

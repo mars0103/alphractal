@@ -1,0 +1,43 @@
+/* Palette and type from the moodboard + Figma. Two backgrounds, one accent. */
+@property --a {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  --ink: #0b0d14;
+  --ink-2: #11141e;
+  --ink-3: #191d2a;
+  --paper: #fafaf9;
+  --paper-2: #f2f2f0;
+  --blue: #4b6bff;
+  --blue-hot: #2228ff;
+  --blue-strong: #1749ff;
+  --blue-deep: #001d87;
+  --navy: #030033;
+  --slate: #5b6270;
+  --mute: #989898;
+  --on-dark: #fbf8f8;
+  --green: #1ead64; /* data only */
+  --red: #e5484d; /* data only */
+
+  --rule: rgba(91, 98, 112, 0.5);
+  --rule-soft: rgba(91, 98, 112, 0.28);
+
+  --font-display: 'Albert Sans Variable', 'Albert Sans', system-ui, sans-serif;
+  --font-ui: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --gutter: 24px;
+  --col: min(1304px, calc(100vw - 2 * var(--gutter)));
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --header-h: 54px;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --gutter: 16px;
+  }
+}
