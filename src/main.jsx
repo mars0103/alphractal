@@ -27,3 +27,11 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </StrictMode>,
 )
+
+// Hide the splash (see index.html) two frames after mount, so the browser has actually
+// painted the real page before it fades out — no flash of an empty or half-styled app.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.getElementById('splash')?.classList.add('is-done')
+  })
+})
