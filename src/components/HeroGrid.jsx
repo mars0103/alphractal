@@ -65,7 +65,12 @@ export default function HeroGrid() {
       }
 
       const mm = gsap.matchMedia()
-      mm.add(MQ.motion, () => {
+
+      // The cursor-follow ripple only means anything for a mouse, and redrawing ~900 dots
+      // every frame forever is heavy on a phone CPU, so the live ticker is desktop-only.
+      // (Written as "desktop AND motion-ok" / "mobile OR reduced" so the two branches below
+      // stay mutually exclusive — gsap.matchMedia runs every condition that matches.)
+      mm.add(`${MQ.desktop} and ${MQ.motion}`, () => {
         resize()
         const onMove = (e) => {
           const r = el.getBoundingClientRect()
@@ -92,11 +97,18 @@ export default function HeroGrid() {
         }
       })
 
-      // Reduced motion: a still grid, no cursor response
-      mm.add(MQ.reduced, () => {
+      // Mobile and reduced motion: a still grid, drawn once, no cursor response, no ticker.
+      mm.add(`${MQ.mobile}, ${MQ.reduced}`, () => {
         resize()
         mouse.tx = mouse.x = -9999
         draw()
+        const onResize = () => {
+          resize()
+          draw()
+        }
+        window.addEventListener('resize', onResize)
+        gsap.set(el, { autoAlpha: 1 })
+        return () => window.removeEventListener('resize', onResize)
       })
 
       return () => mm.revert()

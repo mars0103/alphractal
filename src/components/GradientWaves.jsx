@@ -63,61 +63,71 @@ export default function GradientWaves({ scrollTrigger, className = '', interacti
           })
         }
 
-        // Idle drift: each layer breathes on its own period so the edge never repeats exactly.
-        // The origin sits on the bottom edge (y 769) so the paper layer always covers the layers under it.
-        const drift = layers.map((layer, i) => {
-          const dir = i % 2 ? 1 : -1
-          return gsap.to(layer, {
-            x: dir * gsap.utils.random(40, 110),
-            scaleY: 1 + gsap.utils.random(0.04, 0.11) * (1 - i * 0.08),
-            skewX: dir * gsap.utils.random(0.8, 2.2),
-            svgOrigin: '1700 769',
-            duration: gsap.utils.random(6.5, 10.5),
-            ease: 'sine.inOut',
-            yoyo: true,
-            repeat: -1,
-            delay: 1.2 + i * 0.2,
+        // Everything below is animated transforms stacked on a blurred SVG (feGaussianBlur),
+        // which forces the browser to re-rasterize the blur every frame. That's cheap on a
+        // desktop GPU but tanks frame rate on mobile, so it's desktop-only; phones get the
+        // entrance above and then a calm, static field.
+        const dmm = gsap.matchMedia()
+
+        dmm.add(MQ.desktop, () => {
+          // Idle drift: each layer breathes on its own period so the edge never repeats exactly.
+          // The origin sits on the bottom edge (y 769) so the paper layer always covers the layers under it.
+          const drift = layers.map((layer, i) => {
+            const dir = i % 2 ? 1 : -1
+            return gsap.to(layer, {
+              x: dir * gsap.utils.random(40, 110),
+              scaleY: 1 + gsap.utils.random(0.04, 0.11) * (1 - i * 0.08),
+              skewX: dir * gsap.utils.random(0.8, 2.2),
+              svgOrigin: '1700 769',
+              duration: gsap.utils.random(6.5, 10.5),
+              ease: 'sine.inOut',
+              yoyo: true,
+              repeat: -1,
+              delay: 1.2 + i * 0.2,
+            })
           })
+
+          // Keep the GPU quiet while the hero is off screen
+          const gate = scrollTrigger?.current
+            ? ScrollTrigger.create({
+                trigger: scrollTrigger.current,
+                start: 'top bottom',
+                end: 'bottom top',
+                onToggle: (self) => drift.forEach((t) => (self.isActive ? t.resume() : t.pause())),
+              })
+            : null
+
+          // Scroll parallax on the whole field
+          let parallax = null
+          if (interactive && scrollTrigger?.current) {
+            parallax = gsap.to(root.current, {
+              yPercent: -14,
+              ease: 'none',
+              scrollTrigger: { trigger: scrollTrigger.current, start: 'top top', end: 'bottom top', scrub: 0.6 },
+            })
+          }
+
+          // Cursor lean (fine pointers only)
+          let move
+          if (interactive && window.matchMedia('(pointer: fine)').matches) {
+            const qx = gsap.quickTo(inner.current, 'x', { duration: 1.6, ease: 'power3.out' })
+            const qy = gsap.quickTo(inner.current, 'y', { duration: 1.6, ease: 'power3.out' })
+            move = (e) => {
+              qx((e.clientX / window.innerWidth - 0.5) * -46)
+              qy((e.clientY / window.innerHeight - 0.5) * -26)
+            }
+            window.addEventListener('pointermove', move, { passive: true })
+          }
+
+          return () => {
+            gate?.kill()
+            parallax?.kill()
+            drift.forEach((t) => t.kill())
+            if (move) window.removeEventListener('pointermove', move)
+          }
         })
 
-        // Keep the GPU quiet while the hero is off screen
-        const gate = scrollTrigger?.current
-          ? ScrollTrigger.create({
-              trigger: scrollTrigger.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              onToggle: (self) => drift.forEach((t) => (self.isActive ? t.resume() : t.pause())),
-            })
-          : null
-
-        // Scroll parallax on the whole field
-        let parallax = null
-        if (interactive && scrollTrigger?.current) {
-          parallax = gsap.to(root.current, {
-            yPercent: -14,
-            ease: 'none',
-            scrollTrigger: { trigger: scrollTrigger.current, start: 'top top', end: 'bottom top', scrub: 0.6 },
-          })
-        }
-
-        // Cursor lean (fine pointers only)
-        let move
-        if (interactive && window.matchMedia('(pointer: fine)').matches) {
-          const qx = gsap.quickTo(inner.current, 'x', { duration: 1.6, ease: 'power3.out' })
-          const qy = gsap.quickTo(inner.current, 'y', { duration: 1.6, ease: 'power3.out' })
-          move = (e) => {
-            qx((e.clientX / window.innerWidth - 0.5) * -46)
-            qy((e.clientY / window.innerHeight - 0.5) * -26)
-          }
-          window.addEventListener('pointermove', move, { passive: true })
-        }
-
-        return () => {
-          gate?.kill()
-          parallax?.kill()
-          drift.forEach((t) => t.kill())
-          if (move) window.removeEventListener('pointermove', move)
-        }
+        return () => dmm.revert()
       })
 
       return () => mm.revert()
