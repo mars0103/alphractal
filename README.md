@@ -5,8 +5,15 @@ React + GSAP (ScrollTrigger, SplitText, Flip, Draggable) + CSS puro. Sem Tailwin
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm run build    # gera dist/
+npm run build    # gera dist/client: build normal + build SSR + prerender (SSG) de toda rota pública
+npm run preview  # serve dist/client
 ```
+
+## SSG (prerendering)
+
+`npm run build` roda três passos: `vite build` (bundle do navegador), `vite build --ssr src/entry-server.jsx --outDir dist/server` (bundle Node só pra renderizar) e `scripts/prerender.mjs`, que chama `render(url)` pra cada rota pública (features, `/vs/*`, os 50 posts do blog etc.), grava `dist/client/<rota>/index.html` com o HTML real já dentro e apaga `dist/server` no final. `src/entry-client.jsx` faz `hydrateRoot` quando acha esse HTML pronto em `#root` (senão cai pra `createRoot`, caso do `npm run dev`, que continua 100% CSR/SPA como antes). `hooks/useMeta.js` não muda de assinatura: o mesmo `useMeta({...})` chamado em cada página agora também alimenta um `headState` que o `entry-server` lê depois do `renderToString`/`renderToPipeableStream`, pra cravar title/description/canonical/OG/robots/JSON-LD no HTML estático de cada rota. `vercel.json` aponta `outputDirectory` pra `dist/client` e liga `cleanUrls` (serve `<rota>/index.html` em `/rota` e devolve 404 real pra URL que não existe — antes disso as subrotas voltavam 404 pro crawler porque não havia deploy estático por rota).
+
+Pendente: sitemap.xml/robots.txt (item abaixo) e decidir se o Terminal/Workbench interativo continua CSR-only (ver guia `Alphractal_Guia_Frontend_Landing_v2.pdf`).
 
 ## Rotas
 
@@ -28,6 +35,8 @@ npm run build    # gera dist/
 
 ```
 src/
+  entry-client.jsx         monta no navegador (hydrateRoot se achar HTML pré-renderizado, senão createRoot)
+  entry-server.jsx         renderiza uma rota pro prerender (Node); exporta render(url)
   lib/facts.js            números (brief §7.1) e links. Tudo que é suposição está marcado
   i18n/                   en.js + pt.js (home) e pages.en.js + pages.pt.js (demais páginas)
   hooks/useReveals.js     entradas declarativas: data-reveal / data-stagger
@@ -40,7 +49,7 @@ src/
   pages/                  uma por rota
   styles/                 tokens → base → layout → header → hero → sections → story → blocks → pages
 src/content/              legal.json e blog.json (gerados por scripts/migrate-content.mjs)
-scripts/                  migrate-content.mjs (reexecutável), wire-meta.py (uso único)
+scripts/                  migrate-content.mjs (reexecutável), wire-meta.py (uso único), prerender.mjs (roda no build)
 public/figma/             assets exportados do Figma (nó 1:2)
 public/team/team.jpg      (opcional) foto do time: se existir, a galeria do About passa a usá-la inteira
 ```
@@ -61,7 +70,7 @@ public/team/team.jpg      (opcional) foto do time: se existir, a galeria do Abou
 - About: datas dos marcos (só 2023 é certo), hobbies dos 5 (vazio até coletar), foto do time, Gustavo França (entra?), grafia "Luan Silveira" e o cargo do Rafael (brief: Research Lead; doc de features: Chief Research Officer).
 - Trial de 3 dias do Pro: a copy não afirma se pede cartão.
 - Prova: posts reais do X e logo cloud rotulada seguem pendentes de curadoria.
-- **SEO:** cada página já define o próprio `<title>`, descrição, canonical e JSON-LD (`hooks/useMeta.js`), mas isso roda no navegador. Para crawlers sem JS, gere as rotas pré-renderizadas no build (SSG) antes de subir. O sitemap e os redirects do site antigo também precisam ser levados junto.
+- **SEO:** cada página define o próprio `<title>`, descrição, canonical e JSON-LD (`hooks/useMeta.js`); desde a migração pra SSG (ver seção acima) isso já vai cravado no HTML de cada rota, sem depender de JS. Falta ainda: `sitemap.xml` + `robots.txt`, e os redirects do site antigo.
 - **Blog:** o texto dos posts foi copiado como está (em inglês). Imagens e gráficos embutidos, se existirem no site antigo, não foram migrados. Os posts mostram "Apenas educacional" no final, como no original.
 - **Legal:** o texto vale só em inglês. Os e-mails reais são privacy@alphractal.com e legal@alphractal.com. O termo de teste grátis diz que a conta vira paga no fim do trial, o que sugere que o trial exige cartão: confirme antes de a copy dizer o contrário.
 - **Janela do produto:** o wireframe 1a pede uma "captura do produto, ao vivo, não simulada". O que está lá é uma interface ilustrativa com dados de exemplo (`lib/preview-data.js`, rotulada na tela como "não ao vivo"). Troque por captura real ou dados vivos antes de lançar; se mantiver ilustrativa, os textos de Research/Alerts em `i18n/*.js → preview` são inventados. Os planos citados (Free, Pro, Max) vêm de `pages.en.js`; o selo NEW da sidebar copia o app atual.

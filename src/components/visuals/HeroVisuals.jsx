@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, Draggable, MQ } from '../../lib/gsap.js'
 import { series, toPath } from '../../lib/chart.js'
 import { FACTS } from '../../lib/facts.js'
+import BorderGlow from '../BorderGlow.jsx'
 import CitationChat from '../CitationChat.jsx'
 import Viz from '../Viz.jsx'
 
@@ -52,21 +53,22 @@ export function DomainsViz() {
   )
 
   return (
-    <div ref={root} className="vpanel dv">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <div className="dv__rows">
-        {rows.map((r, i) => (
-          <div className="dv__row" key={r.name}>
-            <span className="mono">{r.name}</span>
-            <svg viewBox="0 0 400 60" preserveAspectRatio="none">
-              <path d={paths[i]} fill="none" stroke={i === 3 ? '#fbf8f8' : '#4b6bff'} strokeWidth="1.8" data-draw pathLength="1" />
-            </svg>
-          </div>
-        ))}
-        <i className="dv__scan" />
+    <BorderGlow>
+      <div ref={root} className="vpanel dv">
+        <div className="dv__rows">
+          {rows.map((r, i) => (
+            <div className="dv__row" key={r.name}>
+              <span className="mono">{r.name}</span>
+              <svg viewBox="0 0 400 60" preserveAspectRatio="none">
+                <path d={paths[i]} fill="none" stroke={i === 3 ? '#fbf8f8' : '#4b6bff'} strokeWidth="1.8" data-draw pathLength="1" />
+              </svg>
+            </div>
+          ))}
+          <i className="dv__scan" />
+        </div>
+        <p className="vpanel__foot mono">{t.pages.features.metrics.how.steps[1].title}</p>
       </div>
-      <p className="vpanel__foot mono">{t.pages.features.metrics.how.steps[1].title}</p>
-    </div>
+    </BorderGlow>
   )
 }
 
@@ -98,33 +100,34 @@ export function McpViz() {
   )
 
   return (
-    <div ref={root} className="vpanel mcpv">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <div className="vpanel__top mono">
-        <span>{c.client.label}</span>
-        <span>{FACTS.mcpEndpoint.replace('https://', '')}</span>
+    <BorderGlow>
+      <div ref={root} className="vpanel mcpv">
+        <div className="vpanel__top mono">
+          <span>{c.client.label}</span>
+          <span>{FACTS.mcpEndpoint.replace('https://', '')}</span>
+        </div>
+        <p className="mcpv__q">{c.client.question}</p>
+        <p className="mcpv__calling mono">{c.client.calling}</p>
+        <div className="mcpv__tiles" aria-hidden="true">
+          {Array.from({ length: FACTS.mcpTools }, (_, i) => (
+            <i key={i} className={`tile ${i < FACTS.mcpReadTools ? 'is-read' : 'is-write'}`} />
+          ))}
+        </div>
+        <div className="mcpv__legend mono">
+          <span>
+            <i className="tile is-read" /> {c.tools.read} · {FACTS.mcpReadTools}
+          </span>
+          <span>
+            <i className="tile is-write" /> {c.tools.write} · {FACTS.mcpWriteTools}
+          </span>
+        </div>
+        <div className="mcpv__ans" aria-hidden="true">
+          <i style={{ width: '90%' }} />
+          <i style={{ width: '72%' }} />
+          <i style={{ width: '48%' }} />
+        </div>
       </div>
-      <p className="mcpv__q">{c.client.question}</p>
-      <p className="mcpv__calling mono">{c.client.calling}</p>
-      <div className="mcpv__tiles" aria-hidden="true">
-        {Array.from({ length: FACTS.mcpTools }, (_, i) => (
-          <i key={i} className={`tile ${i < FACTS.mcpReadTools ? 'is-read' : 'is-write'}`} />
-        ))}
-      </div>
-      <div className="mcpv__legend mono">
-        <span>
-          <i className="tile is-read" /> {c.tools.read} · {FACTS.mcpReadTools}
-        </span>
-        <span>
-          <i className="tile is-write" /> {c.tools.write} · {FACTS.mcpWriteTools}
-        </span>
-      </div>
-      <div className="mcpv__ans" aria-hidden="true">
-        <i style={{ width: '90%' }} />
-        <i style={{ width: '72%' }} />
-        <i style={{ width: '48%' }} />
-      </div>
-    </div>
+    </BorderGlow>
   )
 }
 
@@ -149,27 +152,28 @@ export function RateViz() {
   )
 
   return (
-    <div ref={root} className="vpanel rv">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <p className="vpanel__top mono">
-        <span>{a.ladder.title}</span>
-      </p>
-      <ul>
-        {a.ladder.plans.map((p, i) => (
-          <li className="rv__row" key={p}>
-            <span className="mono">{p}</span>
-            <span className="rv__track">
-              <i className="rv__fill" style={{ transform: `scaleX(${values[i] / 800})` }} />
-            </span>
-            <b className="num">
-              {i === 3 ? `${a.ladder.up} ` : ''}
-              {values[i]}
-            </b>
-          </li>
-        ))}
-      </ul>
-      <p className="vpanel__foot mono">{a.tiers.rows.map((r) => r[1]).join('  →  ')}</p>
-    </div>
+    <BorderGlow>
+      <div ref={root} className="vpanel rv">
+        <p className="vpanel__top mono">
+          <span>{a.ladder.title}</span>
+        </p>
+        <ul>
+          {a.ladder.plans.map((p, i) => (
+            <li className="rv__row" key={p}>
+              <span className="mono">{p}</span>
+              <span className="rv__track">
+                <i className="rv__fill" style={{ transform: `scaleX(${values[i] / 800})` }} />
+              </span>
+              <b className="num">
+                {i === 3 ? `${a.ladder.up} ` : ''}
+                {values[i]}
+              </b>
+            </li>
+          ))}
+        </ul>
+        <p className="vpanel__foot mono">{a.tiers.rows.map((r) => r[1]).join('  →  ')}</p>
+      </div>
+    </BorderGlow>
   )
 }
 
@@ -246,22 +250,23 @@ export function Workbench() {
   )
 
   return (
-    <div ref={root} className="vpanel wb">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <div className="vpanel__top mono">
-        <span>{d.workbench.hint}</span>
-        <span>{t.pages.common.illustrative}</span>
+    <BorderGlow>
+      <div ref={root} className="vpanel wb">
+        <div className="vpanel__top mono">
+          <span>{d.workbench.hint}</span>
+          <span>{t.pages.common.illustrative}</span>
+        </div>
+        <div className="wb__grid">
+          {WB_KINDS.map((k, i) => (
+            <div className="wb__panel" key={k}>
+              <span className="mono">{labels[i]}</span>
+              <Viz kind={k} />
+            </div>
+          ))}
+        </div>
+        <p className="vpanel__foot mono">{d.workbench.illustrative}</p>
       </div>
-      <div className="wb__grid">
-        {WB_KINDS.map((k, i) => (
-          <div className="wb__panel" key={k}>
-            <span className="mono">{labels[i]}</span>
-            <Viz kind={k} />
-          </div>
-        ))}
-      </div>
-      <p className="vpanel__foot mono">{d.workbench.illustrative}</p>
-    </div>
+    </BorderGlow>
   )
 }
 

@@ -2,8 +2,24 @@ import { useMemo, useRef } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import { bandPath, movingAverage, series, toPath } from '../lib/chart.js'
+import BorderGlow from '../components/BorderGlow.jsx'
 
-const ASSETS = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'AVAX', 'LINK', 'DOT', 'DOGE', 'ATOM', 'NEAR']
+// Ticker → real brand color, used as the chip's glow tint when picked (public/coins/<ticker>.svg
+// is the matching badge — see public/coins/README.md for where they came from / how to add one).
+const ASSETS = [
+  ['BTC', '#f7931a'],
+  ['ETH', '#627eea'],
+  ['SOL', '#14f195'],
+  ['BNB', '#f3ba2f'],
+  ['XRP', '#23292f'],
+  ['ADA', '#0033ad'],
+  ['AVAX', '#e84142'],
+  ['LINK', '#2a5ada'],
+  ['DOT', '#e6007a'],
+  ['DOGE', '#c2a633'],
+  ['ATOM', '#2e3148'],
+  ['MATIC', '#8247e5'],
+]
 const W = 640
 const H = 360
 
@@ -134,15 +150,14 @@ export default function HowItWorks() {
             </ol>
           </div>
 
-          <div className="how__panel" aria-hidden="true">
-            <span className="ring ring--dark" />
-
+          <BorderGlow className="how__panel" aria-hidden="true">
             <div className="scene scene--assets">
               <p className="scene__label mono">{h.pick}</p>
               <div className="assets">
-                {ASSETS.map((a) => (
-                  <span className="chip-a" key={a}>
-                    {a}
+                {ASSETS.map(([a, color]) => (
+                  <span className="chip-a" key={a} style={{ '--coin': color }}>
+                    <img className="chip-a__coin" src={`/coins/${a.toLowerCase()}.svg`} alt="" width="20" height="20" loading="lazy" />
+                    <span className="chip-a__sym">{a}</span>
                   </span>
                 ))}
               </div>
@@ -182,7 +197,7 @@ export default function HowItWorks() {
                 <span className="pill">fractal_cycle</span>
               </div>
             </div>
-          </div>
+          </BorderGlow>
         </div>
       </div>
     </section>

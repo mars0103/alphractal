@@ -16,6 +16,7 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://alphractal.com/" />
+    <meta name="robots" content="index,follow" />
     <link rel="icon" type="image/svg+xml" href="/brand/logo-icon.svg" />
     <link rel="canonical" href="https://alphractal.com/" />
     <script type="application/ld+json">
@@ -82,8 +83,17 @@
     <div id="splash" aria-hidden="true">
       <img src="/brand/logo-icon.svg" alt="" width="46" height="42" />
     </div>
+    <!-- No JS to remove #splash above means no JS to run this app either: without it the
+         prerendered markup in #root is the whole page, so don't let the splash hide it. -->
+    <noscript>
+      <style>
+        #splash {
+          display: none;
+        }
+      </style>
+    </noscript>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/entry-client.jsx"></script>
     <script>
       // Safety net: if the app bundle ever fails to mount, don't leave the splash up forever.
       setTimeout(function () {

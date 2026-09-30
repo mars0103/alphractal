@@ -319,18 +319,19 @@
   color: var(--blue);
 }
 
+/* .how__panel renders as <BorderGlow className="how__panel"> (see sections/HowItWorks.jsx):
+   BorderGlow's own .border-glow-card owns position/background/border/glow, so this rule only
+   sets the box's size, and .border-glow-inner (its sole child) clips the absolutely-positioned
+   .scene layers without clipping the glow, which needs to bleed past the box edges. */
 .how__panel {
-  position: relative;
-  isolation: isolate;
   aspect-ratio: 1.16;
   min-height: 430px;
-  background: var(--ink);
-  color: var(--on-dark);
-  border: 1px solid #232838;
-  overflow: hidden;
 }
-.how__panel .ring {
-  z-index: 3;
+.how__panel .border-glow-inner {
+  position: relative;
+  color: var(--on-dark);
+  overflow: hidden;
+  height: 100%;
 }
 .scene {
   position: absolute;
@@ -357,18 +358,35 @@
   margin-top: 22px;
 }
 .chip-a {
-  padding: 18px 0;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 6px;
   border: 1px solid #2a3040;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 13px;
   color: #c9cedb;
-  transition: border-color 0.4s, background-color 0.4s, color 0.4s;
+  transition: border-color 0.4s, background-color 0.4s, color 0.4s, box-shadow 0.4s;
+}
+.chip-a__coin {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+.chip-a:hover {
+  border-color: #3a4256;
+  border-color: var(--coin, #3a4256);
 }
 .chip-a.is-picked {
   border-color: var(--blue);
+  border-color: var(--coin, var(--blue));
   background: rgba(75, 107, 255, 0.16);
+  background: color-mix(in srgb, var(--coin, var(--blue)) 20%, #161a26);
   color: #fff;
+  box-shadow: 0 0 22px -6px rgba(75, 107, 255, 0.8);
+  box-shadow: 0 0 22px -6px color-mix(in srgb, var(--coin, var(--blue)) 75%, transparent);
 }
 .assets__pick {
   margin-top: 24px;
