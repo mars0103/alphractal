@@ -4,13 +4,13 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { gsap, Flip, useGSAP, MQ } from '../lib/gsap.js'
 import PageShell from '../components/PageShell.jsx'
-import { formatDate, loadPosts } from '../lib/blog.js'
+import { cachedPosts, formatDate, loadPosts } from '../lib/blog.js'
 
 /* Research & Insights: the 50 migrated articles, filterable, re-laid out with Flip. */
 export default function Blog() {
   const { t, lang } = useI18n()
   const b = t.pages.blog
-  const [posts, setPosts] = useState(null)
+  const [posts, setPosts] = useState(cachedPosts)
   const [q, setQ] = useState('')
   const [tag, setTag] = useState('ALL')
   const flip = useRef(null)
@@ -19,8 +19,8 @@ export default function Blog() {
   useMeta({ title: `${b.title.replace(/\.$/, '')} · Alphractal`, description: b.sub })
 
   useEffect(() => {
-    loadPosts().then(setPosts)
-  }, [])
+    if (!posts) loadPosts().then(setPosts)
+  }, [posts])
 
   const tags = useMemo(() => {
     if (!posts) return []

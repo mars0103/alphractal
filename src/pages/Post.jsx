@@ -7,19 +7,19 @@ import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import PageShell from '../components/PageShell.jsx'
 import GlowButton from '../components/GlowButton.jsx'
 import { Section } from '../components/PageBlocks.jsx'
-import { formatDate, loadPosts } from '../lib/blog.js'
+import { cachedPosts, formatDate, loadPosts } from '../lib/blog.js'
 import Soon from './Soon.jsx'
 
 export default function Post() {
   const { slug } = useParams()
   const { t, lang } = useI18n()
   const b = t.pages.blog
-  const [posts, setPosts] = useState(null)
+  const [posts, setPosts] = useState(cachedPosts)
   const bar = useRef(null)
 
   useEffect(() => {
-    loadPosts().then(setPosts)
-  }, [])
+    if (!posts) loadPosts().then(setPosts)
+  }, [posts])
 
   const post = posts?.find((p) => p.slug === slug)
 

@@ -26,11 +26,7 @@ function Chips({ items }) {
   ))
 }
 
-const Coin = ({ sym }) => (
-  <span className="pv-coin" aria-hidden="true">
-    {sym.slice(0, 1)}
-  </span>
-)
+const Coin = ({ sym }) => <img className="pv-coin" src={`/coins/${sym.toLowerCase()}.svg`} alt="" width="22" height="22" loading="lazy" />
 
 export function CryptosPanel({ p, loc }) {
   const c = p.cryptos

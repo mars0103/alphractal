@@ -4,6 +4,7 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
+import BorderGlow from '../components/BorderGlow.jsx'
 import PageShell from '../components/PageShell.jsx'
 import PageHero from '../components/PageHero.jsx'
 import GlowButton from '../components/GlowButton.jsx'
@@ -31,20 +32,21 @@ function VsViz({ name }) {
     { scope: root },
   )
   return (
-    <div ref={root} className="vpanel vsv">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <div className="vsv__node vsv__node--us">
-        <img src="/figma/logo-mark.svg" alt="" width="34" height="31" />
-        <b>Alphractal</b>
+    <BorderGlow>
+      <div ref={root} className="vpanel vsv">
+        <div className="vsv__node vsv__node--us">
+          <img src="/figma/logo-mark.svg" alt="" width="34" height="31" />
+          <b>Alphractal</b>
+        </div>
+        <div className="vsv__line">
+          <i />
+          <span className="mono">vs</span>
+        </div>
+        <div className="vsv__node">
+          <b>{name}</b>
+        </div>
       </div>
-      <div className="vsv__line">
-        <i />
-        <span className="mono">vs</span>
-      </div>
-      <div className="vsv__node">
-        <b>{name}</b>
-      </div>
-    </div>
+    </BorderGlow>
   )
 }
 

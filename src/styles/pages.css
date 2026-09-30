@@ -87,16 +87,15 @@
 }
 
 /* ---------- Dark panels used as hero demos ---------- */
+/* Now rendered as <BorderGlow><div className="vpanel …"> (see components/visuals/HeroVisuals.jsx,
+   pages/Vs.jsx, pages/Institutional.jsx, pages/About.jsx, components/visuals/Extras.jsx) —
+   BorderGlow's own .border-glow-card owns background/border/glow; .vpanel keeps everything it
+   always had except those two. */
 .vpanel {
   position: relative;
   isolation: isolate;
   padding: 22px 24px;
-  background: rgba(17, 20, 30, 0.94);
-  border: 1px solid #232838;
   color: #e5e8f0;
-}
-.vpanel > .ring {
-  z-index: 2;
 }
 .vpanel__top {
   display: flex;
@@ -110,6 +109,7 @@
   text-transform: uppercase;
   color: #7d8599;
 }
+
 .vpanel__foot {
   margin-top: 18px;
   font-size: 11px;

@@ -19,6 +19,11 @@ import {
 import FinalCta from '../sections/FinalCta.jsx'
 import Soon from './Soon.jsx'
 
+// Recreated demos, not screenshots — a static capture can't show the interaction the copy is
+// actually selling (a citation you click to open its chart, a panel you drag and resize), and
+// it freezes the moment the real product's UI next changes. Built to match app.alphractal.com
+// (four domains → Metrics, a citation-driven answer → Alpha AI, a draggable workbench →
+// Dashboards, a live-updating report → Research), not as generic placeholder charts.
 const HERO_VIZ = {
   'alpha-ai': AlphaAiViz,
   metrics: DomainsViz,

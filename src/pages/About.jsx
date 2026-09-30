@@ -3,6 +3,7 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
+import BorderGlow from '../components/BorderGlow.jsx'
 import PageShell from '../components/PageShell.jsx'
 import PageHero from '../components/PageHero.jsx'
 import CountUp from '../components/CountUp.jsx'
@@ -135,19 +136,20 @@ export default function About() {
   useMeta({ title: `${t.nav.about} · Alphractal`, description: p.body[0] })
 
   const stats = (
-    <div className="vpanel inum">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <ul>
-        {p.stats.map((s) => (
-          <li key={s.label}>
-            <b className="inum__v display">
-              <CountUp value={s.value} suffix={s.suffix} />
-            </b>
-            <span className="mono">{s.label}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <BorderGlow>
+      <div className="vpanel inum">
+        <ul>
+          {p.stats.map((s) => (
+            <li key={s.label}>
+              <b className="inum__v display">
+                <CountUp value={s.value} suffix={s.suffix} />
+              </b>
+              <span className="mono">{s.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </BorderGlow>
   )
 
   return (

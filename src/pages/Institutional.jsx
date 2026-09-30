@@ -1,6 +1,7 @@
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
+import BorderGlow from '../components/BorderGlow.jsx'
 import PageShell from '../components/PageShell.jsx'
 import PageHero from '../components/PageHero.jsx'
 import GlowButton from '../components/GlowButton.jsx'
@@ -16,19 +17,20 @@ export default function Institutional() {
   useMeta({ title: `${t.nav.institutional} · Alphractal`, description: p.sub })
 
   const numbers = (
-    <div className="vpanel inum">
-      <span className="ring ring--dark" aria-hidden="true" />
-      <ul>
-        {p.numbers.map((n) => (
-          <li key={n.label}>
-            <b className="inum__v display">
-              <CountUp value={n.value} suffix={n.suffix} />
-            </b>
-            <span className="mono">{n.label}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <BorderGlow>
+      <div className="vpanel inum">
+        <ul>
+          {p.numbers.map((n) => (
+            <li key={n.label}>
+              <b className="inum__v display">
+                <CountUp value={n.value} suffix={n.suffix} />
+              </b>
+              <span className="mono">{n.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </BorderGlow>
   )
 
   return (

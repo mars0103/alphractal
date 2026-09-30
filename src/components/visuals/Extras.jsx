@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, Flip, ScrollTrigger, MQ } from '../../lib/gsap.js'
 import { series, toPath } from '../../lib/chart.js'
 import { FACTS, LINKS } from '../../lib/facts.js'
+import BorderGlow from '../BorderGlow.jsx'
 import { Section } from '../PageBlocks.jsx'
 
 /* ------------------------------------------------------------------ Metrics: proprietary models (dark) */
@@ -322,30 +323,31 @@ export function AlertsSection() {
             <p className="alerts__hist mono">{a.historic}</p>
           </div>
           <div>
-            <div className="rule vpanel">
-              <span className="ring ring--dark" aria-hidden="true" />
-              <div className="rule__row rule__a">
-                <span className="mono">{a.rule.when}</span>
-                <b className="tok">{a.rule.a}</b>
-                <em>{a.rule.aOp}</em>
-                <b className="tok tok--v">{a.rule.aVal}</b>
-              </div>
-              <i className="rule__link" />
-              <span className="rule__and mono">{a.rule.and}</span>
-              <div className="rule__row rule__b">
-                <b className="tok">{a.rule.b}</b>
-                <em>{a.rule.bOp}</em>
-                <b className="tok tok--v">{a.rule.bVal}</b>
-              </div>
-              <div className="rule__row rule__out">
-                <span className="mono">{a.rule.then}</span>
-                <div className="rule__chan mono">
-                  {a.channels.map((c) => (
-                    <span key={c}>{c}</span>
-                  ))}
+            <BorderGlow>
+              <div className="rule vpanel">
+                <div className="rule__row rule__a">
+                  <span className="mono">{a.rule.when}</span>
+                  <b className="tok">{a.rule.a}</b>
+                  <em>{a.rule.aOp}</em>
+                  <b className="tok tok--v">{a.rule.aVal}</b>
+                </div>
+                <i className="rule__link" />
+                <span className="rule__and mono">{a.rule.and}</span>
+                <div className="rule__row rule__b">
+                  <b className="tok">{a.rule.b}</b>
+                  <em>{a.rule.bOp}</em>
+                  <b className="tok tok--v">{a.rule.bVal}</b>
+                </div>
+                <div className="rule__row rule__out">
+                  <span className="mono">{a.rule.then}</span>
+                  <div className="rule__chan mono">
+                    {a.channels.map((c) => (
+                      <span key={c}>{c}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            </BorderGlow>
             <div className="limits">
               <span className="mono">{a.limitsTitle}</span>
               <ul>

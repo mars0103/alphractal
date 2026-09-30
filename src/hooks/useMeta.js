@@ -3,6 +3,11 @@ import { useLocation } from 'react-router-dom'
 
 const ORIGIN = 'https://alphractal.com'
 
+// Populated on every render (client or server). The prerender script reads this right
+// after renderToString() resolves, since each server render is exactly one route/page,
+// to bake the same title/description/canonical/jsonLd into the static HTML head.
+export const headState = { current: null }
+
 const upsert = (selector, create) => {
   let el = document.head.querySelector(selector)
   if (!el) {
@@ -18,6 +23,8 @@ const upsert = (selector, create) => {
  */
 export function useMeta({ title, description, jsonLd, noindex = false }) {
   const { pathname } = useLocation()
+
+  headState.current = { title, description, jsonLd, noindex, url: `${ORIGIN}${pathname}` }
 
   useEffect(() => {
     document.title = title
