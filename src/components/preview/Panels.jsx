@@ -1,42 +1,43 @@
 import { ASSETS, SCREEN, MACRO, SENTIMENT } from '../../lib/preview-data.js'
-import { FACTS } from '../../lib/facts.js'
 import Icon from './Icon.jsx'
 
-/* The seven screens of the interface preview. Every animated piece is marked so AppPreview can play it on entry:
-   data-in (rise + fade), data-bar (scaleX), data-draw (stroke draw), data-gauge (arc fill). */
+// Bullish/neutral/bearish and screener signals → the shared .up/.flat/.down color classes (see styles/preview.css).
+const SIGNAL_TONE = { bullish: 'up', neutral: 'flat', bearish: 'down' }
+const SCREEN_SIGNAL_TONE = { strongBuy: 'up', buy: 'up', neutral: 'flat', sell: 'down' }
+const toneOf = (chg) => (chg > 0 ? 'up' : chg < 0 ? 'down' : 'flat')
+const sign = (n) => (n > 0 ? '+' : '')
 
-const pct = (n) => `${n > 0 ? '+' : ''}${n.toFixed(1)}%`
-const sign = (n) => (n > 0 ? 'up' : n < 0 ? 'down' : 'flat')
-const signStr = (s) => (s.startsWith('-') ? 'down' : 'up')
-
-function Head({ title, children }) {
+function Spark({ points }) {
+  const w = 64
+  const h = 20
+  const d = points.map((v, i) => `${(i * w) / (points.length - 1)},${h - (v / 100) * (h - 2) - 1}`).join(' ')
   return (
-    <div className="pv-head" data-in>
-      <h3 className="pv-title">{title}</h3>
-      {children && <div className="pv-head__r">{children}</div>}
-    </div>
+    <svg className="pv-spark" viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
+      <polyline points={d} pathLength="1" data-draw />
+    </svg>
   )
 }
 
-function Chips({ items }) {
-  return items.map((c, i) => (
-    <span key={c} className="pv-chip" data-on={i === 0}>
-      {c}
-    </span>
-  ))
+function Coin({ sym }) {
+  return <img className="pv-coin" src={`/coins/${sym.toLowerCase()}.svg`} alt="" width="22" height="22" loading="lazy" />
 }
-
-const Coin = ({ sym }) => <img className="pv-coin" src={`/coins/${sym.toLowerCase()}.svg`} alt="" width="22" height="22" loading="lazy" />
 
 export function CryptosPanel({ p, loc }) {
   const c = p.cryptos
   return (
-    <>
-      <Head title={c.title}>
-        <span className="pv-badge">{c.badge}</span>
-        <Chips items={c.filters} />
-      </Head>
-      <div className="pv-tablewrap" data-in>
+    <div data-in>
+      <div className="pv-head">
+        <h3 className="pv-title">{c.title}</h3>
+        <div className="pv-head__r">
+          <span className="pv-badge">{c.badge}</span>
+          {c.filters.map((f, i) => (
+            <span className="pv-chip" data-on={i === 0} key={f}>
+              {f}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="pv-tablewrap">
         <table className="pv-table">
           <thead>
             <tr>
@@ -48,48 +49,58 @@ export function CryptosPanel({ p, loc }) {
               <th className="c3">{c.cols.addr}</th>
               <th className="c4">{c.cols.oi}</th>
               <th className="c4">{c.cols.liq}</th>
-              <th className="c4">{c.cols.signal}</th>
+              <th>{c.cols.signal}</th>
             </tr>
           </thead>
           <tbody>
             {ASSETS.map((a) => (
-              <tr key={a.sym} data-in>
+              <tr key={a.sym}>
                 <td>
-                  <div className="pv-asset">
+                  <span className="pv-asset">
                     <Coin sym={a.sym} />
-                    <div>
-                      <b>{a.name}</b>
-                      <span>{a.sym}</span>
-                    </div>
-                  </div>
+                    <span>
+                      <b>{a.sym}</b>
+                      <span>{a.name}</span>
+                    </span>
+                  </span>
                 </td>
                 <td>
                   {loc(a.price)}
-                  <small className={sign(a.chg)}>{loc(pct(a.chg))}</small>
+                  <br />
+                  <small className={toneOf(a.chg)}>
+                    {sign(a.chg)}
+                    {a.chg}%
+                  </small>
                 </td>
                 <td className="c2">{loc(a.mcap)}</td>
                 <td className="c2">{loc(a.vol)}</td>
                 <td className="c3">{loc(a.realized)}</td>
                 <td className="c3">
                   {loc(a.addr)}
-                  <small className={sign(a.addrD)}>{loc(pct(a.addrD))}</small>
+                  <br />
+                  <small className={toneOf(a.addrD)}>
+                    {sign(a.addrD)}
+                    {a.addrD}%
+                  </small>
                 </td>
                 <td className="c4">
                   {loc(a.oi)}
-                  <small className={sign(a.oiD)}>{loc(pct(a.oiD))}</small>
+                  <br />
+                  <small className={toneOf(a.oiD)}>
+                    {sign(a.oiD)}
+                    {a.oiD}%
+                  </small>
                 </td>
                 <td className="c4">{loc(a.liq)}</td>
-                <td className="c4">
-                  <span className={`pv-sig ${a.signal === 'bullish' ? 'up' : a.signal === 'bearish' ? 'down' : 'flat'}`}>
-                    {c.signals[a.signal]}
-                  </span>
+                <td>
+                  <span className={`pv-sig ${SIGNAL_TONE[a.signal]}`}>{c.signals[a.signal]}</span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -97,23 +108,21 @@ export function AiPanel({ p }) {
   const a = p.ai
   return (
     <div className="pv-ai">
-      <div className="pv-ai__head" data-in>
+      <div className="pv-ai__head">
         <span className="pv-ai__ico">
           <Icon name="network" />
         </span>
         <div>
-          <p className="pv-ai__name">{a.name}</p>
-          <p className="pv-ai__status">{a.status}</p>
+          <div className="pv-ai__name">{a.name}</div>
+          <div className="pv-ai__status">{a.status}</div>
         </div>
         <div className="pv-head__r">
-          {a.modes.map((m, i) => (
-            <span key={m} className="pv-mode" data-k={i}>
-              {m}
-            </span>
-          ))}
+          <span className="pv-mode">{a.modes[0]}</span>
+          <span className="pv-mode" data-k="1">
+            {a.modes[1]}
+          </span>
         </div>
       </div>
-
       <div className="pv-ai__body">
         <p className="pv-bubble pv-bubble--user" data-in>
           {a.user}
@@ -123,31 +132,26 @@ export function AiPanel({ p }) {
           <strong>{a.lead[1]}</strong>
           {a.lead[2]}
         </p>
-        <div className="pv-rows">
+        <div className="pv-rows" data-in>
           {a.rows.map((r) => (
-            <div key={r.label} className="pv-row" data-in>
+            <div className="pv-row" key={r.label}>
               <span>{r.label}</span>
-              <b className={r.tone === 'up' ? 'up' : 'flat'}>{r.text}</b>
+              <b className={r.tone}>{r.text}</b>
             </div>
           ))}
         </div>
         <div className="pv-cites" data-in>
           {a.cites.map((c) => (
-            <span key={c} className="pill">
+            <span className="pv-chip" data-on="true" key={c}>
               {c}
             </span>
           ))}
         </div>
-        <div className="pv-typing" data-in aria-hidden="true">
-          <i />
-          <i />
-          <i />
-        </div>
       </div>
-
-      <div className="pv-ai__input" data-in>
-        <span>{a.placeholder}</span>
-        <span className="pv-send" aria-label={a.send}>
+      <div className="pv-ai__input">
+        <Icon name="search" />
+        {a.placeholder}
+        <span className="pv-send">
           <Icon name="send" />
         </span>
       </div>
@@ -155,20 +159,24 @@ export function AiPanel({ p }) {
   )
 }
 
-const SIGNAL_TONE = { strongBuy: 'up', buy: 'up', neutral: 'flat', sell: 'down' }
-const MACD_TONE = { buy: 'up', neutral: 'flat', sell: 'down' }
-
 export function ScreenersPanel({ p, loc, num }) {
   const s = p.screeners
   return (
-    <>
-      <Head title={s.title}>
-        <span className="pv-badge">
-          {num(FACTS.assetsPaid)}+ {s.ranked}
-        </span>
-        <Chips items={s.filters} />
-      </Head>
-      <div className="pv-tablewrap" data-in>
+    <div data-in>
+      <div className="pv-head">
+        <h3 className="pv-title">{s.title}</h3>
+        <div className="pv-head__r">
+          <span className="pv-badge">
+            {SCREEN.length} {s.ranked}
+          </span>
+          {s.filters.map((f, i) => (
+            <span className="pv-chip" data-on={i === 0} key={f}>
+              {f}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="pv-tablewrap">
         <table className="pv-table">
           <thead>
             <tr>
@@ -178,140 +186,155 @@ export function ScreenersPanel({ p, loc, num }) {
               <th className="c2">{s.cols.macd}</th>
               <th className="c3">{s.cols.funding}</th>
               <th>{s.cols.signal}</th>
-              <th className="c3">{s.cols.strength}</th>
+              <th className="c4">{s.cols.strength}</th>
             </tr>
           </thead>
           <tbody>
-            {SCREEN.map((r) => (
-              <tr key={r.sym} data-in>
+            {SCREEN.map((row) => (
+              <tr key={row.sym}>
                 <td>
-                  <div className="pv-asset">
-                    <Coin sym={r.sym} />
-                    <div>
-                      <b>{r.name}</b>
-                      <span>{r.sym}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  {loc(r.price)}
-                  <small className={sign(r.chg)}>{loc(pct(r.chg))}</small>
-                </td>
-                <td className="c2">{r.rsi}</td>
-                <td className="c2">
-                  <span className={`pv-sig ${MACD_TONE[r.macd]}`}>{s.macd[r.macd]}</span>
-                </td>
-                <td className="c3">{loc(r.funding)}</td>
-                <td>
-                  <span className={`pv-sig ${SIGNAL_TONE[r.signal]}`}>{s.signals[r.signal]}</span>
-                </td>
-                <td className="c3">
-                  <span className="pv-track">
-                    <i data-bar style={{ width: `${r.strength}%` }} />
+                  <span className="pv-asset">
+                    <Coin sym={row.sym} />
+                    <span>
+                      <b>{row.sym}</b>
+                      <span>{row.name}</span>
+                    </span>
                   </span>
+                </td>
+                <td>
+                  {loc(row.price)}
+                  <br />
+                  <small className={toneOf(row.chg)}>
+                    {sign(row.chg)}
+                    {row.chg}%
+                  </small>
+                </td>
+                <td className="c2">{num(row.rsi)}</td>
+                <td className="c2">
+                  <span className={row.macd === 'buy' ? 'up' : row.macd === 'sell' ? 'down' : 'flat'}>{s.macd[row.macd]}</span>
+                </td>
+                <td className="c3">{row.funding}</td>
+                <td>
+                  <span className={`pv-sig ${SCREEN_SIGNAL_TONE[row.signal]}`}>{s.signals[row.signal]}</span>
+                </td>
+                <td className="c4">
+                  <span className="pv-track">
+                    <i style={{ transform: `scaleX(${row.strength / 100})` }} />
+                  </span>{' '}
+                  {num(row.strength)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }
 
 export function AlertsPanel({ p }) {
   const a = p.alerts
-  const fired = a.items.filter((i) => i.st === 'triggered').length
+  const triggeredCount = a.items.filter((i) => i.st === 'triggered').length
   return (
-    <>
-      <Head title={a.title}>
-        <span className="pv-badge">
-          {fired} {a.triggered}
-        </span>
-        <span className="pv-chip">
-          {a.items.length - fired} {a.active}
-        </span>
-      </Head>
-      <div className="pv-tabs2" data-in>
-        {a.tabs.map((t, i) => (
-          <span key={t} data-on={i === 0}>
-            {t}
+    <div data-in>
+      <div className="pv-head">
+        <h3 className="pv-title">{a.title}</h3>
+        <div className="pv-head__r">
+          <span className="pv-badge">
+            {triggeredCount} {a.triggered}
+          </span>
+        </div>
+      </div>
+      <div className="pv-tabs2">
+        {a.tabs.map((tTab, i) => (
+          <span data-on={i === 0} key={tTab}>
+            {tTab}
           </span>
         ))}
       </div>
       <div className="pv-alerts">
-        {a.items.map((i) => (
-          <div key={i.text} className="pv-alert" data-in>
-            <span className="pv-dot" data-st={i.st} aria-hidden="true" />
-            <div>
-              <p className="pv-alert__t">
-                <b>{i.sym}</b> {i.text}
-              </p>
-              <p className="pv-alert__m">
-                {i.kind} · {i.ch.join(' · ')}
-              </p>
-            </div>
-            <span className="pv-alert__w" data-st={i.st}>
-              {i.st === 'watching' ? a.watching : i.when}
+        {a.items.map((item, i) => (
+          <div className="pv-alert" key={i}>
+            <span className="pv-dot" data-st={item.st} />
+            <span>
+              <span className="pv-alert__t">
+                <b>{item.sym}</b>
+                {item.text}
+              </span>
+              <br />
+              <span className="pv-alert__m">
+                {item.kind} · {item.ch.join(', ')}
+              </span>
+            </span>
+            <span className="pv-alert__w" data-st={item.st}>
+              {item.st === 'watching' ? a.watching : item.when}
             </span>
           </div>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 
 export function ResearchPanel({ p }) {
   const r = p.research
   return (
-    <>
-      <Head title={r.title}>
-        <Chips items={r.filters} />
-      </Head>
-      <div className="pv-reports">
-        {r.items.map((i) => (
-          <article key={i.title} className="pv-report" data-in>
-            <div>
-              <h4>{i.title}</h4>
-              <p className="pv-report__meta">
-                <span>{i.kind}</span>
-                <span aria-hidden="true">·</span>
-                <span>
-                  {i.mins} {r.read}
-                </span>
-                <span aria-hidden="true">·</span>
-                <span>{i.tags.join(' · ')}</span>
-              </p>
-            </div>
-            <span className="pv-tier" data-free={i.tier === 'Free' || i.tier === 'Grátis'}>
-              {i.tier}
+    <div data-in>
+      <div className="pv-head">
+        <h3 className="pv-title">{r.title}</h3>
+        <div className="pv-head__r">
+          {r.filters.map((f, i) => (
+            <span className="pv-chip" data-on={i === 0} key={f}>
+              {f}
             </span>
-          </article>
-        ))}
+          ))}
+        </div>
       </div>
-    </>
+      <div className="pv-reports">
+        {r.items.map((item) => {
+          const free = item.tier === 'Free' || item.tier === 'Grátis'
+          return (
+            <div className="pv-report" key={item.title}>
+              <div>
+                <h4>{item.title}</h4>
+                <div className="pv-report__meta">
+                  <span>{item.kind}</span>
+                  <span>
+                    {item.mins} {r.read}
+                  </span>
+                  <span>{item.tags.join(', ')}</span>
+                </div>
+              </div>
+              <span className="pv-tier" data-free={free}>
+                {item.tier}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
-}
-
-const spark = (pts) => {
-  const max = Math.max(...pts)
-  const min = Math.min(...pts)
-  return pts
-    .map((v, i) => `${((i / (pts.length - 1)) * 64).toFixed(1)},${(18 - ((v - min) / (max - min || 1)) * 16).toFixed(1)}`)
-    .join(' ')
 }
 
 export function MacroPanel({ p, loc, num }) {
   const m = p.macro
   return (
-    <>
-      <Head title={m.title}>
-        <span className="pv-badge">
-          {num(FACTS.macroPanels)} {m.panels}
-        </span>
-        <Chips items={m.filters} />
-      </Head>
-      <div className="pv-tablewrap" data-in>
+    <div data-in>
+      <div className="pv-head">
+        <h3 className="pv-title">{m.title}</h3>
+        <div className="pv-head__r">
+          <span className="pv-badge">{m.badge}</span>
+          <span className="pv-chip">
+            {MACRO.length} {m.panels}
+          </span>
+          {m.filters.map((f, i) => (
+            <span className="pv-chip" data-on={i === 0} key={f}>
+              {f}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="pv-tablewrap">
         <table className="pv-table">
           <thead>
             <tr>
@@ -321,36 +344,37 @@ export function MacroPanel({ p, loc, num }) {
               <th>{m.cols.chg}</th>
               <th className="c3">{m.cols.d30}</th>
               <th className="c3">{m.cols.ytd}</th>
-              <th className="c2">{m.cols.trend}</th>
+              <th className="c4">{m.cols.trend}</th>
             </tr>
           </thead>
           <tbody>
-            {MACRO.map((r, i) => (
-              <tr key={m.rows[i].name} data-in>
-                <td>
-                  <div className="pv-asset">
-                    <div>
-                      <b>{m.rows[i].name}</b>
-                      <span>{m.rows[i].type}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>{loc(r.last)}</td>
-                <td className="c2">{loc(r.prev)}</td>
-                <td className={signStr(r.chg)}>{loc(r.chg)}</td>
-                <td className={`c3 ${signStr(r.d30)}`}>{loc(r.d30)}</td>
-                <td className={`c3 ${signStr(r.ytd)}`}>{loc(r.ytd)}</td>
-                <td className="c2">
-                  <svg className="pv-spark" viewBox="0 0 64 20" aria-hidden="true">
-                    <polyline points={spark(r.spark)} data-draw pathLength="1" />
-                  </svg>
-                </td>
-              </tr>
-            ))}
+            {m.rows.map((row, i) => {
+              const d = MACRO[i]
+              return (
+                <tr key={row.name}>
+                  <td>
+                    <span className="pv-asset">
+                      <span>
+                        <b>{row.name}</b>
+                        <span>{row.type}</span>
+                      </span>
+                    </span>
+                  </td>
+                  <td>{loc(d.last)}</td>
+                  <td className="c2">{loc(d.prev)}</td>
+                  <td className={d.chg.startsWith('-') ? 'down' : 'up'}>{loc(d.chg)}</td>
+                  <td className={`c3 ${d.d30.startsWith('-') ? 'down' : 'up'}`}>{loc(d.d30)}</td>
+                  <td className={`c3 ${d.ytd.startsWith('-') ? 'down' : 'up'}`}>{loc(d.ytd)}</td>
+                  <td className="c4">
+                    <Spark points={d.spark} />
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -358,99 +382,87 @@ export function SentimentPanel({ p, loc }) {
   const s = p.sentiment
   const d = SENTIMENT
   return (
-    <>
-      <Head title={s.title}>
-        <span className="pv-chip">{s.snapshot}</span>
-      </Head>
-      <div className="pv-sent">
-        <div className="pv-sent__a">
-          <div className="pv-gaugebox" data-in>
-            <div className="pv-gauge">
-              <svg viewBox="0 0 200 110" aria-hidden="true">
-                <defs>
-                  <linearGradient id="pv-gauge-grad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#e5484d" />
-                    <stop offset="35%" stopColor="#8c93a6" />
-                    <stop offset="65%" stopColor="#1ead64" />
-                    <stop offset="100%" stopColor="#4b6bff" />
-                  </linearGradient>
-                </defs>
-                <path d="M20 100A80 80 0 0 1 180 100" pathLength="100" className="pv-gauge__track" />
-                <path
-                  d="M20 100A80 80 0 0 1 180 100"
-                  pathLength="100"
-                  className="pv-gauge__fill"
-                  data-gauge={d.gauge}
-                  strokeDasharray={`${d.gauge} 100`}
-                />
-              </svg>
-              <div className="pv-gauge__read">
-                <span className="display">{d.gauge}</span>
-                <span className="up">{s.gauge}</span>
-              </div>
-            </div>
-            <div className="pv-stats">
-              {d.stats.map((x) => (
-                <div key={x.key} className="pv-stat">
-                  <span>{s.stats[x.key]}</span>
-                  <b>
-                    {loc(x.value)} <em className={x.up ? 'up' : 'down'}>{loc(x.delta)}</em>
-                  </b>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="pv-social" data-in>
-            <p className="pv-sub">{s.social}</p>
-            {d.social.map((x) => (
-              <div key={x.sym} className="pv-social__row">
-                <span>{x.sym}</span>
-                <span className="pv-split">
-                  <i data-bar style={{ width: `${x.bull}%` }} />
-                </span>
-                <b className="up">{x.bull}%</b>
+    <div className="pv-sent" data-in>
+      <div className="pv-sent__a">
+        <div>
+          <h3 className="pv-title">{s.title}</h3>
+          <p className="pv-sub">{s.snapshot}</p>
+        </div>
+        <div className="pv-gaugebox">
+          <span className="pv-gauge">
+            <svg viewBox="0 0 160 92" aria-hidden="true">
+              <defs>
+                <linearGradient id="pv-gauge-grad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="var(--red)" />
+                  <stop offset="50%" stopColor="#e8b13a" />
+                  <stop offset="100%" stopColor="var(--green)" />
+                </linearGradient>
+              </defs>
+              <path className="pv-gauge__track" d="M 12 84 A 68 68 0 0 1 148 84" />
+              <path className="pv-gauge__fill" d="M 12 84 A 68 68 0 0 1 148 84" pathLength="100" data-gauge={d.gauge} style={{ strokeDasharray: `${d.gauge} 100` }} />
+            </svg>
+            <span className="pv-gauge__read">
+              <span className="display">{d.gauge}</span>
+              <span className="mono">{s.gauge}</span>
+            </span>
+          </span>
+          <div className="pv-stats">
+            {d.stats.map((st) => (
+              <div className="pv-stat" key={st.key}>
+                <span>{s.stats[st.key]}</span>
+                <b>
+                  {loc(st.value)} <em className={st.up ? 'up' : 'down'}>{st.delta}</em>
+                </b>
               </div>
             ))}
           </div>
         </div>
-
-        <div className="pv-sent__b">
-          <div className="pv-liq" data-in>
-            <p className="pv-sub">{s.liq}</p>
-            <div className="pv-liq__row">
-              <div>
-                <div className="pv-liq__labels">
-                  <span className="up">
-                    {s.longs} {loc(d.liq.longs)}
-                  </span>
-                  <span className="down">
-                    {s.shorts} {loc(d.liq.shorts)}
-                  </span>
-                </div>
-                <span className="pv-split pv-split--thick">
-                  <i data-bar style={{ width: `${d.liq.longPct}%` }} />
-                </span>
-              </div>
-              <div className="pv-liq__total">
-                <b>{loc(d.liq.total)}</b>
-                <span>{s.total}</span>
-              </div>
+        <div>
+          <p className="pv-sub">{s.social}</p>
+          {d.social.map((row) => (
+            <div className="pv-social__row" key={row.sym}>
+              <span>{row.sym}</span>
+              <span className="pv-split">
+                <i style={{ transform: `scaleX(${row.bull / 100})` }} />
+              </span>
+              <b>{row.bull}%</b>
             </div>
-          </div>
-          <div className="pv-venues">
-            {d.venues.map((v) => (
-              <div key={v.name} className="pv-venue" data-in>
-                <span>{v.name}</span>
-                <b>{loc(v.ratio)}</b>
-                <em className="up">
-                  {loc(v.longs)} {s.long}
-                </em>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
-    </>
+      <div className="pv-sent__b">
+        <div className="pv-liq">
+          <p className="pv-sub">{s.liq}</p>
+          <div className="pv-liq__row">
+            <div>
+              <div className="pv-liq__labels">
+                <span>
+                  {s.longs} {d.liq.longPct}%
+                </span>
+                <span>{s.shorts}</span>
+              </div>
+              <span className="pv-split pv-split--thick">
+                <i style={{ transform: `scaleX(${d.liq.longPct / 100})` }} />
+              </span>
+            </div>
+            <div className="pv-liq__total">
+              <b>{loc(d.liq.total)}</b>
+              <span>
+                {loc(d.liq.longs)} / {loc(d.liq.shorts)}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="pv-venues">
+          {d.venues.map((v) => (
+            <div className="pv-venue" key={v.name}>
+              <span>{v.name}</span>
+              <b>{v.ratio}</b>
+              <em>{v.longs} {s.long}</em>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }

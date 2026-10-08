@@ -82,114 +82,78 @@
 
 .win {
   position: absolute;
+  z-index: 2;
+  overflow: hidden;
   width: min(300px, 46%);
+  aspect-ratio: 16 / 11;
   background: #fff;
-  border: 1px solid var(--rule-soft);
+  outline: 1px solid var(--rule-soft);
+  outline-offset: -1px;
   box-shadow: 0 26px 50px -30px rgba(11, 13, 20, 0.4);
   color: var(--slate);
-  padding-bottom: 12px;
   will-change: transform;
 }
-.win__bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--rule-soft);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-.win__bar i {
-  width: 6px;
-  height: 6px;
-  background: var(--rule);
-}
-.win svg {
-  width: calc(100% - 24px);
-  margin: 12px 12px 0;
-}
-
-.uni {
+.win__shot {
   position: absolute;
   inset: 0;
-  margin: auto;
-  width: min(580px, 100%);
-  height: fit-content;
-  background: var(--ink);
-  color: var(--on-dark);
-  border: 1px solid #232838;
-  box-shadow: 0 50px 100px -40px rgba(11, 13, 20, 0.7);
+  z-index: 0;
+  background-repeat: no-repeat;
 }
-.uni .ring {
-  z-index: 2;
-}
-.uni__bar {
+.win__bar {
+  position: absolute;
+  z-index: 1;
+  top: 8px;
+  left: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 18px;
-  border-bottom: 1px solid #232838;
-}
-.uni__bar strong {
-  font-weight: 500;
-  font-size: 15px;
-}
-.uni__bar span {
-  margin-left: auto;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #7d8599;
-}
-.uni__grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1px;
-  background: #232838;
-}
-.uni__cell {
-  display: grid;
   gap: 8px;
-  padding: 14px;
-  background: var(--ink);
-  color: #8f9bff;
-  grid-column: span 2;
-}
-.uni__cell:nth-child(n + 4) {
-  grid-column: span 3;
-}
-.uni__cell .mono {
+  padding: 5px 9px;
+  background: rgba(11, 13, 20, 0.78);
+  backdrop-filter: blur(6px);
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #7d8599;
+  color: var(--on-dark);
 }
-.uni__cell svg {
-  width: 100%;
-  height: auto;
-}
-.uni__ai {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  background: var(--ink-2);
-  color: #c9cedb;
-  font-size: 14px;
-}
-.uni__spark {
-  width: 8px;
-  height: 8px;
-  flex: none;
+.win__bar i {
+  width: 5px;
+  height: 5px;
   background: var(--blue);
-  animation: pulse-text 1.6s ease-in-out infinite;
 }
-.uni__tag {
+
+.mac {
   position: absolute;
-  top: -28px;
+  inset: 0;
+  margin: auto;
+  width: min(640px, 100%);
+  aspect-ratio: 621 / 360;
+}
+.mac__frame {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+.mac__screen {
+  position: absolute;
+  left: 10.95%;
+  top: 2.22%;
+  width: 78.1%;
+  height: 86.11%;
+  z-index: 1;
+  overflow: hidden;
+  /* Solid backstop only: on desktop the flying pieces assemble the real screenshot themselves,
+     so showing it here too would both pre-empt the reveal and (being plain stretched rather than
+     scaled per piece) never pixel-align with them. Mobile/reduced-motion skip the piece animation
+     entirely, so they paint the real screenshot here directly — see their rules below. */
+  background: var(--ink);
+}
+.mac__tag {
+  position: absolute;
+  top: -22px;
   right: 0;
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -204,8 +168,11 @@
   .cons__stage {
     height: auto;
   }
-  .uni {
+  .mac {
     position: relative;
+  }
+  .mac__screen {
+    background: var(--ink) url('/screens/home.png') 0 0 / 100% 100% no-repeat;
   }
   .cons__count {
     display: none;
@@ -231,11 +198,14 @@
     position: static;
     width: auto;
   }
-  .uni {
+  .mac {
     position: relative;
     grid-column: 1 / -1;
     margin-top: 34px;
     width: 100%;
+  }
+  .mac__screen {
+    background: var(--ink) url('/screens/home.png') 0 0 / 100% 100% no-repeat;
   }
   .cons__count {
     display: none;
