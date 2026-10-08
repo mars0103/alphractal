@@ -16,6 +16,7 @@ import './styles/preview.css'
 import './styles/pages.css'
 import './styles/content.css'
 import './styles/border-glow.css'
+import './styles/footer.css'
 import App from './App.jsx'
 import { I18nProvider } from './i18n/I18nProvider.jsx'
 

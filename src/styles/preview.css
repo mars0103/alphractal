@@ -1,59 +1,12 @@
 /* =====================  Interface preview (Home, right under the hero)  =====================
-   A dark product window on the paper page. Everything inside is sample data. */
+   A dark product window on the paper page. Everything inside is sample data. The seven platform
+   areas are driven by a big icon+title stack on the left (title+icon list, scroll-driven — see
+   sections/AppPreview.jsx) instead of the old horizontal tab bar. */
 .preview {
   position: relative;
   background: var(--paper);
-  padding: 0 0 clamp(72px, 9vw, 128px);
+  padding: clamp(48px, 7vw, 96px) 0 clamp(72px, 9vw, 128px);
   overflow-x: clip;
-}
-.preview__wrap {
-  width: min(1120px, calc(var(--col) - 2 * clamp(12px, 3.2vw, 56px)));
-  margin-inline: auto;
-}
-
-/* ---------- Tabs ---------- */
-.pv-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 22px;
-  padding: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.pv-tabs::-webkit-scrollbar {
-  display: none;
-}
-.pv-tab:first-child {
-  margin-left: auto;
-}
-.pv-tab:last-child {
-  margin-right: auto;
-}
-.pv-tab {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--slate);
-  transition: color 0.3s, background-color 0.3s;
-}
-.pv-tab svg {
-  width: 16px;
-  height: 16px;
-  opacity: 0.75;
-}
-.pv-tab:hover {
-  color: var(--ink);
-  background: rgba(11, 13, 20, 0.05);
-}
-.pv-tab[aria-selected='true'] {
-  background: var(--ink);
-  color: var(--on-dark);
 }
 
 /* ---------- Window ---------- */
@@ -130,83 +83,10 @@
   grid-template-columns: 200px minmax(0, 1fr);
   height: clamp(440px, 44vw, 520px);
 }
-
-/* ---------- Sidebar ---------- */
-.pv-side {
-  display: flex;
-  flex-direction: column;
-  padding: 14px 10px;
-  background: var(--ink-2);
-  border-right: 1px solid #232838;
-}
-.pv-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 10px 16px;
-  font: 500 15px/1 var(--font-display);
-  letter-spacing: -0.01em;
-  color: #fff;
-}
-.pv-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  background: var(--ink-3);
-  font-size: 12px;
-  color: #7d8599;
-}
-.pv-search kbd {
-  margin-left: auto;
-  padding: 1px 5px;
-  border: 1px solid #2a3040;
-  border-radius: 3px;
-  font: 10px/1.5 var(--font-mono);
-}
-.pv-nav {
-  display: grid;
-  gap: 2px;
-  align-content: start;
-  flex: 1;
-}
-.pv-nav li,
-.pv-foot span {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #8c93a6;
-  transition: background-color 0.35s, color 0.35s;
-}
-.pv-nav li[data-on='true'] {
-  background: rgba(75, 107, 255, 0.16);
-  color: #fff;
-}
-.pv-side svg {
-  width: 16px;
-  height: 16px;
-  flex: none;
-}
-.pv-new {
-  margin-left: auto;
-  padding: 2px 5px;
-  border-radius: 3px;
-  background: var(--on-dark);
-  color: var(--ink);
-  font: 600 9px/1.3 var(--font-mono);
-  letter-spacing: 0.06em;
-}
-.pv-foot {
-  display: grid;
-  gap: 2px;
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid #232838;
+/* No sidebar in the scroll-driven layout (sections/AppPreview.jsx) — the left icon+title list
+   already does that job, so .pv-main just takes the window's full width. */
+.pv-body--full {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* ---------- Panels ---------- */
@@ -551,6 +431,12 @@
   font-size: 13px;
   color: #7d8599;
 }
+.pv-ai__input > svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
 .pv-send {
   flex: none;
   display: grid;
@@ -872,20 +758,6 @@
 }
 
 /* ---------- Progress + caption ---------- */
-.pv-bar {
-  width: min(320px, 60%);
-  height: 2px;
-  margin: 20px auto 0;
-  background: var(--rule-soft);
-  overflow: hidden;
-}
-.pv-bar i {
-  display: block;
-  height: 100%;
-  background: var(--blue);
-  transform-origin: 0 50%;
-  transform: scaleX(0);
-}
 .pv-note {
   display: flex;
   flex-wrap: wrap;
@@ -897,13 +769,110 @@
   color: var(--slate);
 }
 
+/* =====================  Scroll-driven feature list (left of the window)  =====================
+   Replaces the old horizontal .pv-tabs bar: icon + big title per platform area, the active one
+   driven by a pinned scroll (see sections/AppPreview.jsx), with a one-line description below. */
+.fscroll__pin {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(96px, 11vh, 140px) 48px;
+}
+.fscroll__grid {
+  display: grid;
+  grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: center;
+}
+.fscroll__list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding-left: 26px;
+}
+.fscroll__track {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--rule-soft);
+}
+.fscroll__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  transform-origin: top;
+  transform: scaleY(0);
+}
+.fscroll__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  color: var(--slate);
+  transition: color 0.5s;
+}
+.fscroll__item.is-active {
+  color: var(--ink);
+}
+.fscroll__icon {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  opacity: 0.6;
+  transition: opacity 0.5s, color 0.5s;
+}
+.fscroll__item.is-active .fscroll__icon {
+  opacity: 1;
+  color: var(--blue);
+}
+.fscroll__title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(22px, 2.2vw, 32px);
+  letter-spacing: -0.02em;
+  line-height: 1.16;
+}
+.fscroll__descwrap {
+  position: relative;
+  min-height: 70px;
+  margin-top: 18px;
+  padding-left: 57px;
+}
+.fscroll__desc {
+  position: absolute;
+  inset: 0;
+  max-width: 34ch;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--slate);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.45s, transform 0.45s;
+}
+.fscroll__desc.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* The window itself, enlarged to fill the right column */
+.fscroll__screen {
+  width: 100%;
+}
+.fscroll__screen .pv-body {
+  height: clamp(480px, 42vw, 640px);
+}
+
 /* ---------- Responsive ---------- */
-@media (max-width: 860px) {
-  .pv-body {
-    grid-template-columns: 1fr;
+@media (max-width: 991px) {
+  .fscroll__pin {
+    min-height: 0;
+    padding-block: 64px 24px;
   }
-  .pv-side {
-    display: none;
+  .fscroll__grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
   }
 }
 @media (max-width: 560px) {
@@ -944,13 +913,12 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pv-bar {
-    display: none;
-  }
   .pv-panel,
   .pv-panel[data-active='true'],
-  .pv-tab,
-  .pv-nav li {
+  .pv-nav li,
+  .fscroll__item,
+  .fscroll__icon,
+  .fscroll__desc {
     transition: none;
   }
   .pv-typing i {
