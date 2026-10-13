@@ -108,7 +108,16 @@ export default function HowItWorks() {
     // heatmap reads as a real liquidation-levels chart (priced bands) instead of a plain gradient.
     const levels = bands.map((_, i) => 100000 * (0.88 + (1 - i / (HEAT_ROWS - 1)) * 0.24))
     const pricePts = points(priceValues, W, H, 22)
-    return { price: toPath(priceValues, W, H, 22), pricePts, bands, levels }
+    const MINI_ROWS = 110
+    const miniBands = Array.from({ length: MINI_ROWS }, (_, i) => {
+      const x = (i / (MINI_ROWS - 1)) * (bands.length - 1)
+      const a = Math.floor(x)
+      const b = Math.min(bands.length - 1, a + 1)
+      const f = x - a
+      const smooth = f * f * (3 - 2 * f)
+      return bands[a] + (bands[b] - bands[a]) * smooth
+    })
+    return { price: toPath(priceValues, W, H, 22), pricePts, bands, miniBands, levels }
   }, [])
 
   useGSAP(
@@ -347,13 +356,13 @@ export default function HowItWorks() {
                     <defs>
                       <filter id="heatTurbMini" x="-5%" y="-5%" width="110%" height="110%">
                         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="4" result="n" />
-                        <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G" result="disp" />
-                        <feGaussianBlur in="disp" stdDeviation="1.4" />
+                        <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="disp" />
+                        <feGaussianBlur in="disp" stdDeviation="2.2" />
                       </filter>
                     </defs>
                     <g filter="url(#heatTurbMini)">
-                      {scene.bands.map((v, i) => (
-                        <rect key={i} x="0" y={(i / HEAT_ROWS) * H} width={W} height={H / HEAT_ROWS + 1} fill={magma(v)} />
+                      {scene.miniBands.map((v, i) => (
+                        <rect key={i} x="0" y={(i / scene.miniBands.length) * H} width={W} height={H / scene.miniBands.length + 1.2} fill={magma(v)} />
                       ))}
                     </g>
                     {scene.pricePts.slice(1).map((p, i) => {
