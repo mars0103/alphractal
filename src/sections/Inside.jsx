@@ -4,43 +4,29 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import { series, toPath } from '../lib/chart.js'
 import { FACTS } from '../lib/facts.js'
+import { MetricsPreview, AlphaAiReplica, DashMix } from '../components/visuals/BentoVisuals.jsx'
+import AvatarGroup from '../components/AvatarGroup.jsx'
+import { AI_LOGOS } from '../lib/ai-logos.js'
 
-const MODELS = ['CVDD Channel', 'Fractal Cycle', 'Pi Cycle', 'Liquidation Levels', 'Whale vs Retail Delta']
-const SPARKS = MODELS.map((_, i) => toPath(series(28, 40 + i * 7, { drift: 0.008, vol: 0.14, start: 0.3 }), 120, 26, 3))
 const MACRO = ['Liquidity', 'Rates', 'Risk regime'].map((l, i) => ({
   l,
   d: toPath(series(30, 70 + i * 13, { drift: 0.004 * (i + 1), vol: 0.12, start: 0.35 }), 100, 44, 4),
 }))
 const WAVE = Array.from({ length: 34 }, (_, i) => 0.25 + 0.75 * Math.abs(Math.sin(i * 0.63) * Math.cos(i * 0.21)))
 
+const DARK_CARDS = new Set(['metrics', 'ai', 'dash', 'research'])
+
 /* Small looping visual per card. Shapes only, never data. */
 function CardViz({ kind }) {
   switch (kind) {
     case 'metrics':
-      return (
-        <ul className="viz-models">
-          {MODELS.map((m, i) => (
-            <li key={m}>
-              <span className="mono">{m}</span>
-              <svg viewBox="0 0 120 26" aria-hidden="true">
-                <path d={SPARKS[i]} pathLength="1" data-draw fill="none" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
-            </li>
-          ))}
-        </ul>
-      )
+      return <MetricsPreview />
     case 'ai':
-      return (
-        <div className="viz-ai" aria-hidden="true">
-          <i style={{ width: '88%' }} />
-          <i style={{ width: '64%' }} />
-          <span className="pill">funding_rate_eth</span>
-          <span className="pill">open_interest_eth</span>
-        </div>
-      )
+      return <AlphaAiReplica />
     case 'mcp':
       return (
-        <div className="viz-mcp" aria-hidden="true">
+        <div className="viz-mcp">
+          <AvatarGroup items={AI_LOGOS} maxVisible={6} size={46} />
           <code>mcp.alphractal.com/mcp</code>
           <div className="viz-mcp__grid">
             {Array.from({ length: FACTS.mcpTools }, (_, i) => (
@@ -70,14 +56,7 @@ function CardViz({ kind }) {
         </ul>
       )
     case 'dash':
-      return (
-        <div className="viz-dash" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
-      )
+      return <DashMix />
     case 'macro':
       return (
         <div className="viz-macro" aria-hidden="true">
@@ -141,13 +120,6 @@ export default function Inside() {
             tl.to(mcp, { opacity: 1, duration: 0.25, stagger: { each: 0.03, repeat: -1, repeatDelay: 1.2, yoyo: true } }, 0.3)
           }
 
-          const dash = card.querySelectorAll('.viz-dash i')
-          if (dash.length) {
-            gsap.set(dash, { autoAlpha: 0, scale: 0.7 })
-            tl.to(dash, { autoAlpha: 1, scale: 1, stagger: 0.12, duration: 0.7 }, 0.2)
-            tl.to(dash, { opacity: 0.5, duration: 1.4, stagger: { each: 0.5, repeat: -1, yoyo: true }, ease: 'sine.inOut' }, 1.4)
-          }
-
           const wave = card.querySelectorAll('.viz-wave i')
           if (wave.length) {
             wave.forEach((el, i) =>
@@ -191,7 +163,12 @@ export default function Inside() {
 
         <div className="cards" data-stagger>
           {s.cards.map((c, i) => (
-            <Link to={c.to} className={`card card--${c.key}`} data-item key={c.key}>
+            <Link
+              to={c.to}
+              className={`card card--${c.key}${DARK_CARDS.has(c.key) ? ' card--dark' : ''}`}
+              data-item
+              key={c.key}
+            >
               <span className="card__ring ring" aria-hidden="true" />
               <span className="card__glow" aria-hidden="true" />
               <span className="card__n mono">{String(i + 1).padStart(2, '0')}</span>

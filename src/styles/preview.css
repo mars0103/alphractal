@@ -838,11 +838,10 @@
   position: relative;
   min-height: 70px;
   margin-top: 18px;
-  padding-left: 57px;
 }
 .fscroll__desc {
   position: absolute;
-  inset: 0;
+  inset: 0 0 0 57px;
   max-width: 34ch;
   font-size: 14.5px;
   line-height: 1.55;

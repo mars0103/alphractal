@@ -204,6 +204,8 @@
 }
 .footer__word-box {
   box-sizing: border-box;
+  display: flex;
+  justify-content: center;
 }
 .footer__word-in {
   display: inline-flex;

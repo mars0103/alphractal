@@ -1,27 +1,18 @@
 import { useRef } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
+import { OnchainViz, DerivsViz, SentimentViz, MacroViz, ChartViz } from '../components/visuals/ConsViz.jsx'
 
-const REAL_SRC = '/screens/home.png'
-
-/* Where the five pieces sit before they converge, as a fraction of the stage: [x, y, rotation] */
-const SCATTER = [
-  [-0.3, -0.3, -5],
-  [0.3, -0.34, 4],
-  [-0.34, 0.3, 3],
-  [0.32, 0.3, -4],
-  [0, -0.02, 6],
-]
-
-/* Where each piece docks inside the laptop screen, as a fraction of the screen box: [x, y, w, h].
-   These five rects fully tile the screen (0 → 1 on both axes), so once every piece is in place
-   there is no gap or seam left to paper over — the pieces ARE the finished screenshot. */
+const VIZ = [OnchainViz, DerivsViz, SentimentViz, MacroViz, ChartViz]
+/* Each tool's slot inside the laptop screen, as a fraction of the screen box: [x, y, w, h].
+   Five rects fully tile the screen (3 across the top half, 2 across the bottom), so once every
+   widget has appeared there's no gap left — they ARE the finished, unified screen. */
 const DOCK = [
-  [0, 0, 1 / 3, 0.55],
-  [1 / 3, 0, 1 / 3, 0.55],
-  [2 / 3, 0, 1 / 3, 0.55],
-  [0, 0.55, 0.5, 0.45],
-  [0.5, 0.55, 0.5, 0.45],
+  [0, 0, 1 / 3, 0.5],
+  [1 / 3, 0, 1 / 3, 0.5],
+  [2 / 3, 0, 1 / 3, 0.5],
+  [0, 0.5, 0.5, 0.5],
+  [0.5, 0.5, 0.5, 0.5],
 ]
 
 export default function Consolidation() {
@@ -35,121 +26,68 @@ export default function Consolidation() {
       const q = (s) => root.current.querySelector(s)
       const qa = (s) => gsap.utils.toArray(s, root.current)
 
-      // Desktop: pinned, scroll-driven. The laptop screen opens, then each piece — already a crop
-      // of the real screenshot, not an illustration — flies into its slot, so the five converge
-      // straight into the real interface with nothing to swap or crossfade at the end.
-      mm.add(`${MQ.motion} and ${MQ.desktop}`, () => {
-        const stage = q('.cons__stage')
-        const screenEl = q('.mac__screen')
-        const wins = qa('.win')
+      // Scroll-driven, both breakpoints: each tool's simulated widget appears on its own, one
+      // at a time, straight into its slot in the laptop screen — not a real screenshot cropped
+      // and flown in, but the same kind of abstract panel used elsewhere on the site (Viz),
+      // so the screen is visibly assembling itself rather than revealing a photo.
+      const build = (scrollTrigger) => {
+        const widgets = qa('.cons__widget')
         const count = q('.cons__count-n')
         const countLabel = q('.cons__count-l')
-        const state = { n: 5 }
 
-        count.textContent = 5
+        gsap.set(widgets, { autoAlpha: 0, scale: 0.8 })
+        count.textContent = widgets.length
         countLabel.textContent = c.tabs
-        gsap.set(wins, { left: '50%', top: '50%', xPercent: -50, yPercent: -50 })
-
-        // Each piece's background is a slice of the real screenshot, sized and positioned so
-        // that once the piece reaches its docked scale, the slice lines up at 1:1 with its
-        // neighbours — the same "window into a bigger image" trick as the footer wordmark
-        // (see Footer.jsx): the crop is defined in the element's own untransformed coordinates,
-        // so GSAP's transform:scale carries it to the right size for free.
-        const layoutShots = () => {
-          const scRect = screenEl.getBoundingClientRect()
-          wins.forEach((w, i) => {
-            const [dx, dy, dw, dh] = DOCK[i]
-            const sx = (dw * scRect.width) / w.offsetWidth
-            const sy = (dh * scRect.height) / w.offsetHeight
-            const shot = w.querySelector('.win__shot')
-            shot.style.backgroundSize = `${scRect.width / sx}px ${scRect.height / sy}px`
-            shot.style.backgroundPosition = `${(-dx * scRect.width) / sx}px ${(-dy * scRect.height) / sy}px`
-          })
-        }
 
         const tl = gsap.timeline({
-          defaults: { ease: 'power2.inOut' },
-          scrollTrigger: {
-            trigger: q('.cons__pin'),
-            start: 'top top',
-            end: '+=170%',
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onRefresh: layoutShots,
-          },
-        })
-        layoutShots()
-
-        wins.forEach((w, i) => {
-          const [fx, fy, rot] = SCATTER[i]
-          const [dx, dy, dw, dh] = DOCK[i]
-          const start = i * 0.05
-          const bar = w.querySelector('.win__bar')
-
-          const dockValue = (axis) => () => {
-            const sRect = stage.getBoundingClientRect()
-            const scRect = screenEl.getBoundingClientRect()
-            const cellW = dw * scRect.width
-            const cellH = dh * scRect.height
-            const cellCx = scRect.left - sRect.left + dx * scRect.width + cellW / 2
-            const cellCy = scRect.top - sRect.top + dy * scRect.height + cellH / 2
-            if (axis === 'x') return cellCx - sRect.width / 2
-            if (axis === 'y') return cellCy - sRect.height / 2
-            if (axis === 'scaleX') return cellW / w.offsetWidth
-            return cellH / w.offsetHeight
-          }
-
-          tl.fromTo(
-            w,
-            { x: () => fx * stage.offsetWidth, y: () => fy * stage.offsetHeight, rotation: rot, scaleX: 1, scaleY: 1, autoAlpha: 1 },
-            { x: dockValue('x'), y: dockValue('y'), rotation: 0, scaleX: dockValue('scaleX'), scaleY: dockValue('scaleY'), duration: 1 },
-            start,
-          )
-          // The "card" framing (outline, shadow, label chip) sells the piece as a floating window
-          // while it flies; both dissolve as it docks, so the seam between pieces disappears too.
-          // (An outline, not a border, so it doesn't shrink the padding box the full-bleed image
-          // is positioned against — a border here would leave a 1px gap at every tile edge.)
-          tl.to(w, { outlineColor: 'transparent', boxShadow: '0 0 0 0 rgba(0,0,0,0)', duration: 0.4 }, start + 0.6)
-          tl.to(bar, { autoAlpha: 0, duration: 0.3 }, start + 0.6)
+          defaults: { ease: 'back.out(1.7)' },
+          scrollTrigger: { ...scrollTrigger, scrub: 1 },
         })
 
-        tl.to(
-          state,
-          {
-            n: 1,
-            duration: 1.2,
-            ease: 'none',
-            onUpdate: () => {
-              const n = Math.max(1, Math.round(state.n))
-              count.textContent = n
-              countLabel.textContent = n === 1 ? c.tabsOne : c.tabs
+        widgets.forEach((w, i) => {
+          const at = i * 0.85
+          tl.to(w, { autoAlpha: 1, scale: 1, duration: 0.55 }, at)
+          const remaining = Math.max(1, widgets.length - 1 - i)
+          tl.call(
+            () => {
+              count.textContent = remaining
+              countLabel.textContent = remaining === 1 ? c.tabsOne : c.tabs
             },
-          },
-          0,
-        )
+            null,
+            at + 0.25,
+          )
+        })
+        tl.from(q('.cons__ai'), { autoAlpha: 0, y: 10, duration: 0.5 }, '+=0.1')
+        tl.to({}, { duration: 0.35 })
+      }
 
-        tl.to({}, { duration: 0.3 }) // hold the finished, fully-assembled screen for a beat before the pin releases
+      // Entrance: the laptop slides in from the right and brakes smoothly into its place
+      // (in-out: it builds up speed, then eases to a stop) when the section arrives.
+      mm.add(MQ.motion, () => {
+        const mac = q('.mac')
+        gsap.set(mac, { xPercent: 75, autoAlpha: 0 })
+        gsap.to(mac, {
+          xPercent: 0,
+          autoAlpha: 1,
+          duration: 2.1,
+          ease: 'power3.inOut',
+          scrollTrigger: { trigger: q('.cons__stage'), start: 'top 88%', once: true },
+        })
       })
 
-      // Mobile: no pin, the same story in reveals. The laptop's screen is a plain CSS background
-      // of the real screenshot (see styles/story.css), so there is nothing to assemble here.
+      mm.add(`${MQ.motion} and ${MQ.desktop}`, () => {
+        build({
+          trigger: q('.cons__pin'),
+          start: 'top top',
+          end: '+=170%',
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        })
+      })
       mm.add(`${MQ.motion} and ${MQ.mobile}`, () => {
-        gsap.from(qa('.win'), {
-          autoAlpha: 0,
-          y: 40,
-          rotation: (i) => (i % 2 ? 2 : -2),
-          stagger: 0.09,
-          duration: 0.9,
-          scrollTrigger: { trigger: q('.cons__stage'), start: 'top 82%', once: true },
-        })
-        gsap.from(q('.mac'), {
-          autoAlpha: 0,
-          y: 50,
-          duration: 1,
-          scrollTrigger: { trigger: q('.mac'), start: 'top 88%', once: true },
-        })
+        build({ trigger: q('.cons__stage'), start: 'top 75%', end: 'bottom 85%' })
       })
 
       return () => mm.revert()
@@ -186,31 +124,33 @@ export default function Consolidation() {
 
           <div className="cons__stage" role="img" aria-label={`${c.tools.join(', ')} → ${c.unified}`}>
             <div className="mac">
-              <div className="mac__screen" />
+              <div className="mac__screen">
+                {c.tools.map((tool, i) => {
+                  const [dx, dy, dw, dh] = DOCK[i]
+                  const Tool = VIZ[i]
+                  return (
+                    <div
+                      className="cons__widget"
+                      key={tool}
+                      style={{ left: `${dx * 100}%`, top: `${dy * 100}%`, width: `${dw * 100}%`, height: `${dh * 100}%` }}
+                    >
+                      <div className="cons__widget-head mono">
+                        <span>{tool}</span>
+                        <i />
+                      </div>
+                      <div className="cons__widget-viz">
+                        <Tool />
+                      </div>
+                    </div>
+                  )
+                })}
+                <p className="cons__ai mono">
+                  <img src="/figma/spark.svg" alt="" width="12" height="12" />
+                  <span className="cons__ai-text">{c.aiLine}</span>
+                </p>
+              </div>
               <img className="mac__frame" src="/mockups/macbook.png" alt="" aria-hidden="true" />
-              <span className="mac__tag mono">{c.illustrative}</span>
             </div>
-
-            {c.tools.map((tool, i) => {
-              const [dx, dy, dw, dh] = DOCK[i]
-              return (
-                <div className="win" key={tool}>
-                  <div
-                    className="win__shot"
-                    aria-hidden="true"
-                    style={{
-                      backgroundImage: `url(${REAL_SRC})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: `${(dx + dw / 2) * 100}% ${(dy + dh / 2) * 100}%`,
-                    }}
-                  />
-                  <div className="win__bar mono">
-                    <span>{tool}</span>
-                    <i />
-                  </div>
-                </div>
-              )
-            })}
           </div>
         </div>
       </div>
