@@ -805,6 +805,18 @@
   transform-origin: top;
   transform: scaleY(0);
 }
+.fscroll__btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
 .fscroll__item {
   display: flex;
   align-items: center;
@@ -870,8 +882,62 @@
     padding-block: 64px 24px;
   }
   .fscroll__grid {
-    grid-template-columns: 1fr;
-    gap: 36px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .fscroll__copy,
+  .fscroll__screen {
+    min-width: 0;
+  }
+  /* Tabs become a swipeable row of chips; the description sits right under them */
+  .fscroll__list {
+    display: flex;
+    gap: 8px;
+    margin: 0 -4px;
+    padding: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .fscroll__list::-webkit-scrollbar {
+    display: none;
+  }
+  .fscroll__track {
+    display: none;
+  }
+  .fscroll__item {
+    flex: none;
+    padding: 0;
+    scroll-snap-align: center;
+  }
+  .fscroll__btn {
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--rule-soft);
+    border-radius: 999px;
+    background: var(--paper);
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+  .fscroll__item.is-active .fscroll__btn {
+    border-color: var(--blue);
+    background: rgba(75, 107, 255, 0.08);
+  }
+  .fscroll__icon {
+    width: 16px;
+    height: 16px;
+  }
+  .fscroll__title {
+    font-size: 15px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .fscroll__descwrap {
+    min-height: 66px;
+    margin-top: 14px;
+  }
+  .fscroll__desc {
+    inset: 0;
+    max-width: none;
   }
 }
 @media (max-width: 560px) {

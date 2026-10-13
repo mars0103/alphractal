@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { gsap, useGSAP, MQ } from '../lib/gsap.js'
+import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
 import { series, toPath, points } from '../lib/chart.js'
 import BorderGlow from '../components/BorderGlow.jsx'
 
@@ -117,7 +117,7 @@ export default function HowItWorks() {
       const q = (s) => root.current.querySelector(s)
       const qa = (s) => gsap.utils.toArray(s, root.current)
 
-      const build = (scrollTrigger) => {
+      const build = (scrollTrigger, timed = false) => {
         const groupA = q('.inc-group--a')
         const groupB = q('.inc-group--b')
         const cardsA = qa('.inc-group--a .inc-card')
@@ -152,21 +152,23 @@ export default function HowItWorks() {
         gsap.set(q('.liq-chat__a'), { autoAlpha: 0, y: 8 })
         gsap.set(qa('.scene--ask .pill'), { autoAlpha: 0, scale: 0.85 })
 
-        const tl = gsap.timeline({
-          defaults: { ease: 'power2.inOut' },
-          scrollTrigger: {
-            ...scrollTrigger,
-            scrub: 1,
-            onUpdate: (self) => {
-              gsap.set(fill, { scaleY: self.progress })
-              const idx = self.progress < 0.38 ? 0 : self.progress < 0.7 ? 1 : 2
-              if (idx !== current) {
-                current = idx
-                steps.forEach((s, i) => s.classList.toggle('is-active', i === idx))
-              }
-            },
-          },
-        })
+        const sync = (progress) => {
+          gsap.set(fill, { scaleY: progress })
+          const idx = progress < 0.38 ? 0 : progress < 0.7 ? 1 : 2
+          if (idx !== current) {
+            current = idx
+            steps.forEach((s, i) => s.classList.toggle('is-active', i === idx))
+          }
+        }
+        // Desktop scrubs the timeline with the pinned scroll. On phones the panel sits below the
+        // copy, so a scroll-scrubbed run would already be over by the time it is on screen:
+        // there it plays on its own, once, when the panel comes into view.
+        const tl = timed
+          ? gsap.timeline({ paused: true, defaults: { ease: 'power2.inOut' }, onUpdate: () => sync(tl.progress()) })
+          : gsap.timeline({
+              defaults: { ease: 'power2.inOut' },
+              scrollTrigger: { ...scrollTrigger, scrub: 1, onUpdate: (self) => sync(self.progress) },
+            })
 
         // 01: the coin wall sits for a read, then swaps for a second set with BTC centred and picked
         tl.to({}, { duration: 0.6 })
@@ -200,6 +202,15 @@ export default function HowItWorks() {
         tl.to(q('.liq-chat__a'), { autoAlpha: 1, y: 0, duration: 0.4 }, '+=0.15')
         tl.to(qa('.scene--ask .pill'), { autoAlpha: 1, scale: 1, duration: 0.3, stagger: 0.12 }, '-=0.15')
         tl.to({}, { duration: 0.3 })
+
+        if (timed) {
+          ScrollTrigger.create({
+            trigger: q('.how__panel'),
+            start: 'top 78%',
+            once: true,
+            onEnter: () => tl.timeScale(1.5).play(),
+          })
+        }
       }
 
       mm.add(`${MQ.motion} and ${MQ.desktop}`, () => {
@@ -213,7 +224,7 @@ export default function HowItWorks() {
         })
       })
       mm.add(`${MQ.motion} and ${MQ.mobile}`, () => {
-        build({ trigger: q('.how__grid'), start: 'top 55%', end: 'bottom 70%' })
+        build({}, true)
       })
 
       return () => mm.revert()
