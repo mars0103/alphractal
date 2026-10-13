@@ -1,5 +1,5 @@
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import CitationChat from '../components/CitationChat.jsx'
+import AlphaAiDemo from '../components/AlphaAiDemo.jsx'
 
 export default function Grounded() {
   const { t } = useI18n()
@@ -31,7 +31,7 @@ export default function Grounded() {
         </div>
 
         <div data-reveal="scale">
-          <CitationChat />
+          <AlphaAiDemo />
         </div>
       </div>
     </section>

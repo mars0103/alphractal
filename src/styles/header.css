@@ -303,3 +303,16 @@
     padding-left: 16px;
   }
 }
+
+@media (min-width: 992px) and (max-width: 1180px) {
+  .bar {
+    grid-template-columns: auto auto 1fr auto auto;
+  }
+  .brand {
+    padding-right: 28px;
+  }
+  .nav__link {
+    padding: 0 13px;
+    font-size: 14px;
+  }
+}

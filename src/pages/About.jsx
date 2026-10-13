@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
@@ -9,8 +9,6 @@ import PageHero from '../components/PageHero.jsx'
 import CountUp from '../components/CountUp.jsx'
 import { Section } from '../components/PageBlocks.jsx'
 import FinalCta from '../sections/FinalCta.jsx'
-
-const PHOTO = '/team/team.jpg'
 
 /* Scroll-driven line, 2023 → today */
 function Timeline({ data }) {
@@ -69,27 +67,9 @@ function Timeline({ data }) {
   )
 }
 
-/*
- * The team, together (brief §5.6). If public/team/team.jpg exists it is shown whole, with five hover zones on top;
- * until then a five-panel composition stands in. Hobbies are added to `hobby` once collected.
- */
+/* The team, a single row in black & white; the hovered/focused person expands into color. */
 function Team({ data }) {
   const [active, setActive] = useState(2)
-  const [photo, setPhoto] = useState(false)
-
-  useEffect(() => {
-    const img = new Image()
-    img.onload = () => setPhoto(true)
-    img.src = PHOTO
-  }, [])
-
-  const initials = (n) =>
-    n
-      .split(' ')
-      .filter((w) => /^[A-Z]/.test(w))
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join('')
 
   return (
     <Section id="team" dark>
@@ -102,7 +82,7 @@ function Team({ data }) {
             {data.teamTitle}
           </h2>
         </div>
-        <div className={`team ${photo ? 'team--photo' : ''}`} data-reveal="up" style={photo ? { '--photo': `url(${PHOTO})` } : undefined}>
+        <div className="team" data-reveal="up">
           {data.team.map((m, i) => (
             <button
               type="button"
@@ -113,17 +93,14 @@ function Team({ data }) {
               onFocus={() => setActive(i)}
               onClick={() => setActive(i)}
             >
-              {!photo && <span className="member__mono display">{initials(m.name)}</span>}
+              <img className="member__photo" src={m.photo} alt={m.name} loading="lazy" />
               <span className="member__meta">
                 <b>{m.name}</b>
-                <em className="mono">{m.role}</em>
-                <span className="member__line">{m.line}</span>
-                {m.hobby && <span className="member__hobby mono">{m.hobby}</span>}
+                {m.role && <em className="mono">{m.role}</em>}
               </span>
             </button>
           ))}
         </div>
-        <p className="team__hint mono">{data.teamHint}</p>
       </div>
     </Section>
   )

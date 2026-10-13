@@ -3,10 +3,12 @@ import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
 import PageShell from '../components/PageShell.jsx'
 import { Section } from '../components/PageBlocks.jsx'
+import TerminalPreview from '../components/TerminalPreview.jsx'
 
 /*
- * Deliberately still (moodboard §07): no screenshot, no mock, no countdown, no urgency, no reveal choreography.
- * The roadmap disclaimer is mandatory and verbatim (brief §5.5).
+ * The copy stays still (no countdown, no urgency); the terminal below is a working preview of
+ * what is coming, clearly marked testnet, and it never sends anything. The roadmap disclaimer
+ * is mandatory and verbatim (brief §5.5).
  */
 export default function Terminal() {
   const { t } = useI18n()
@@ -39,6 +41,22 @@ export default function Terminal() {
           </div>
         </div>
       </section>
+
+      <Section id="preview" dark className="tprev">
+        <div className="container">
+          <div className="tprev__head">
+            <p className="eyebrow" data-reveal="fade">
+              {p.previewEyebrow}
+            </p>
+            <h2 className="h2" data-reveal="lines">
+              {p.previewTitle}
+            </h2>
+          </div>
+          <div data-reveal="up">
+            <TerminalPreview />
+          </div>
+        </div>
+      </Section>
 
       <Section id="what">
         <div className="container">

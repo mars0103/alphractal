@@ -1,0 +1,27 @@
+// Black wordmarks in /public/media, normalised to a common optical size (w/h are on-page px).
+// Outlets without a file here are simply left out of the strip.
+export const MEDIA_LOGOS = {
+  "Cointelegraph": { src: "/media/cointelegraph.png", w: 116, h: 28 },
+  "CoinDesk": { src: "/media/coindesk.png", w: 116, h: 22 },
+  "Yahoo Finance": { src: "/media/yahoo-finance.png", w: 76, h: 28 },
+  "Decrypt": { src: "/media/decrypt.png", w: 116, h: 25 },
+  "TradingView": { src: "/media/tradingview.png", w: 116, h: 16 },
+  "Investing.com": { src: "/media/investing.png", w: 116, h: 20 },
+  "Exame": { src: "/media/exame.png", w: 116, h: 19 },
+  "Binance": { src: "/media/binance.png", w: 116, h: 24 },
+  "Bitget": { src: "/media/bitget.png", w: 92, h: 28 },
+  "OKX": { src: "/media/okx.png", w: 100, h: 28 },
+  "KuCoin": { src: "/media/kucoin.png", w: 116, h: 27 },
+  "CoinMarketCap": { src: "/media/coinmarketcap.png", w: 116, h: 20 },
+  "Gate": { src: "/media/gate.png", w: 116, h: 27 },
+  "MEXC": { src: "/media/mexc.png", w: 116, h: 17 },
+  "FXStreet": { src: "/media/fxstreet.png", w: 116, h: 28 },
+  "CryptoSlate": { src: "/media/cryptoslate.png", w: 116, h: 26 },
+  "BeInCrypto": { src: "/media/beincrypto.png", w: 110, h: 28 },
+  "NewsBTC": { src: "/media/newsbtc.png", w: 107, h: 26 },
+  "Bitcoinist": { src: "/media/bitcoinist.png", w: 116, h: 16 },
+  "CryptoPotato": { src: "/media/cryptopotato.png", w: 76, h: 28 },
+  "U.Today": { src: "/media/utoday.png", w: 116, h: 18 },
+  "crypto.news": { src: "/media/crypto-news.png", w: 116, h: 24 },
+  "AMBCrypto": { src: "/media/ambcrypto.png", w: 116, h: 28 },
+}

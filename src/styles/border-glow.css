@@ -40,6 +40,7 @@
   height: 70%;
   top: -22%;
   right: -22%;
+  max-width: calc(100% + 22px);
   border-radius: 50%;
   background: radial-gradient(circle, var(--glow-color-60, hsl(231deg 90% 68% / 55%)) 0%, transparent 70%);
   filter: blur(30px);
@@ -166,5 +167,15 @@
   .border-glow-card::after,
   .border-glow-card > .edge-light {
     transition: none;
+  }
+}
+
+/* On narrow screens the corner bloom would stick out past the viewport edge: keep it inside. */
+@media (max-width: 991px) {
+  .border-glow-card > .ambient-glow {
+    top: -10%;
+    right: -4%;
+    width: 60%;
+    height: 60%;
   }
 }

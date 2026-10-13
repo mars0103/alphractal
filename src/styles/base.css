@@ -267,3 +267,10 @@ ul {
     scroll-behavior: auto !important;
   }
 }
+
+/* Decorative glows (BorderGlow ambient, hero waves) bleed past the column on purpose; never let
+   them become a horizontal scrollbar. */
+html,
+body {
+  overflow-x: clip;
+}

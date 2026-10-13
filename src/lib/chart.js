@@ -40,7 +40,7 @@ export function movingAverage(values, win = 9) {
   })
 }
 
-function points(values, w, h, pad) {
+export function points(values, w, h, pad) {
   return values.map((v, i) => [(i / (values.length - 1)) * w, pad + (1 - v) * (h - pad * 2)])
 }
 
@@ -69,4 +69,34 @@ export function bandPath(upper, lower, w, h, pad = 0) {
   const up = points(upper, w, h, pad)
   const lo = points(lower, w, h, pad).reverse()
   return `${curve(up, 'M')}${curve(lo, 'L')}Z`
+}
+
+/** OHLC candles from a seeded random walk — values 0..1, each candle's open is the previous close. */
+export function candles(n, seed = 7, { vol = 0.07, drift = 0.004 } = {}) {
+  const rnd = mulberry32(seed)
+  const out = []
+  let prevClose = 0.5
+  for (let i = 0; i < n; i++) {
+    const open = prevClose
+    const close = Math.min(0.96, Math.max(0.04, open + drift + (rnd() - 0.5) * vol))
+    const high = Math.min(0.98, Math.max(open, close) + rnd() * vol * 0.55)
+    const low = Math.max(0.02, Math.min(open, close) - rnd() * vol * 0.55)
+    out.push({ o: open, h: high, l: low, c: close })
+    prevClose = close
+  }
+  return out
+}
+
+/** Lays candles out left→right across w×h (values flipped so 1 is near the top). */
+export function candleLayout(data, w, h, pad = 0) {
+  const gap = w / data.length
+  const bodyW = gap * 0.68
+  const y = (v) => pad + (1 - v) * (h - pad * 2)
+  return data.map((d, i) => {
+    const x = i * gap + (gap - bodyW) / 2
+    const up = d.c >= d.o
+    const top = y(Math.max(d.o, d.c))
+    const bottom = y(Math.min(d.o, d.c))
+    return { x, cx: x + bodyW / 2, bodyW, up, bodyY: top, bodyH: Math.max(4, bottom - top), wickY1: y(d.h), wickY2: y(d.l) }
+  })
 }
