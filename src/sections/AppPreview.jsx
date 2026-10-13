@@ -30,6 +30,8 @@ export default function AppPreview() {
   const seen = useRef(false)
   const playIn = useRef(null)
   const [active, setActive] = useState(0)
+  const picked = useRef(false)
+  const tabs = useRef(null)
   const current = ORDER[active]
 
   const loc = lang === 'pt' ? swapSeparators : (s) => s
@@ -74,8 +76,35 @@ export default function AppPreview() {
           invalidateOnRefresh: true,
         })
       })
+      // Phones: the tabs sit above the window, so scrolling cannot drive the selection (it would
+      // be finished before the window is on screen). The tabs are tappable and, until someone
+      // taps one, the selection advances on its own while the window is in view.
       mm.add(`${MQ.motion} and ${MQ.mobile}`, () => {
-        build({ trigger: q('.fscroll__grid'), start: 'top 70%', end: 'bottom 85%' })
+        let timer = null
+        const stop = () => {
+          clearInterval(timer)
+          timer = null
+        }
+        const st = ScrollTrigger.create({
+          trigger: q('.fscroll__screen'),
+          start: 'top 85%',
+          end: 'bottom 15%',
+          onToggle: (self) => {
+            stop()
+            if (!self.isActive) return
+            if (!seen.current) {
+              seen.current = true
+              playIn.current?.()
+            }
+            timer = setInterval(() => {
+              if (!picked.current) setActive((a) => (a + 1) % ORDER.length)
+            }, 4600)
+          },
+        })
+        return () => {
+          stop()
+          st.kill()
+        }
       })
       // Reduced motion / no pin context: reveal the first panel once the section is in view
       mm.add(MQ.reduced, () => {
@@ -96,6 +125,14 @@ export default function AppPreview() {
     },
     { scope: root, dependencies: [p] },
   )
+
+  // keep the active chip centred inside the swipeable tab row
+  useEffect(() => {
+    const list = tabs.current
+    const el = list?.children[active + 1]
+    if (!list || !el || list.scrollWidth <= list.clientWidth) return
+    list.scrollTo({ left: el.offsetLeft - list.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' })
+  }, [active])
 
   /* Each new active panel plays its own entrance once the section has first come into view */
   useEffect(() => {
@@ -133,14 +170,24 @@ export default function AppPreview() {
       <div className="fscroll__pin">
         <div className="container fscroll__grid">
             <div className="fscroll__copy" data-reveal="up">
-              <ul className="fscroll__list" role="list">
+              <ul ref={tabs} className="fscroll__list" role="list">
                 <span className="fscroll__track" aria-hidden="true">
                   <i className="fscroll__fill" />
                 </span>
                 {ORDER.map((k, i) => (
                   <li key={k} className={`fscroll__item${i === active ? ' is-active' : ''}`}>
-                    <Icon name={ICON[k]} className="fscroll__icon" />
-                    <span className="fscroll__title">{p.tabs[k]}</span>
+                    <button
+                      type="button"
+                      className="fscroll__btn"
+                      aria-pressed={i === active}
+                      onClick={() => {
+                        picked.current = true
+                        setActive(i)
+                      }}
+                    >
+                      <Icon name={ICON[k]} className="fscroll__icon" />
+                      <span className="fscroll__title">{p.tabs[k]}</span>
+                    </button>
                   </li>
                 ))}
               </ul>
