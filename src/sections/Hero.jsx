@@ -14,6 +14,9 @@ const STEP_HREF = ['/platform', '/platform/alpha-ai', '/terminal']
 // each step's "settled" window, not right on a transition boundary.
 const STEP_TARGET = [0.04, 0.5, 0.92]
 const PIN_QUERY = `${MQ.motion} and ${MQ.desktop} and (min-height: 681px)`
+// Phones pin too: the hero locks and the three steps advance as the visitor scrolls, like on
+// desktop. Only very short phones (or reduced motion) fall back to the stacked layout.
+const PIN_MOBILE_QUERY = `${MQ.motion} and ${MQ.mobile} and (min-height: 700px)`
 const PANEL_BG = '#03050d' // the app's own surface, a step darker than the page
 
 function PanelBar({ url }) {
@@ -199,11 +202,24 @@ export default function Hero() {
           return () => setPinned(false)
         })
 
+        dmm.add(PIN_MOBILE_QUERY, () => {
+          setPinned(true)
+          build({
+            trigger: q('.hero__pin'),
+            start: 'top top',
+            end: '+=380%',
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          })
+          return () => setPinned(false)
+        })
+
         // Mobile / short viewport (still inside the MQ.motion gate above): no pin — each
         // step's text + visual get one light reveal as they scroll into view, native scroll
         // throughout. Reduced motion never reaches this far: CSS alone keeps every step
         // stacked and visible without any JS (see hero.css).
-        dmm.add(`${MQ.mobile}, (max-height: 680px)`, () => {
+        dmm.add(`(${MQ.mobile.slice(1, -1)}) and (max-height: 699px), (${MQ.desktop.slice(1, -1)}) and (max-height: 680px)`, () => {
           const groups = qa('.hero__step-group')
           groups.forEach((group, i) => {
             if (i === 0) return // step 1 is already visible via the entrance above
