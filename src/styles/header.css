@@ -216,9 +216,14 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  align-self: stretch;
+  min-height: var(--header-h);
 }
 .burger i {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -0.75px 0 0 -10px;
   width: 20px;
   height: 1.5px;
   background: currentColor;
@@ -284,6 +289,10 @@
   }
   .bar {
     grid-template-columns: 1fr auto;
+  }
+  /* the empty spacer would otherwise push the actions onto a second grid row */
+  .bar > span:empty:not(.bar__frame) {
+    display: none;
   }
   .nav,
   .login,
