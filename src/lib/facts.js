@@ -39,7 +39,7 @@ export const CONTACT = 'hello@alphractal.com'
 
 export const LINKS = {
   docs: 'https://docs.alphractal.com',
-  plans: 'https://app.alphractal.com/plans',
+  plans: 'https://app.alphractal.com/plans?site_referrer=direct',
   sales: `mailto:${CONTACT}?subject=Alphractal%20Institutional`,
   waitlist: `mailto:${CONTACT}?subject=Alpha%20Terminal%20waitlist`,
   careers: `mailto:${CONTACT}?subject=Careers`,

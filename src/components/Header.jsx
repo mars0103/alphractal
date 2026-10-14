@@ -184,9 +184,9 @@ export default function Header() {
               </NavLink>
             </div>
             <div className="nav__item">
-              <NavLink to="/pricing" className="nav__link">
+              <a className="nav__link" href={LINKS.plans}>
                 {t.nav.pricing}
-              </NavLink>
+              </a>
             </div>
             <div className="nav__item">
               <NavLink to="/about" className="nav__link">
@@ -235,9 +235,9 @@ export default function Header() {
         <Link to="/institutional" className="drawer__link">
           {t.nav.institutional}
         </Link>
-        <Link to="/pricing" className="drawer__link">
+        <a href={LINKS.plans} className="drawer__link">
           {t.nav.pricing}
-        </Link>
+        </a>
         <Link to="/about" className="drawer__link">
           {t.nav.about}
         </Link>

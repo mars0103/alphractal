@@ -17,7 +17,9 @@ import './styles/pages.css'
 import './styles/content.css'
 import './styles/border-glow.css'
 import './styles/footer.css'
-import App from './App.jsx'
+import './styles/feature.css'
+import './styles/mobile.css'
+import App, { preloadRoute } from './App.jsx'
 import { I18nProvider } from './i18n/I18nProvider.jsx'
 
 const app = (
@@ -36,7 +38,10 @@ const root = document.getElementById('root')
 // instead of throwing it away. A route with no prerendered file (or the dev server, which
 // serves an empty root) just mounts fresh.
 if (root.hasChildNodes()) {
-  hydrateRoot(root, app)
+  // Load this route's chunk first so hydration meets real code, not a suspended boundary
+  preloadRoute(window.location.pathname)
+    .catch(() => {})
+    .then(() => hydrateRoot(root, app))
 } else {
   createRoot(root).render(app)
 }

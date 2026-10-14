@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useReveals } from '../hooks/useReveals.js'
+import { useOffscreenPause } from '../hooks/useOffscreenPause.js'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 
@@ -11,6 +12,7 @@ export default function PageShell({ children, className = '' }) {
   const root = useRef(null)
 
   useReveals(root, [lang, pathname])
+  useOffscreenPause(root, [lang, pathname])
 
   useGSAP(
     () => {

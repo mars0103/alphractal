@@ -434,7 +434,7 @@ export default {
         links: [
           { to: '/about', label: 'Sobre' },
           { to: '/institutional', label: 'Institucional' },
-          { to: '/pricing', label: 'Preços' },
+          { to: 'https://app.alphractal.com/plans?site_referrer=direct', label: 'Preços' },
           { to: '/terminal', label: 'Alpha Terminal' },
         ],
       },

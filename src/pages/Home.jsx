@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { useReveals } from '../hooks/useReveals.js'
+import { useOffscreenPause } from '../hooks/useOffscreenPause.js'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
@@ -22,6 +23,7 @@ export default function Home() {
   const root = useRef(null)
 
   useReveals(root, [lang])
+  useOffscreenPause(root, [lang])
 
   /* The two column rules draw down the page on load */
   useGSAP(

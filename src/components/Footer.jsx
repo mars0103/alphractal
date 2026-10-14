@@ -268,9 +268,15 @@ export default function Footer() {
             <ul className="footer__links">
               {col.links.map((l) => (
                 <li key={l.to} className="footer__fade" style={delay()}>
-                  <Link className="footer__link" to={l.to}>
-                    <span>{l.label}</span>
-                  </Link>
+                  {/^https?:/.test(l.to) ? (
+                    <a className="footer__link" href={l.to}>
+                      <span>{l.label}</span>
+                    </a>
+                  ) : (
+                    <Link className="footer__link" to={l.to}>
+                      <span>{l.label}</span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -117,11 +117,12 @@ export default function Inside() {
           const mcp = card.querySelectorAll('.viz-mcp__grid i')
           if (mcp.length) {
             gsap.set(mcp, { opacity: 0.12 })
-            tl.to(mcp, { opacity: 1, duration: 0.25, stagger: { each: 0.03, repeat: -1, repeatDelay: 1.2, yoyo: true } }, 0.3)
+            tl.to(mcp, { opacity: 1, duration: 0.25, stagger: { each: 0.03, repeat: window.matchMedia(MQ.desktop).matches ? -1 : 0, repeatDelay: 1.2, yoyo: true } }, 0.3)
           }
 
           const wave = card.querySelectorAll('.viz-wave i')
-          if (wave.length) {
+          // one ScrollTrigger + one forever-tween per bar is a lot for a phone: desktop only
+          if (wave.length && window.matchMedia(MQ.desktop).matches) {
             wave.forEach((el, i) =>
               gsap.fromTo(
                 el,

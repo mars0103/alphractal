@@ -24,7 +24,6 @@ const routes = [
   '/terminal',
   '/institutional',
   '/about',
-  '/pricing',
   ...VS_SLUGS.map((s) => `/vs/${s}`),
   '/privacy',
   '/terms',
