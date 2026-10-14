@@ -5,8 +5,9 @@ import { LINKS } from '../lib/facts.js'
 import PageShell from '../components/PageShell.jsx'
 import PageHero from '../components/PageHero.jsx'
 import GlowButton from '../components/GlowButton.jsx'
-import { Gains, ProofBand, Problem, Related, Section, Steps } from '../components/PageBlocks.jsx'
-import { AlphaAiViz, DomainsViz, McpViz, RateViz, ReportViz, Workbench } from '../components/visuals/HeroVisuals.jsx'
+import { Gains, ProofBand, Problem, Related, Section, StepsStory } from '../components/PageBlocks.jsx'
+import ResearchApp from '../components/visuals/ResearchApp.jsx'
+import { AlphaAiViz, DomainsViz, McpViz, RateViz, Workbench } from '../components/visuals/HeroVisuals.jsx'
 import {
   Academy,
   AlertsSection,
@@ -17,6 +18,7 @@ import {
   ToolCatalog,
 } from '../components/visuals/Extras.jsx'
 import FinalCta from '../sections/FinalCta.jsx'
+import McpHero from '../components/McpHero.jsx'
 import Soon from './Soon.jsx'
 
 // Recreated demos, not screenshots — a static capture can't show the interaction the copy is
@@ -30,7 +32,7 @@ const HERO_VIZ = {
   mcp: McpViz,
   api: RateViz,
   dashboards: Workbench,
-  research: ReportViz,
+  research: ResearchApp,
 }
 
 const KINDS = {
@@ -43,6 +45,21 @@ const KINDS = {
 }
 
 const PRIMARY_HREF = { api: LINKS.docs }
+
+/* The six sibling feature pages as a pill rail, current one lit — same idea as the home hero's stepper */
+function Rail({ current, rows }) {
+  return (
+    <ul className="phero__rail" aria-label="Platform">
+      {rows.map((r, i) => (
+        <li key={r.key}>
+          <Link to={r.to} className={r.key === current ? 'is-on' : ''} aria-current={r.key === current ? 'page' : undefined}>
+            <b className="mono">{String(i + 1).padStart(2, '0')}</b> {r.title}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 /* Six domains as a ruled grid (metrics page) */
 function Domains({ data }) {
@@ -78,28 +95,36 @@ export default function Feature() {
   if (!f) return <Soon />
 
   const Viz = HERO_VIZ[slug]
-  const heroNote = slug === 'alpha-ai' ? c.disclaimer : slug === 'mcp' ? f.credits : null
+  const heroNote = slug === 'alpha-ai' ? c.disclaimer : null
+
+  const actions = (
+    <>
+      <GlowButton href={PRIMARY_HREF[slug] || LINKS.start}>{f.hero.primary}</GlowButton>
+      <a className="link-arrow phero__more" href={f.hero.secondaryHref}>
+        {f.hero.secondary} <span>→</span>
+      </a>
+    </>
+  )
+  const rail = <Rail current={slug} rows={t.pages.hub.rows.filter((r) => HERO_VIZ[r.key])} />
 
   return (
     <PageShell>
-      <PageHero
-        eyebrow={f.hero.eyebrow}
-        title={f.hero.title}
-        sub={f.hero.sub}
-        visual={<Viz />}
-        note={heroNote}
-        actions={
-          <>
-            <GlowButton href={PRIMARY_HREF[slug] || LINKS.start}>{f.hero.primary}</GlowButton>
-            <a className="link-arrow phero__more" href={f.hero.secondaryHref}>
-              {f.hero.secondary} <span>→</span>
-            </a>
-          </>
-        }
-      />
+      {slug === 'mcp' ? (
+        <McpHero
+          eyebrow={f.hero.eyebrow}
+          title={f.hero.title}
+          sub={f.hero.sub}
+          actions={actions}
+          note={heroNote}
+          rail={rail}
+          stage={f.stage}
+        />
+      ) : (
+        <PageHero eyebrow={f.hero.eyebrow} title={f.hero.title} sub={f.hero.sub} visual={<Viz />} note={heroNote} rail={rail} actions={actions} centered />
+      )}
 
       <Problem eyebrow={c.problem} title={f.problem.title} text={f.problem.text} />
-      <Steps eyebrow={c.how} title={f.how.title} steps={f.how.steps} kinds={KINDS[slug]} />
+      <StepsStory eyebrow={c.how} title={f.how.title} steps={f.how.steps} kinds={KINDS[slug]} url={`app.alphractal.com/${slug}`} />
 
       {slug === 'metrics' && (
         <>

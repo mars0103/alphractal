@@ -3,8 +3,8 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, Draggable, MQ } from '../../lib/gsap.js'
 import { series, toPath } from '../../lib/chart.js'
 import { FACTS } from '../../lib/facts.js'
-import BorderGlow from '../BorderGlow.jsx'
-import CitationChat from '../CitationChat.jsx'
+import AppFrame from './AppFrame.jsx'
+import AlphaAiDemo from '../AlphaAiDemo.jsx'
 import Viz from '../Viz.jsx'
 
 /* ------------------------------------------------------------------ Alpha AI */
@@ -13,7 +13,9 @@ export function AlphaAiViz() {
   const ex = t.pages.features['alpha-ai'].examples
   return (
     <div className="v-stack">
-      <CitationChat start="top 95%" />
+      {/* The same Alpha AI window as the home's "grounded" section: question typed, steps
+          ticking, answer streaming with citation pills, chart opening */}
+      <AlphaAiDemo />
       <ul className="v-chips" aria-label={ex.title}>
         {ex.chips.map((c) => (
           <li className="chip chip--ghost" key={c}>
@@ -43,7 +45,7 @@ export function DomainsViz() {
         gsap.set(draws, { strokeDasharray: 1, strokeDashoffset: 1 })
         const scan = root.current.querySelector('.dv__scan')
         gsap
-          .timeline({ delay: 0.6 })
+          .timeline({ delay: 0.6, scrollTrigger: { trigger: root.current, start: 'top 98%', toggleActions: 'play pause resume pause' } })
           .to(draws, { strokeDashoffset: 0, duration: 1.6, stagger: 0.18, ease: 'power2.inOut' })
           .fromTo(scan, { x: 0, autoAlpha: 0 }, { x: () => scan.parentElement.offsetWidth - 124, autoAlpha: 1, duration: 5, ease: 'none', repeat: -1 }, '>-0.2')
       })
@@ -53,7 +55,7 @@ export function DomainsViz() {
   )
 
   return (
-    <BorderGlow>
+    <AppFrame url="app.alphractal.com/metrics">
       <div ref={root} className="vpanel dv">
         <div className="dv__rows">
           {rows.map((r, i) => (
@@ -68,7 +70,7 @@ export function DomainsViz() {
         </div>
         <p className="vpanel__foot mono">{t.pages.features.metrics.how.steps[1].title}</p>
       </div>
-    </BorderGlow>
+    </AppFrame>
   )
 }
 
@@ -86,7 +88,7 @@ export function McpViz() {
         const lines = gsap.utils.toArray('.mcpv__ans i', root.current)
         gsap.set(reads, { opacity: 0.16 })
         gsap.set(lines, { scaleX: 0, transformOrigin: '0 50%' })
-        const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.6, delay: 0.8 })
+        const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.6, delay: 0.8, scrollTrigger: { trigger: root.current, start: 'top 98%', toggleActions: 'play pause resume pause' } })
         tl.to(root.current.querySelector('.mcpv__calling'), { autoAlpha: 1, duration: 0.3 })
         tl.to(reads, { opacity: 1, duration: 0.25, stagger: { each: 0.06, from: 'random' } }, '<0.2')
         tl.to(lines, { scaleX: 1, duration: 0.6, stagger: 0.25, ease: 'power2.out' }, '>-1')
@@ -100,7 +102,7 @@ export function McpViz() {
   )
 
   return (
-    <BorderGlow>
+    <AppFrame url="app.alphractal.com/mcp">
       <div ref={root} className="vpanel mcpv">
         <div className="vpanel__top mono">
           <span>{c.client.label}</span>
@@ -127,7 +129,7 @@ export function McpViz() {
           <i style={{ width: '48%' }} />
         </div>
       </div>
-    </BorderGlow>
+    </AppFrame>
   )
 }
 
@@ -152,7 +154,7 @@ export function RateViz() {
   )
 
   return (
-    <BorderGlow>
+    <AppFrame url="app.alphractal.com/api">
       <div ref={root} className="vpanel rv">
         <p className="vpanel__top mono">
           <span>{a.ladder.title}</span>
@@ -173,7 +175,7 @@ export function RateViz() {
         </ul>
         <p className="vpanel__foot mono">{a.tiers.rows.map((r) => r[1]).join('  →  ')}</p>
       </div>
-    </BorderGlow>
+    </AppFrame>
   )
 }
 
@@ -250,7 +252,7 @@ export function Workbench() {
   )
 
   return (
-    <BorderGlow>
+    <AppFrame url="app.alphractal.com/dashboards">
       <div ref={root} className="vpanel wb">
         <div className="vpanel__top mono">
           <span>{d.workbench.hint}</span>
@@ -266,7 +268,7 @@ export function Workbench() {
         </div>
         <p className="vpanel__foot mono">{d.workbench.illustrative}</p>
       </div>
-    </BorderGlow>
+    </AppFrame>
   )
 }
 
@@ -289,8 +291,9 @@ export function ReportViz() {
           .timeline({ delay: 0.7 })
           .to(path, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut' })
           .to(q('.rp__dot'), { autoAlpha: 1, duration: 0.3 }, '-=0.2')
-        gsap.to(q('.rp__dot'), { scale: 1.8, opacity: 0.35, duration: 1.1, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 3 })
-        gsap.fromTo(q('.rp__play i'), { scaleX: 0 }, { scaleX: 1, duration: 9, ease: 'none', repeat: -1, transformOrigin: '0 50%', delay: 0.8 })
+        const gate = { scrollTrigger: { trigger: root.current, start: 'top 98%', toggleActions: 'play pause resume pause' } }
+        gsap.to(q('.rp__dot'), { scale: 1.8, opacity: 0.35, duration: 1.1, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 3, ...gate })
+        gsap.fromTo(q('.rp__play i'), { scaleX: 0 }, { scaleX: 1, duration: 9, ease: 'none', repeat: -1, transformOrigin: '0 50%', delay: 0.8, ...gate })
       })
       return () => mm.revert()
     },
@@ -298,6 +301,7 @@ export function ReportViz() {
   )
 
   return (
+    <AppFrame url="app.alphractal.com/research" className="appframe--doc">
     <div ref={root} className="rp">
       <div className="rp__top mono">
         <span>{r.title}</span>
@@ -329,5 +333,6 @@ export function ReportViz() {
         </span>
       </div>
     </div>
+    </AppFrame>
   )
 }

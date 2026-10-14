@@ -51,8 +51,9 @@ export default function GradientWaves({ scrollTrigger, className = '', interacti
       mm.add(MQ.motion, () => {
         const layers = gsap.utils.toArray('.wave-layer', root.current)
 
-        // Entrance: the field rises into place, layer by layer (hero only)
-        if (interactive) {
+        // Entrance: the field rises into place, layer by layer (hero only, desktop — phones
+        // show the still image, which fades in from CSS instead)
+        if (interactive && window.matchMedia(MQ.desktop).matches) {
           gsap.from(layers, {
             y: 180,
             autoAlpha: 0,
@@ -138,7 +139,11 @@ export default function GradientWaves({ scrollTrigger, className = '', interacti
   return (
     <div ref={root} className={`waves ${className}`} aria-hidden="true">
       <div ref={inner} className="waves__inner">
-        <svg viewBox="0 0 3442 869" fill="none" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+        {/* Phones get this still render of the same field (see scripts/make-waves.mjs): the live
+            SVG below needs a 50px Gaussian blur re-rasterised over a 3442px canvas, which is
+            what froze scrolling on mid-range phones. CSS shows exactly one of the two. */}
+        <img className="waves__still" src="/figma/waves.webp" alt="" width="1721" height="435" decoding="async" />
+        <svg className="waves__live" viewBox="0 0 3442 869" fill="none" xmlns="http://www.w3.org/2000/svg" overflow="visible">
           <g filter={`url(#${fid})`}>
             {LAYERS.map((l) => (
               <path key={l.id} className="wave-layer" d={l.d} fill={l.fill} />

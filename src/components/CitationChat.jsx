@@ -61,14 +61,18 @@ export default function CitationChat({ start = 'top 72%' }) {
         tl.call(() => !touched.current && togglePanel(true), null, '+=0.9')
 
         // Idle: a soft pulse on the citation pills invites the click
-        gsap.to(gsap.utils.toArray('.pill', root.current), {
-          boxShadow: '0 0 0 4px rgba(75,107,255,.16)',
-          duration: 1.2,
-          stagger: 0.4,
-          yoyo: true,
-          repeat: -1,
-          ease: 'sine.inOut',
-        })
+        // (desktop only, and only while on screen: an animated box-shadow repaints every frame)
+        if (window.matchMedia(MQ.desktop).matches) {
+          gsap.to(gsap.utils.toArray('.pill', root.current), {
+            boxShadow: '0 0 0 4px rgba(75,107,255,.16)',
+            duration: 1.2,
+            stagger: 0.4,
+            yoyo: true,
+            repeat: -1,
+            ease: 'sine.inOut',
+            scrollTrigger: { trigger: root.current, start: 'top 98%', toggleActions: 'play pause resume pause' },
+          })
+        }
       })
 
       return () => mm.revert()

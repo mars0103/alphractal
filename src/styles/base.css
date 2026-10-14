@@ -274,3 +274,36 @@ html,
 body {
   overflow-x: clip;
 }
+
+/* ---------- Gradient waves: live SVG on desktop, still image on phones ---------- */
+.waves__still {
+  display: none;
+}
+@media (max-width: 991px) {
+  .waves__live {
+    display: none;
+  }
+  .waves__still {
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: waves-in 1.4s var(--ease-out) both;
+  }
+  .waves,
+  .waves__inner {
+    will-change: auto;
+  }
+}
+@keyframes waves-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
+
+/* Sections that are off screen stop every CSS loop inside them (see hooks/useOffscreenPause.js) */
+.is-offscreen *,
+.is-offscreen *::before,
+.is-offscreen *::after {
+  animation-play-state: paused !important;
+}

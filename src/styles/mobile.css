@@ -1,0 +1,68 @@
+/* =====================================================================
+   Phones and touch screens: the same design, minus everything the GPU pays for.
+   Loaded last on purpose — every rule here overrides an earlier stylesheet.
+   What goes away: backdrop blur, big filter blurs, blend modes over full-bleed layers, the
+   animated conic rings (an @property repaint on every frame) and hover-only glow layers.
+   Gradients stay (a radial-gradient is already soft; it needs no filter on top).
+   ===================================================================== */
+@media (max-width: 991px), (hover: none) {
+  /* Glass panels: keep the tint and the rim light, drop the live backdrop blur and grain */
+  .border-glow-card {
+    transform: none;
+    box-shadow: 0 24px 40px -28px rgba(0, 0, 0, 0.7);
+  }
+  .border-glow-inner {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: radial-gradient(130% 95% at 88% -6%, color-mix(in srgb, var(--glow-color, #4b6bff) 38%, transparent) 0%, transparent 58%),
+      color-mix(in srgb, var(--card-bg, #0b0d14) 94%, transparent);
+  }
+  .border-glow-inner::before,
+  .border-glow-card::before,
+  .border-glow-card::after,
+  .border-glow-card > .edge-light {
+    display: none;
+  }
+  .border-glow-card > .ambient-glow {
+    filter: none;
+  }
+
+  /* Full-bleed grain and soft-light blends */
+  .hero__grain {
+    display: none;
+  }
+
+  /* The conic border rings spin an @property: a repaint every frame, per ring */
+  .ring {
+    animation: none;
+    --a: 215deg;
+  }
+
+  /* Glows that were a blur() on a big box */
+  .footer__beam {
+    filter: none;
+  }
+  .inst-shot__glow,
+  .pv-glow {
+    filter: none;
+  }
+
+  /* Small chips that sat on a backdrop blur */
+  .hero--journey .hero-steps.is-live,
+  .hero--journey .jstep__legal {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(11, 13, 20, 0.88);
+  }
+  .cons__ai {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* feTurbulence + feDisplacementMap on the liquidation heatmap is re-rasterised on every
+     scrubbed frame; the bands are already magma-coloured, the warp is decoration */
+  .heat g[filter],
+  .heat > g {
+    filter: none;
+  }
+}

@@ -152,10 +152,13 @@ export default function AlphaAiDemo() {
     setShown(0)
     setChartOpen(false)
 
+    // Phones: the same script in coarser beats (3 chars per tick, ticks 4x rarer). Every tick is a
+    // React render of the whole demo, and doing ~20 a second while the page scrolls was visible jank.
+    const lite = window.matchMedia('(max-width: 991px)').matches
     let t = 900
-    for (let i = 1; i <= question.length; i++) {
-      t += 44
-      const n = i
+    for (let i = 1; i <= question.length; i += lite ? 3 : 1) {
+      t += lite ? 130 : 44
+      const n = Math.min(question.length, i + (lite ? 2 : 0))
       at(t, () => setTyped(n))
     }
     t += 750
@@ -170,17 +173,18 @@ export default function AlphaAiDemo() {
       at(thinkStart + 350 + (i - 1) * STEP, () => setSteps(n))
     }
     const thinkEnd = thinkStart + 350 + stepLabels.length * STEP
-    const ticks = Math.round((thinkEnd - thinkStart) / 100)
+    const tick = lite ? 400 : 100
+    const ticks = Math.round((thinkEnd - thinkStart) / tick)
     for (let k = 1; k <= ticks; k++) {
-      const n = k
-      at(thinkStart + n * 100, () => setElapsed(n))
+      const n = k * (lite ? 4 : 1)
+      at(thinkStart + k * tick, () => setElapsed(n))
     }
     t = thinkEnd + 500
     at(t, () => setPhase('answer'))
 
     t += 450
     for (let i = 1; i <= tokens.length; i++) {
-      t += 58
+      t += lite ? 110 : 58
       const n = i
       at(t, () => setShown(n))
     }

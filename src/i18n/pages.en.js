@@ -242,6 +242,15 @@ export default {
         question: 'What moved today, and which alerts do I have on it?',
         calling: 'Calling tools',
       },
+      stage: {
+        works: 'Works with the clients you already use',
+        read: 'Read tools',
+        readState: 'Always on',
+        write: 'Write tools',
+        writeState: 'Off by default',
+        done: 'Answer ready',
+        toolsLine: 'tools over MCP',
+      },
       related: ['api', 'alpha-ai'],
     },
 

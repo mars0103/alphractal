@@ -89,11 +89,14 @@ export function LiveCandles({ seed = 11, drift = 0.01, vol = 0.14, running = tru
   const wrap = useRef(null)
   const live = usePageLive(wrap)
   const alive = live && running
+  // Phones: no 2-per-second re-render of the whole SVG and no idle crosshair — a new candle
+  // every few seconds keeps the chart alive at a fraction of the cost.
+  const lite = typeof window !== 'undefined' && window.matchMedia('(max-width: 991px)').matches
   const clip = useId().replace(/:/g, '')
 
   useEffect(() => {
     if (!alive) return undefined
-    const breathe = setInterval(() => {
+    const breathe = lite ? null : setInterval(() => {
       setBars((b) => {
         const last = b[b.length - 1]
         const c = clamp(last.c + (Math.random() - 0.5) * 0.034, 0.1, 0.9)
@@ -106,16 +109,16 @@ export function LiveCandles({ seed = 11, drift = 0.01, vol = 0.14, running = tru
         const nb = nextBar(last.c, Math.random, opts)
         return [...b, { id: last.id + 1, ...nb }].slice(-(N + 3))
       })
-    }, 1900)
+    }, lite ? 3200 : 1900)
     return () => {
-      clearInterval(breathe)
+      if (breathe) clearInterval(breathe)
       clearInterval(print)
     }
-  }, [alive, opts])
+  }, [alive, opts, lite])
 
   // Idle crosshair: scans a recent candle every few seconds while the pointer is away
   useEffect(() => {
-    if (!alive || hover !== null) {
+    if (!alive || lite || hover !== null) {
       setIdle(null)
       return undefined
     }
@@ -135,7 +138,7 @@ export function LiveCandles({ seed = 11, drift = 0.01, vol = 0.14, running = tru
       clearTimeout(first)
       clearTimeout(hide)
     }
-  }, [alive, hover])
+  }, [alive, hover, lite])
 
   const head = bars[bars.length - 1].id
   useEffect(() => {

@@ -1,5 +1,8 @@
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
+import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
+import BorderGlow from './BorderGlow.jsx'
 import CountUp from './CountUp.jsx'
 import MiniViz from './MiniViz.jsx'
 
@@ -72,6 +75,125 @@ export function Steps({ eyebrow, title, steps, kinds }) {
         </div>
       </div>
     </Section>
+  )
+}
+
+
+/*
+ * How it works, as a scroll story. Desktop pins the section and walks through the steps: the
+ * list on the left lights one step at a time (with a progress hairline) while the window on
+ * the right swaps to that step's picture. Phones and reduced motion get plain stacked cards —
+ * no pin, no scrub, nothing to hold up native scrolling.
+ * Classes are toggled straight on the DOM (no React state), so a step change costs two
+ * classList writes, not a re-render.
+ */
+export function StepsStory({ eyebrow, title, steps, kinds, url = 'app.alphractal.com' }) {
+  const root = useRef(null)
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add(`${MQ.motion} and ${MQ.desktop}`, () => {
+        const el = root.current
+        const items = gsap.utils.toArray('.sstory__item', el)
+        const scenes = gsap.utils.toArray('.sstory__scene', el)
+        const n = items.length
+        let idx = -1
+        const set = (i) => {
+          if (i === idx) return
+          idx = i
+          items.forEach((it, k) => it.classList.toggle('is-active', k === i))
+          scenes.forEach((sc, k) => sc.classList.toggle('is-active', k === i))
+        }
+        set(0)
+        el.classList.add('is-pinned')
+
+        const st = ScrollTrigger.create({
+          trigger: el.querySelector('.sstory__pin'),
+          start: 'top top',
+          end: `+=${n * 62}%`,
+          pin: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            el.style.setProperty('--p', self.progress.toFixed(4))
+            set(Math.min(n - 1, Math.floor(self.progress * n)))
+          },
+        })
+        items.forEach((it, k) => {
+          it.onclick = () => window.scrollTo({ top: st.start + ((k + 0.5) / n) * (st.end - st.start), behavior: 'smooth' })
+        })
+        return () => {
+          el.classList.remove('is-pinned')
+          el.style.removeProperty('--p')
+          items.forEach((it) => (it.onclick = null))
+          st.kill()
+        }
+      })
+      return () => mm.revert()
+    },
+    { scope: root },
+  )
+
+  return (
+    <section id="how" ref={root} className="section section--dark sstory" data-nav-theme="dark">
+      <div className="hrule">
+        <i data-reveal="rule" />
+      </div>
+      <div className="sstory__pin">
+        <div className="container sstory__grid">
+          <div className="sstory__copy">
+            <p className="eyebrow" data-reveal="fade">
+              {eyebrow}
+            </p>
+            <h2 className="h2" data-reveal="lines">
+              {title}
+            </h2>
+            <ol className="sstory__list" data-stagger>
+              {steps.map((s, i) => (
+                <li className="sstory__item" data-item key={s.title}>
+                  <span className="sstory__n mono">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3>{s.title}</h3>
+                    <p>{s.text}</p>
+                    <div className="sstory__inline" aria-hidden="true">
+                      <MiniViz kind={kinds[i]} />
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="sstory__stage" aria-hidden="true" data-reveal="up">
+            <BorderGlow className="sstory__win" backgroundColor="#03050d">
+              <div className="hpanel__bar">
+                <span className="hpanel__dots">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <span className="hpanel__url mono">{url}</span>
+                <span className="sstory__count mono">
+                  <b className="sstory__bar" />
+                </span>
+              </div>
+              <div className="sstory__screen">
+                {steps.map((s, i) => (
+                  <div className={`sstory__scene${i === 0 ? ' is-active' : ''}`} key={s.title}>
+                    <div className="sstory__viz">
+                      <MiniViz kind={kinds[i]} />
+                    </div>
+                    <p className="sstory__cap mono">
+                      {String(i + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')} · {s.title}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </BorderGlow>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -162,14 +284,15 @@ export function Related({ keys, eyebrow, title }) {
         </div>
         <div className={`rel rel--${rows.length}`} data-stagger>
           {rows.map((r) => (
-            <Link to={r.to} className="rel__card" data-item key={r.key}>
-              <span className="ring ring--soft" aria-hidden="true" />
-              <h3>{r.title}</h3>
-              <p>{r.text}</p>
-              <span className="link-arrow">
-                {t.pages.common.explore} <span>→</span>
-              </span>
-            </Link>
+            <BorderGlow className="rel__glow" backgroundColor="#fafaf9" borderRadius={14} glowColor="231 90% 60%" data-item key={r.key}>
+              <Link to={r.to} className="rel__card">
+                <h3>{r.title}</h3>
+                <p>{r.text}</p>
+                <span className="link-arrow">
+                  {t.pages.common.explore} <span>→</span>
+                </span>
+              </Link>
+            </BorderGlow>
           ))}
         </div>
       </div>

@@ -238,6 +238,15 @@ export default {
         question: 'O que se moveu hoje, e quais alertas eu tenho sobre isso?',
         calling: 'Chamando ferramentas',
       },
+      stage: {
+        works: 'Funciona com os clientes que você já usa',
+        read: 'Ferramentas de leitura',
+        readState: 'Sempre ativas',
+        write: 'Ferramentas de escrita',
+        writeState: 'Desligadas por padrão',
+        done: 'Resposta pronta',
+        toolsLine: 'ferramentas via MCP',
+      },
       related: ['api', 'alpha-ai'],
     },
 
