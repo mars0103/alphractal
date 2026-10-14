@@ -39,7 +39,7 @@ export default function Header() {
       })
       // Theme = whichever [data-nav-theme] section is under the header line. Measured from the live layout,
       // so pin spacers never throw it off.
-      const sections = Array.from(document.querySelectorAll('[data-nav-theme]'))
+      let sections = Array.from(document.querySelectorAll('[data-nav-theme]'))
       const check = () => {
         const line = 62
         let theme = header.dataset.theme
@@ -51,7 +51,26 @@ export default function Header() {
       }
       const watcher = ScrollTrigger.create({ start: 0, end: 'max', onUpdate: check, onRefresh: check })
       check()
+
+      // Lazy routes mount after this effect ran, so the first query can come back empty (the
+      // header then stayed on its dark theme over a paper page). Re-read the list when <main> changes.
+      let raf = 0
+      const main = document.getElementById('main')
+      const mo = main
+        ? new MutationObserver(() => {
+            if (raf) return
+            raf = requestAnimationFrame(() => {
+              raf = 0
+              sections = Array.from(document.querySelectorAll('[data-nav-theme]'))
+              check()
+            })
+          })
+        : null
+      mo?.observe(main, { childList: true, subtree: true })
+
       return () => {
+        mo?.disconnect()
+        if (raf) cancelAnimationFrame(raf)
         stuck.kill()
         watcher.kill()
       }
