@@ -232,7 +232,20 @@ export default function HowItWorks() {
           invalidateOnRefresh: true,
         })
       })
-      mm.add(`${MQ.motion} and ${MQ.mobile}`, () => {
+      // Phones: the section locks too, like on desktop — copy on top, the panel under it, and the
+      // three steps advance with the scroll until the visitor has been through all of them.
+      mm.add(`${MQ.motion} and ${MQ.mobile} and (min-height: 700px)`, () => {
+        build({
+          trigger: q('.how__pin'),
+          start: 'top top',
+          end: '+=300%',
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        })
+      })
+      // Very short phones: no lock, the run plays once when the panel scrolls into view
+      mm.add(`${MQ.motion} and ${MQ.mobile} and (max-height: 699px)`, () => {
         build({}, true)
       })
 
