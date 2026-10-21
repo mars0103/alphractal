@@ -5,21 +5,8 @@ import { LINKS } from '../lib/facts.js'
 import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
 import GlowButton from './GlowButton.jsx'
 
-function LangSwitch({ className = '' }) {
-  const { lang, setLang, t } = useI18n()
-  return (
-    <div className={`lang ${className}`} role="group" aria-label={t.lang.label}>
-      {['en', 'pt'].map((code) => (
-        <button key={code} type="button" aria-pressed={lang === code} onClick={() => setLang(code)}>
-          {t.lang[code]}
-        </button>
-      ))}
-    </div>
-  )
-}
-
 export default function Header() {
-  const { t, lang } = useI18n()
+  const { t } = useI18n()
   const { pathname } = useLocation()
   const root = useRef(null)
   const megaRef = useRef(null)
@@ -75,7 +62,7 @@ export default function Header() {
         watcher.kill()
       }
     },
-    { dependencies: [pathname, lang], scope: root, revertOnUpdate: true },
+    { dependencies: [pathname], scope: root, revertOnUpdate: true },
   )
 
   /* Entrance */
@@ -126,7 +113,7 @@ export default function Header() {
   useEffect(() => {
     setOpen(false)
     setDrawer(false)
-  }, [pathname, lang])
+  }, [pathname])
 
   /* Mobile drawer */
   useEffect(() => {
@@ -191,9 +178,9 @@ export default function Header() {
                   <Link to={pm.terminal.to} className="link-arrow">
                     {pm.terminal.title} <span>→</span>
                   </Link>
-                  <Link to="/platform" className="link-arrow">
+                  <a href={LINKS.login} className="link-arrow">
                     {pm.hub} <span>→</span>
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
@@ -217,7 +204,6 @@ export default function Header() {
           <span />
 
           <div className="bar__actions">
-            <LangSwitch className="lang--bar" />
             <a className="login" href={LINKS.login}>
               {t.nav.login}
             </a>
@@ -240,9 +226,7 @@ export default function Header() {
       </header>
 
       <div id="drawer" ref={drawerRef} className={`drawer ${drawer ? 'is-open' : ''}`}>
-        <Link to="/platform" className="drawer__link">
-          {t.nav.platform}
-        </Link>
+        <span className="drawer__link">{t.nav.platform}</span>
         <div className="drawer__sub">
           {pm.items.map((item) => (
             <Link key={item.to} to={item.to}>
@@ -265,7 +249,6 @@ export default function Header() {
           <a className="login" href={LINKS.login}>
             {t.nav.login}
           </a>
-          <LangSwitch />
         </div>
       </div>
     </>

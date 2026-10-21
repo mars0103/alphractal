@@ -1,8 +1,7 @@
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
-import { series, toPath, points } from '../lib/chart.js'
-import BorderGlow from '../components/BorderGlow.jsx'
+import Placeholder from '../components/Placeholder.jsx'
 
 // Ticker → real brand color (public/coins/<ticker>.svg is the matching badge).
 const ASSET_COLORS = {
@@ -44,81 +43,10 @@ function CoinWall({ group, pickTicker }) {
   ))
 }
 
-const W = 640
-const H = 280
-const HEAT_ROWS = 40
-
-/* Liquidation-style heatmap: each horizontal band is a price level, its intensity an
-   illustrative "how much leverage sits here" value — not a real 2D grid, but reads the same
-   way and is far cheaper to draw. The price line is the usual deterministic series.
-   Colors follow magma (matplotlib's public-domain colormap: black → purple/red → pale
-   yellow) — the same family real liquidation heatmaps use, instead of an arbitrary gradient. */
-const MAGMA = [
-  [0, 0, 4], [27, 12, 65], [74, 12, 107], [120, 28, 109], [165, 44, 96],
-  [207, 68, 70], [237, 105, 37], [251, 155, 6], [252, 204, 55], [252, 253, 191],
-]
-function magma(t) {
-  const x = Math.min(1, Math.max(0, t)) * (MAGMA.length - 1)
-  const i = Math.min(MAGMA.length - 2, Math.floor(x))
-  const f = x - i
-  const [r0, g0, b0] = MAGMA[i]
-  const [r1, g1, b1] = MAGMA[i + 1]
-  const r = Math.round(r0 + (r1 - r0) * f)
-  const g = Math.round(g0 + (g1 - g0) * f)
-  const b = Math.round(b0 + (b1 - b0) * f)
-  return `rgb(${r} ${g} ${b})`
-}
-const MAGMA_CSS = `linear-gradient(0deg, ${MAGMA.map((c, i) => `rgb(${c.join(' ')}) ${(i / (MAGMA.length - 1)) * 100}%`).join(', ')})`
-
-/* Shapes the raw random walk into two leverage "walls" (support/resistance clusters) plus a
-   cleared corridor around the price line — reads like a real liquidation map instead of
-   noise from top to bottom. */
-function buildBands(rows, seed) {
-  const raw = series(rows, seed, { drift: 0, vol: 0.3, start: 0.5 })
-  const lo = Math.min(...raw)
-  const hi = Math.max(...raw)
-  const corridor = rows * 0.47
-  const corridorW = rows * 0.085
-  const wallA = rows * 0.2
-  const wallB = rows * 0.76
-  return raw.map((v, i) => {
-    const base = (v - lo) / (hi - lo || 1)
-    const nearCorridor = Math.exp(-((i - corridor) ** 2) / (2 * corridorW ** 2))
-    const nearWallA = Math.exp(-((i - wallA) ** 2) / (2 * (rows * 0.05) ** 2))
-    const nearWallB = Math.exp(-((i - wallB) ** 2) / (2 * (rows * 0.045) ** 2))
-    let shaped = base * 0.5 + Math.max(nearWallA, nearWallB) * 0.85
-    shaped *= 1 - nearCorridor * 0.85
-    return Math.min(1, Math.max(0, shaped))
-  })
-}
-// Same corridor center/width as buildBands, as plain 0..1 fractions of the chart height —
-// draws the two dashed lines that frame the cleared band the price line rides in.
-const CORRIDOR_TOP = 0.47 - 0.085 * 1.2
-const CORRIDOR_BOTTOM = 0.47 + 0.085 * 1.2
-
 export default function HowItWorks() {
   const { t } = useI18n()
   const h = t.how
   const root = useRef(null)
-
-  const scene = useMemo(() => {
-    const priceValues = series(56, 5, { drift: 0.0085, vol: 0.07, start: 0.26 })
-    const bands = buildBands(HEAT_ROWS, 51)
-    // Illustrative price axis — a round, made-up level, not today's actual BTC price — so the
-    // heatmap reads as a real liquidation-levels chart (priced bands) instead of a plain gradient.
-    const levels = bands.map((_, i) => 100000 * (0.88 + (1 - i / (HEAT_ROWS - 1)) * 0.24))
-    const pricePts = points(priceValues, W, H, 22)
-    const MINI_ROWS = 110
-    const miniBands = Array.from({ length: MINI_ROWS }, (_, i) => {
-      const x = (i / (MINI_ROWS - 1)) * (bands.length - 1)
-      const a = Math.floor(x)
-      const b = Math.min(bands.length - 1, a + 1)
-      const f = x - a
-      const smooth = f * f * (3 - 2 * f)
-      return bands[a] + (bands[b] - bands[a]) * smooth
-    })
-    return { price: toPath(priceValues, W, H, 22), pricePts, bands, miniBands, levels }
-  }, [])
 
   useGSAP(
     () => {
@@ -136,11 +64,11 @@ export default function HowItWorks() {
         const scene1 = q('.scene--assets')
         const scene2 = q('.scene--chart')
         const scene3 = q('.scene--ask')
+        const scene4 = q('.scene--act')
         const steps = qa('.how__step')
         const fill = q('.how__fill')
-        const priceDraw = qa('.heat [data-draw]')
-        const bandRects = qa('.heat__band')
-        const suggestions = qa('.liq-chat__suggestions li')
+        const chartImg = q('.scene--chart .shot')
+        const askCard = q('.scene--ask .shot')
         let current = -1
 
         gsap.set(groupB, { autoAlpha: 0 })
@@ -151,19 +79,14 @@ export default function HowItWorks() {
         gsap.set(cardsB, { autoAlpha: 0, y: 10 })
         gsap.set(otherCardsB, { filter: 'grayscale(0) brightness(1)', opacity: 1 })
         gsap.set(q('.assets__pick'), { autoAlpha: 0, y: 8 })
-        gsap.set([scene2, scene3], { autoAlpha: 0 })
+        gsap.set([scene2, scene3, scene4], { autoAlpha: 0 })
         gsap.set(scene1, { autoAlpha: 1 })
-        gsap.set(priceDraw, { strokeDasharray: 1, strokeDashoffset: 1 })
-        gsap.set(bandRects, { opacity: 0 })
-        gsap.set(q('.heat__headline'), { autoAlpha: 0, y: 10 })
-        gsap.set(q('.liq-chat__prompt'), { autoAlpha: 0, y: 12 })
-        gsap.set(suggestions, { autoAlpha: 0, y: 8 })
-        gsap.set(q('.liq-chat__a'), { autoAlpha: 0, y: 8 })
-        gsap.set(qa('.scene--ask .pill'), { autoAlpha: 0, scale: 0.85 })
+        gsap.set(chartImg, { clipPath: 'inset(0 100% 0 0)' })
+        gsap.set(askCard, { autoAlpha: 0, x: 40 })
 
         const sync = (progress) => {
           gsap.set(fill, { scaleY: progress })
-          const idx = progress < 0.38 ? 0 : progress < 0.7 ? 1 : 2
+          const idx = progress < 0.26 ? 0 : progress < 0.5 ? 1 : progress < 0.76 ? 2 : 3
           if (idx !== current) {
             current = idx
             steps.forEach((s, i) => s.classList.toggle('is-active', i === idx))
@@ -193,24 +116,22 @@ export default function HowItWorks() {
         tl.to(q('.assets__pick'), { autoAlpha: 1, y: 0, duration: 0.3 }, '<')
         tl.to({}, { duration: 0.25 })
 
-        // 02: the liquidation heatmap draws itself, band by band
+        // 02: the real Whale vs Retail Delta chart wipes in from the left
         tl.to(scene1, { autoAlpha: 0, y: -24, duration: 0.35 })
         tl.to(scene2, { autoAlpha: 1, duration: 0.3 }, '<')
-        tl.to(bandRects, { opacity: 1, duration: 0.5, stagger: 0.02, ease: 'none' }, '<')
-        tl.to(priceDraw, { strokeDashoffset: 0, duration: 0.25, stagger: 0.012, ease: 'none' }, '<0.1')
-        tl.to(q('.heat__headline'), { autoAlpha: 1, y: 0, duration: 0.4 }, '-=0.2')
+        tl.to(chartImg, { clipPath: 'inset(0 0% 0 0)', duration: 0.9, ease: 'power2.out' }, '<0.1')
         tl.to({}, { duration: 0.3 })
 
-        // 03: the AI answers from the same chart, and cites what it used
-        // (fully hidden, not just faded — scene2 is full-width and would otherwise show
-        // through past the edge of scene3's narrower mini chart column)
-        tl.to(scene2, { autoAlpha: 0, y: -16, duration: 0.5 })
+        // 03: the same chart stays, and Alpha AI's real answer opens over it
+        tl.to(scene2, { autoAlpha: 0, duration: 0.01 })
         tl.to(scene3, { autoAlpha: 1, duration: 0.3 }, '<')
-        tl.to(q('.liq-chat__prompt'), { autoAlpha: 1, y: 0, duration: 0.35 }, '<0.1')
-        tl.to(suggestions, { autoAlpha: 1, y: 0, duration: 0.3, stagger: 0.08 }, '-=0.1')
-        tl.to(q('.liq-chat__a'), { autoAlpha: 1, y: 0, duration: 0.4 }, '+=0.15')
-        tl.to(qa('.scene--ask .pill'), { autoAlpha: 1, scale: 1, duration: 0.3, stagger: 0.12 }, '-=0.15')
-        tl.to({}, { duration: 0.3 })
+        tl.to(askCard, { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power3.out' }, '<0.1')
+        tl.to({}, { duration: 0.4 })
+
+        // 04: on to the Terminal
+        tl.to(scene3, { autoAlpha: 0, y: -16, duration: 0.45 })
+        tl.to(scene4, { autoAlpha: 1, duration: 0.4 }, '<')
+        tl.to({}, { duration: 0.4 })
 
         if (timed) {
           ScrollTrigger.create({
@@ -226,7 +147,7 @@ export default function HowItWorks() {
         build({
           trigger: q('.how__pin'),
           start: 'top top',
-          end: '+=320%',
+          end: '+=400%',
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -238,7 +159,7 @@ export default function HowItWorks() {
         build({
           trigger: q('.how__pin'),
           start: 'top top',
-          end: '+=300%',
+          end: '+=380%',
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -284,7 +205,7 @@ export default function HowItWorks() {
             </ol>
           </div>
 
-          <BorderGlow className="how__panel" aria-hidden="true">
+          <div className="how__panel" aria-hidden="true">
             <div className="scene scene--assets">
               <p className="scene__label mono">{h.pick}</p>
               <div className="inc-stack">
@@ -295,130 +216,25 @@ export default function HowItWorks() {
                   <CoinWall group={GROUP_B} pickTicker="btc" />
                 </div>
               </div>
-              <p className="assets__pick mono">BTC · 1,000+</p>
+              <p className="assets__pick mono">BTC · 300+</p>
             </div>
 
             <div className="scene scene--chart">
-              <div className="chart__head">
-                <span className="mono">{h.chartLabel.toLowerCase().replace(/\s+/g, '_')}</span>
-                <span>{h.chartSub}</span>
+              <div className="shot">
+                <img src="/metrics/whale-retail.webp" alt="" width="1165" height="562" loading="lazy" />
               </div>
-              <p className="heat__headline">{h.chartHeadline}</p>
-              <div className="heat__wrap">
-                <span className="heat__legend" style={{ background: MAGMA_CSS }} aria-hidden="true">
-                  <i>$1.4B</i>
-                  <i>$0</i>
-                </span>
-                <svg viewBox={`0 0 ${W} ${H}`} className="chart heat" preserveAspectRatio="none">
-                  <defs>
-                    <filter id="heatTurb" x="-5%" y="-5%" width="110%" height="110%">
-                      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="4" result="n" />
-                      <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G" result="disp" />
-                      <feGaussianBlur in="disp" stdDeviation="1.4" />
-                    </filter>
-                  </defs>
-                  <g filter="url(#heatTurb)">
-                    {scene.bands.map((v, i) => (
-                      <rect
-                        key={i}
-                        className="heat__band"
-                        x="0"
-                        y={(i / HEAT_ROWS) * H}
-                        width={W}
-                        height={H / HEAT_ROWS + 1}
-                        fill={magma(v)}
-                      />
-                    ))}
-                  </g>
-                  <line x1="0" x2={W} y1={CORRIDOR_TOP * H} y2={CORRIDOR_TOP * H} className="heat__corridor" />
-                  <line x1="0" x2={W} y1={CORRIDOR_BOTTOM * H} y2={CORRIDOR_BOTTOM * H} className="heat__corridor" />
-                  {scene.pricePts.slice(1).map((p, i) => {
-                    const prev = scene.pricePts[i]
-                    const up = p[1] <= prev[1]
-                    return (
-                      <line
-                        key={i}
-                        className={`heat__price ${up ? 'is-up' : 'is-down'}`}
-                        data-draw
-                        pathLength="1"
-                        x1={prev[0]}
-                        y1={prev[1]}
-                        x2={p[0]}
-                        y2={p[1]}
-                      />
-                    )
-                  })}
-                </svg>
-                <ul className="heat__axis mono" aria-hidden="true">
-                  {scene.levels.map((p, i) =>
-                    i % 5 === 2 ? (
-                      <li key={i} style={{ top: `${(i / HEAT_ROWS) * 100}%` }}>
-                        ${(p / 1000).toFixed(1)}K
-                      </li>
-                    ) : null,
-                  )}
-                </ul>
-              </div>
-              <p className="chart__note mono">{h.chartLabel}</p>
             </div>
 
             <div className="scene scene--ask">
-              <div className="liq-split">
-                <div className="liq-split__chart">
-                  <svg viewBox={`0 0 ${W} ${H}`} className="chart heat heat--mini" preserveAspectRatio="none">
-                    <defs>
-                      <filter id="heatTurbMini" x="-5%" y="-5%" width="110%" height="110%">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="4" result="n" />
-                        <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="disp" />
-                        <feGaussianBlur in="disp" stdDeviation="2.2" />
-                      </filter>
-                    </defs>
-                    <g filter="url(#heatTurbMini)">
-                      {scene.miniBands.map((v, i) => (
-                        <rect key={i} x="0" y={(i / scene.miniBands.length) * H} width={W} height={H / scene.miniBands.length + 1.2} fill={magma(v)} />
-                      ))}
-                    </g>
-                    {scene.pricePts.slice(1).map((p, i) => {
-                      const prev = scene.pricePts[i]
-                      const up = p[1] <= prev[1]
-                      return (
-                        <line
-                          key={i}
-                          className={`heat__price ${up ? 'is-up' : 'is-down'}`}
-                          x1={prev[0]}
-                          y1={prev[1]}
-                          x2={p[0]}
-                          y2={p[1]}
-                        />
-                      )
-                    })}
-                  </svg>
-                </div>
-                <div className="liq-split__chat">
-                  <div className="ai__head">
-                    <img className="ai__star" src="/figma/spark.svg" alt="" width="22" height="22" />
-                    <span className="ai__title">{h.askLabel}</span>
-                  </div>
-                  <p className="liq-chat__prompt">{h.askPrompt}</p>
-                  <ul className="liq-chat__suggestions">
-                    {h.askSuggestions.map((s) => (
-                      <li key={s}>
-                        <button type="button">{s}</button>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="liq-chat__answer">
-                    <p className="liq-chat__a">{h.askAnswer}</p>
-                    <div className="ask__cites">
-                      <span className="mono">{h.cited}</span>
-                      <span className="pill">liquidation_levels</span>
-                      <span className="pill">whale_retail_delta</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="shot">
+                <img src="/product/whale-ai.webp" alt="" width="1590" height="853" loading="lazy" />
               </div>
             </div>
-          </BorderGlow>
+
+            <div className="scene scene--act">
+              <Placeholder dark className="scene__ph" name={h.actShot} note={h.actShotNote} ratio="auto" />
+            </div>
+          </div>
         </div>
       </div>
     </section>

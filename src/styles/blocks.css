@@ -3,9 +3,9 @@
   margin-top: clamp(40px, 5vw, 72px);
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 1px;
-  background: var(--rule-soft);
-  border: 1px solid var(--rule-soft);
+  gap: clamp(12px, 1.4vw, 20px);
+  background: transparent;
+  border: 0;
 }
 .card {
   --mx: 50%;
@@ -19,6 +19,7 @@
   min-height: 300px;
   padding: clamp(22px, 2.2vw, 36px);
   background: var(--paper);
+  border: 1px solid var(--rule-soft);
 }
 .card--metrics {
   grid-column: span 7;
@@ -92,7 +93,7 @@
 }
 .card h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(24px, 2.1vw, 30px);
   letter-spacing: -0.022em;
   line-height: 1.1;
@@ -146,7 +147,7 @@
 .viz-mcp code {
   display: block;
   margin-bottom: 12px;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 13px;
   color: var(--ink);
 }
@@ -190,7 +191,7 @@
   transform: scaleX(var(--v));
 }
 .viz-api b {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-weight: 500;
   font-size: 11px;
   text-align: right;
@@ -420,7 +421,7 @@
   align-items: baseline;
   gap: 10px;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(22px, 2vw, 30px);
   letter-spacing: -0.02em;
 }
@@ -545,17 +546,37 @@ tr:hover .cmp__go a {
 .quote blockquote {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(26px, 2.9vw, 40px);
   line-height: 1.22;
   letter-spacing: -0.02em;
   text-wrap: pretty;
 }
-.quote figcaption {
+.quote__by {
   margin-top: 28px;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.quote__by img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--rule-soft);
+}
+.quote__by span {
+  display: grid;
+  gap: 2px;
+}
+.quote__by strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+}
+.quote__by em {
+  font-style: normal;
+  font-size: 14.5px;
   color: var(--slate);
 }
 .aud {
@@ -593,7 +614,7 @@ tr:hover .cmp__go a {
 .abar__v {
   grid-row: span 2;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 32px;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -611,24 +632,119 @@ tr:hover .cmp__go a {
   transform-origin: left;
   transform: scaleX(var(--v));
 }
-.xcard {
-  margin-top: clamp(32px, 4vw, 56px);
+/* The ten approved posts: a wall of three columns scrolling vertically (alternating directions), equal-size white cards,
+   inside the page columns, faded to white at the top and bottom. Never links. */
+.posts__wrap {
+  margin-top: clamp(40px, 5vw, 72px);
+  padding-bottom: clamp(80px, 9vw, 140px);
+}
+.posts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  height: clamp(560px, 82vh, 780px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+}
+.posts__col,
+.posts__set,
+.posts__set > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.posts__col {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 24px 28px;
-  border: 1px solid var(--rule-soft);
+  flex-direction: column;
+  height: max-content;
+  animation: posts-up var(--t, 70s) linear infinite;
 }
-.xcard h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 20px;
+.posts__col--down {
+  animation-name: posts-down;
 }
-.xcard p {
-  margin-top: 4px;
-  color: var(--slate);
-  font-size: 15px;
+.posts:hover .posts__col {
+  animation-play-state: paused;
+}
+.posts__set > ul {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 20px;
+}
+.posts__card {
+  width: 100%;
+  aspect-ratio: 1 / 1.06;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid #0b0d14;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.posts__card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+@keyframes posts-up {
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes posts-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (max-width: 991px) {
+  .posts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .posts__col:nth-child(3) {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .posts {
+    grid-template-columns: 1fr;
+  }
+  .posts__col:nth-child(2) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .posts {
+    overflow-y: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .posts__col {
+    animation: none;
+  }
+  .posts__set[aria-hidden='true'] {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .posts {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .posts__track {
+    animation: none;
+  }
+  .posts__set[aria-hidden='true'] {
+    display: none;
+  }
 }
 
 /* =====================  Alpha Terminal teaser  ===================== */
@@ -727,6 +843,11 @@ tr:hover .cmp__go a {
 .faq__a {
   overflow: hidden;
 }
+.faq__link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--blue);
+}
 .faq__a p {
   max-width: 62ch;
   padding: 0 48px 28px 0;
@@ -814,10 +935,6 @@ tr:hover .cmp__go a {
   }
   .faq__head {
     position: static;
-  }
-  .xcard {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
 
@@ -1893,7 +2010,7 @@ tr:hover .cmp__go a {
   border: 1px solid rgba(75, 107, 255, 0.55);
   border-radius: 3px;
   background: rgba(75, 107, 255, 0.14);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 11.5px;
   line-height: 1.6;
   color: #aab5ff;
@@ -2119,4 +2236,349 @@ tr:hover .cmp__go a {
   .aiapp__credits {
     display: none;
   }
+}
+
+/* ---------- Placeholder for a capture still to be delivered ---------- */
+.placeholder {
+  width: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  color: var(--slate);
+  border: 1.5px dashed var(--rule);
+  background: repeating-linear-gradient(135deg, transparent 0 14px, rgba(91, 98, 112, 0.06) 14px 15px);
+}
+.placeholder--dark {
+  color: rgba(251, 248, 248, 0.7);
+  border-color: rgba(251, 248, 248, 0.28);
+  background: repeating-linear-gradient(135deg, transparent 0 14px, rgba(251, 248, 248, 0.05) 14px 15px);
+}
+.placeholder__tag {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  background: var(--blue);
+  color: #fff;
+}
+.placeholder strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(16px, 1.6vw, 20px);
+  color: inherit;
+}
+.placeholder em {
+  font-style: normal;
+  font-size: 13.5px;
+  opacity: 0.8;
+}
+
+/* =====================  What's inside (bento, light waves)  ===================== */
+.ins {
+  margin-top: clamp(40px, 5vw, 72px);
+  display: grid;
+  gap: clamp(28px, 3.4vw, 48px);
+}
+.ins__group {
+  display: grid;
+  grid-template-columns: minmax(110px, 160px) minmax(0, 1fr);
+  gap: clamp(16px, 2.4vw, 40px);
+  align-items: start;
+}
+.ins__label {
+  padding-top: 6px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.ins__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: clamp(14px, 1.6vw, 22px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ins__card {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 236px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 28px 24px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--rule-soft);
+  border-radius: 6px;
+  transition: border-color 0.4s, box-shadow 0.4s, transform 0.5s var(--ease-out);
+}
+.ins__card:hover {
+  border-color: rgba(75, 107, 255, 0.55);
+  box-shadow: 0 18px 48px rgba(75, 107, 255, 0.14);
+  transform: translateY(-3px);
+}
+.ins__glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(220px circle at var(--mx) var(--my), rgba(75, 107, 255, 0.12), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.ins__card:hover .ins__glow {
+  opacity: 1;
+}
+.ins__card h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(22px, 1.9vw, 27px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.ins__card p {
+  max-width: 34ch;
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--slate);
+}
+.ins__go {
+  margin-top: auto;
+  padding-top: 18px;
+  font-size: 14px;
+}
+.ins__waves {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: -1;
+  width: 200%;
+  height: 56%;
+  pointer-events: none;
+  animation: ins-slide 26s linear infinite;
+}
+.ins__wave {
+  transition: opacity 0.4s;
+}
+.ins__wave--a {
+  fill: rgba(75, 107, 255, 0.1);
+}
+.ins__wave--b {
+  fill: rgba(75, 107, 255, 0.08);
+  transform: translateX(-8%);
+}
+.ins__wave--c {
+  fill: rgba(56, 189, 248, 0.09);
+  transform: translateX(-16%);
+}
+.ins__card:hover .ins__wave--a {
+  fill: rgba(75, 107, 255, 0.16);
+}
+@keyframes ins-slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ins__cards--coming {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.ins__soon {
+  padding: 22px 26px;
+  border: 1px dashed var(--rule);
+  border-radius: 6px;
+  color: var(--slate);
+}
+.ins__soon h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+@media (max-width: 860px) {
+  .ins__group {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ins__waves {
+    animation: none;
+  }
+}
+
+/* Bento · Dashboards, Alerts & Screeners: the animated aurora (React Bits) in the blue of the home gradient, where the mini-mockup was */
+.viz-topo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 62%;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 38%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 38%);
+}
+.card--dash > *:not(.card__ring):not(.card__glow):not(.card__viz) {
+  position: relative;
+  z-index: 2;
+}
+.viz-topo .aurora-container {
+  position: absolute;
+  inset: 0;
+}
+
+.viz-topo {
+  background: #070a14;
+}
+.viz-topo .aurora-canvas {
+  background: transparent;
+}
+.viz-fallback {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 90% at 50% 100%, rgba(42, 61, 255, 0.55), transparent 70%);
+}
+.viz-topo .aurora-container {
+  z-index: 1;
+}
+
+/* Bento · Research & Academy: the soft aurora fills the right side of the wide card, where the audio wave was */
+.viz-soft {
+  position: relative;
+  width: 100%;
+  height: clamp(120px, 14vw, 170px);
+  overflow: hidden;
+  pointer-events: none;
+  background: #070a14;
+  border-radius: 4px;
+}
+.viz-soft .soft-aurora {
+  position: absolute;
+  inset: 0;
+}
+
+/* Bento · Metrics & Models spans two rows, so it is taller than its own content. The chart is made taller (1.4:1 instead of 2.3:1),
+   the mockup sits right under the text and "Explore" stays at the bottom, so the empty gap shrinks without zooming the chart in too far. */
+.card--metrics .card__viz {
+  margin-top: 6px;
+}
+.card--metrics .mprev__stage {
+  aspect-ratio: 1.4 / 1;
+}
+.card--metrics .card__go {
+  margin-top: auto;
+}
+.viz-soft {
+  background: transparent;
+  /* the band fades out toward both sides, so it ends in a tapered tip instead of being cut off by the box */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 25%, #000 75%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0, #000 22%, #000 78%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 25%, #000 75%, transparent 100%);
+  mask-composite: intersect;
+}
+
+/* The microphone sits in the middle of the wave: the audio of Research & Academy (voice narration) */
+.viz-soft-wrap {
+  position: relative;
+}
+.viz-mic {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(143, 160, 255, 0.45);
+  pointer-events: none;
+}
+.viz-mic::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid rgba(143, 160, 255, 0.5);
+  animation: mic-ring 2.8s ease-out infinite;
+}
+@keyframes mic-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .viz-mic::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Bento · Alpha AI: the iMac with the Alpha AI screen, and the blue aurora of card 05 hanging from the top of the card behind the text */
+.card__aurora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 58%;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+}
+.card--ai > *:not(.card__ring):not(.card__glow):not(.card__aurora):not(.card__go) {
+  position: relative;
+  z-index: 2;
+}
+.viz-imac .imac2d {
+  position: relative;
+  right: auto;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  transform-origin: 50% 50%;
+}
+
+/* Alpha AI card: a bigger iMac, pushed to the right (the card crops it) and standing on the bottom edge, so the Alpha AI screen reads well */
+.card--ai .card__viz {
+  margin: auto calc(clamp(22px, 2.2vw, 36px) * -1) calc(clamp(22px, 2.2vw, 36px) * -1);
+}
+.viz-imac {
+  position: relative;
+}
+.viz-imac .imac2d {
+  width: 122%;
+  max-width: none;
+  margin: 0 0 0 9%;
+}
+
+/* "Explore" floats over the corner so the iMac stand can reach the very bottom edge of the card */
+.card--ai .card__go {
+  position: absolute;
+  left: clamp(22px, 2.2vw, 36px);
+  bottom: clamp(22px, 2.2vw, 36px);
+  z-index: 3;
+  margin: 0;
 }

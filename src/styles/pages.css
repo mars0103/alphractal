@@ -248,7 +248,7 @@
 }
 .rv__row b {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 22px;
   letter-spacing: -0.02em;
   text-align: right;
@@ -433,7 +433,7 @@
 .step h3 {
   margin: 10px 0 8px;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(21px, 1.8vw, 26px);
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -509,7 +509,7 @@
 .proofband__quote blockquote {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(20px, 2vw, 26px);
   line-height: 1.32;
   letter-spacing: -0.015em;
@@ -572,7 +572,7 @@
 }
 .rel__card h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(24px, 2.3vw, 32px);
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -611,7 +611,7 @@
 }
 .domain h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 24px;
   letter-spacing: -0.02em;
 }
@@ -739,13 +739,13 @@
 }
 .catalog__col h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 28px;
   letter-spacing: -0.02em;
 }
 .catalog__col h3 b {
   margin-left: 8px;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--blue);
 }
 .catalog__col header .mono {
@@ -765,7 +765,7 @@
   gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid var(--rule-soft);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 13.5px;
   letter-spacing: -0.01em;
   transition: color 0.3s, padding-left 0.4s var(--ease-out);
@@ -823,7 +823,7 @@
 .tbl tbody th,
 .matrix tbody th {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 20px;
   letter-spacing: -0.015em;
 }
@@ -838,7 +838,7 @@
 }
 .commercial h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 24px;
   letter-spacing: -0.02em;
 }
@@ -866,7 +866,7 @@
 }
 .commercial li b {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 24px;
   letter-spacing: -0.02em;
 }
@@ -905,7 +905,7 @@
   background: #161a26;
   border: 1px solid #2a3040;
   color: #fbf8f8;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
 }
@@ -976,7 +976,7 @@
 }
 .limits li b {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 26px;
   letter-spacing: -0.02em;
   color: #fbf8f8;
@@ -1060,7 +1060,7 @@
 }
 .stair__step b {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 19px;
   letter-spacing: -0.01em;
 }
@@ -1106,7 +1106,7 @@
 }
 .hubrow h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(26px, 3vw, 40px);
   letter-spacing: -0.025em;
   line-height: 1.08;
@@ -1146,7 +1146,7 @@
 }
 .hubterm h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 34px;
   letter-spacing: -0.02em;
 }
@@ -1251,7 +1251,7 @@
 }
 .inum__v {
   font-size: clamp(40px, 4.4vw, 64px);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1;
   letter-spacing: -0.04em;
 }
@@ -1292,7 +1292,7 @@
 }
 .pillar h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(30px, 3vw, 42px);
   letter-spacing: -0.025em;
 }
@@ -1334,7 +1334,7 @@
 }
 .tier b {
   font-size: clamp(30px, 3.2vw, 46px);
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.05;
 }
@@ -1359,7 +1359,7 @@
   grid-column: 1 / -1;
   max-width: 34ch;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(24px, 2.6vw, 36px);
   letter-spacing: -0.02em;
   line-height: 1.25;
@@ -1414,7 +1414,7 @@
 .tl__node h3 {
   margin: 8px 0 6px;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 22px;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -1544,7 +1544,7 @@
 }
 .plan__price {
   font-size: clamp(26px, 2.4vw, 34px);
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
@@ -1604,7 +1604,7 @@
 }
 .vsv__node b {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 30px;
   letter-spacing: -0.02em;
 }
@@ -1645,7 +1645,7 @@
 }
 .vsm__row h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(20px, 1.9vw, 26px);
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -1722,7 +1722,7 @@
 }
 .vsothers__link b {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 26px;
   letter-spacing: -0.02em;
 }
@@ -1932,7 +1932,7 @@
   align-items: center;
 }
 .mv-url code {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 12px;
   color: var(--ink);
 }
@@ -2345,7 +2345,7 @@
 }
 .inst-card h3 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(22px, 1.8vw, 26px);
   line-height: 1.24;
   letter-spacing: -0.01em;
@@ -2472,7 +2472,7 @@
   padding: 3px 14px;
   border-radius: 6px;
   background: var(--ink);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 10.5px;
   color: #7d8599;
 }
@@ -2529,7 +2529,7 @@
   border: 1px solid rgba(30, 173, 100, 0.5);
   border-radius: 3px;
   background: rgba(30, 173, 100, 0.12);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 0.08em;
   color: #6ee7a8;
@@ -2556,7 +2556,7 @@
   fill: rgba(229, 72, 77, 0.16);
 }
 .iv__bandlabel {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 7.5px;
   letter-spacing: 0.1em;
 }
@@ -2656,7 +2656,7 @@
   stroke-width: 2;
 }
 .iv__lvltext {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 7.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2994,7 +2994,7 @@
   border: 1px solid #1d2438;
   border-radius: 4px;
   background: transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 0.06em;
   color: #7d8599;
@@ -3257,7 +3257,7 @@
   border: 1px solid #1d2438;
   border-radius: 4px;
   background: transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 10.5px;
   color: #7d8599;
   cursor: pointer;
@@ -3383,4 +3383,226 @@
   .tm__ovl {
     flex-wrap: wrap;
   }
+}
+
+/* ---------- About v2: figures, flags, bios, research/direction, community, squad ---------- */
+.figs {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+.figs svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: #4b6bff;
+  filter: drop-shadow(0 0 7px rgba(75, 107, 255, 0.85));
+  animation: fig-glow 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.35s);
+}
+@keyframes fig-glow {
+  50% {
+    fill: #8f9bff;
+    filter: drop-shadow(0 0 12px rgba(143, 155, 255, 0.95));
+  }
+}
+.story {
+  position: relative;
+}
+.story__flags {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  gap: 8px;
+  opacity: 0.85;
+}
+.story__flags svg {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(91, 98, 112, 0.3);
+}
+.member__bio {
+  display: block;
+  max-width: 54ch;
+  margin-top: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #dfe3ee;
+  white-space: normal;
+}
+.member__meta b,
+.member__meta em {
+  white-space: normal;
+}
+.member__meta b {
+  font-weight: 600;
+}
+.duo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: clamp(24px, 5vw, 80px);
+  align-items: start;
+}
+.duo__col {
+  display: grid;
+  gap: 20px;
+}
+.duo__col .h2 {
+  font-size: clamp(40px, 5vw, 72px);
+}
+.duo__rule {
+  align-self: stretch;
+  width: 1px;
+  background: var(--rule);
+}
+.community .lede {
+  color: #a4abbb;
+}
+.community .lede + .lede {
+  margin-top: 16px;
+}
+.squad {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: clamp(14px, 1.6vw, 24px);
+  margin: clamp(32px, 4vw, 56px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.squad__card a {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  color: inherit;
+}
+.squad__card img {
+  width: 100%;
+  max-width: 132px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--rule-soft);
+  margin-bottom: 8px;
+  transition: transform 0.5s var(--ease-out), box-shadow 0.4s;
+}
+.squad__card a:hover img,
+.squad__card a:focus-visible img {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(75, 107, 255, 0.28);
+}
+.squad__card b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.squad__card em {
+  font-style: normal;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--blue);
+}
+.invite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: clamp(32px, 4vw, 56px);
+  padding: 24px 28px;
+  border: 1px solid var(--rule-soft);
+}
+.invite h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+}
+.invite p {
+  margin-top: 4px;
+  max-width: 62ch;
+  color: var(--slate);
+  font-size: 15px;
+}
+@media (max-width: 991px) {
+  .duo {
+    grid-template-columns: 1fr;
+  }
+  .duo__rule {
+    width: 100%;
+    height: 1px;
+  }
+  .squad {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .member__meta {
+    position: relative;
+    inset: auto;
+    background: #0b0d14;
+    opacity: 1;
+    transform: none;
+  }
+  .member {
+    display: flex;
+    flex-direction: column;
+  }
+  .member__photo {
+    position: relative;
+    height: 200px;
+    flex: 0 0 auto;
+  }
+  .member:not(.is-active) .member__meta {
+    display: none;
+  }
+  .team {
+    height: 520px;
+  }
+  .invite {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .story__flags {
+    position: static;
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 560px) {
+  .squad {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .figs svg {
+    animation: none;
+  }
+}
+
+/* About hero panel: figures on top, three stats under them */
+.inum .figs {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  padding: 28px 24px 22px;
+  background: var(--ink-2);
+}
+.inum .figs li {
+  display: block;
+  padding: 0;
+  background: none;
+}
+.inum--row ul:not(.figs) {
+  grid-template-columns: repeat(3, 1fr);
+}
+.inum--row li {
+  padding: 22px 20px;
+}
+.inum--row .inum__v {
+  font-size: clamp(30px, 3.2vw, 46px);
+  font-weight: 600;
+}
+.squad__card img {
+  height: auto;
 }

@@ -293,7 +293,6 @@ export default function Footer() {
             </Link>
           ))}
         </span>
-        <span>{f.disclaimer}</span>
       </div>
 
       <div

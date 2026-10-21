@@ -55,4 +55,3 @@ export const SENTIMENT = {
 }
 
 // Numbers use en-US separators; swap for pt-BR
-export const swapSeparators = (s) => s.replace(/,/g, '\u0000').replace(/\./g, ',').replace(/\u0000/g, '.')

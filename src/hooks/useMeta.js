@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { graphFor, ogImageFor, seoFor } from '../lib/seo.js'
 
 const ORIGIN = 'https://alphractal.com'
 
@@ -23,8 +24,16 @@ const upsert = (selector, create) => {
  */
 export function useMeta({ title, description, jsonLd, noindex = false }) {
   const { pathname } = useLocation()
+  // Routes in lib/seo.js take their title, description and a single JSON-LD graph from that table.
+  const seo = seoFor(pathname)
+  if (seo) {
+    title = seo.title
+    description = seo.description
+    jsonLd = graphFor(pathname)
+  }
 
-  headState.current = { title, description, jsonLd, noindex, url: `${ORIGIN}${pathname}` }
+  const image = ogImageFor(pathname)
+  headState.current = { title, description, jsonLd, noindex, image, url: `${ORIGIN}${pathname}` }
 
   useEffect(() => {
     document.title = title
@@ -40,6 +49,17 @@ export function useMeta({ title, description, jsonLd, noindex = false }) {
       set('meta[property="og:description"]', 'content', description, prop('og:description'))
     }
     set('meta[property="og:title"]', 'content', title, prop('og:title'))
+    set('meta[property="og:site_name"]', 'content', 'Alphractal', prop('og:site_name'))
+    set('meta[name="twitter:card"]', 'content', image ? 'summary_large_image' : 'summary', meta('twitter:card'))
+    if (image) {
+      set('meta[property="og:image"]', 'content', image, prop('og:image'))
+      set('meta[property="og:image:width"]', 'content', '1200', prop('og:image:width'))
+      set('meta[property="og:image:height"]', 'content', '630', prop('og:image:height'))
+      set('meta[property="og:image:alt"]', 'content', title, prop('og:image:alt'))
+      set('meta[name="twitter:image"]', 'content', image, meta('twitter:image'))
+    }
+    set('meta[name="twitter:title"]', 'content', title, meta('twitter:title'))
+    if (description) set('meta[name="twitter:description"]', 'content', description, meta('twitter:description'))
     set('meta[property="og:url"]', 'content', `${ORIGIN}${pathname}`, prop('og:url'))
     set('link[rel="canonical"]', 'href', `${ORIGIN}${pathname}`, () => Object.assign(document.createElement('link'), { rel: 'canonical' }))
     set('meta[name="robots"]', 'content', noindex ? 'noindex' : 'index,follow', meta('robots'))
@@ -53,5 +73,5 @@ export function useMeta({ title, description, jsonLd, noindex = false }) {
       document.head.appendChild(script)
     }
     return () => script?.remove()
-  }, [title, description, pathname, noindex, jsonLd])
+  }, [title, description, pathname, noindex, jsonLd, image])
 }

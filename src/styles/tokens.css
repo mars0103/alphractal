@@ -27,7 +27,6 @@
 
   --font-display: 'Albert Sans Variable', 'Albert Sans', system-ui, sans-serif;
   --font-ui: 'Inter Variable', 'Inter', system-ui, sans-serif;
-  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SFMono-Regular', monospace;
 
   --gutter: 24px;
   --col: min(1304px, calc(100vw - 2 * var(--gutter)));

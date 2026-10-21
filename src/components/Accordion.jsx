@@ -1,5 +1,17 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap, MQ } from '../lib/gsap.js'
+
+const ItemLink = ({ link }) =>
+  /^https?:/.test(link.to) ? (
+    <a className="faq__link" href={link.to}>
+      {link.label}
+    </a>
+  ) : (
+    <Link className="faq__link" to={link.to}>
+      {link.label}
+    </Link>
+  )
 
 /* Height-tween accordion. One item open at a time, first open by default. */
 export default function Accordion({ items, idPrefix = 'acc' }) {
@@ -40,7 +52,24 @@ export default function Accordion({ items, idPrefix = 'acc' }) {
             style={{ height: i === 0 ? 'auto' : 0 }}
             aria-hidden={open !== i}
           >
-            <p>{item.a}</p>
+            <p>
+              {item.link && item.after ? (
+                <>
+                  {item.a} <ItemLink link={item.link} />
+                  {item.after}
+                </>
+              ) : (
+                <>
+                  {item.a}
+                  {item.link && (
+                    <>
+                      {' '}
+                      <ItemLink link={item.link} />.
+                    </>
+                  )}
+                </>
+              )}
+            </p>
           </div>
         </li>
       ))}

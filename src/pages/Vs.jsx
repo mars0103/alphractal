@@ -1,145 +1,231 @@
-import { useRef } from 'react'
+import { Fragment } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
-import { gsap, useGSAP, MQ } from '../lib/gsap.js'
-import BorderGlow from '../components/BorderGlow.jsx'
+import vs from '../i18n/vs.en.js'
 import PageShell from '../components/PageShell.jsx'
 import PageHero from '../components/PageHero.jsx'
 import GlowButton from '../components/GlowButton.jsx'
 import Accordion from '../components/Accordion.jsx'
-import { Section, Steps } from '../components/PageBlocks.jsx'
+import { Section } from '../components/PageBlocks.jsx'
 import FinalCta from '../sections/FinalCta.jsx'
 import Soon from './Soon.jsx'
 
-/* Two names and a line that draws between them: the page is a comparison, so the hero says so. */
-function VsViz({ name }) {
-  const root = useRef(null)
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia()
-      mm.add(MQ.motion, () => {
-        const line = root.current.querySelector('.vsv__line i')
-        gsap.set(line, { scaleY: 0, transformOrigin: '50% 0' })
-        gsap
-          .timeline({ delay: 0.7 })
-          .to(line, { scaleY: 1, duration: 1.4, ease: 'power3.inOut' })
-          .from(root.current.querySelectorAll('.vsv__node'), { autoAlpha: 0, y: 20, stagger: 0.25, duration: 0.9 }, 0)
-      })
-      return () => mm.revert()
-    },
-    { scope: root },
-  )
+const ORIGIN = 'https://alphractal.com'
+const c = vs.common
+
+/* Hero visual: a refined rectangle with the two products on either side of a readable VS. Alphractal in the
+   blue gradient, the competitor in grey. The competitor logo is the real file in public/vs, shown in a flat grey. */
+function VsPanel({ page }) {
   return (
-    <BorderGlow>
-      <div ref={root} className="vpanel vsv">
-        <div className="vsv__node vsv__node--us">
-          <img src="/figma/logo-mark.svg" alt="" width="34" height="31" />
-          <b>Alphractal</b>
-        </div>
-        <div className="vsv__line">
-          <i />
-          <span className="mono">vs</span>
-        </div>
-        <div className="vsv__node">
-          <b>{name}</b>
-        </div>
+    <div className="vsx" role="group" aria-label={`Alphractal vs ${page.name}`}>
+      <span className="vsx__tick vsx__tick--tl" aria-hidden="true" />
+      <span className="vsx__tick vsx__tick--tr" aria-hidden="true" />
+      <span className="vsx__tick vsx__tick--bl" aria-hidden="true" />
+      <span className="vsx__tick vsx__tick--br" aria-hidden="true" />
+      <div className="vsx__side vsx__side--us">
+        <span className="vsx__mark" aria-hidden="true" />
+        <b className="vsx__name">Alphractal</b>
       </div>
-    </BorderGlow>
+      <div className="vsx__vs" aria-hidden="true">
+        <i />
+        <span>VS</span>
+        <i />
+      </div>
+      <div className="vsx__side vsx__side--them">
+        <img className="vsx__logo" src={page.logoFile.replace(/^public/, '')} alt="" width="230" height="50" />
+        <span className="vsx__name vsx__name--grey sr-only">{page.name}</span>
+      </div>
+    </div>
   )
 }
 
-const WHO = { us: 'Alphractal', tie: null }
+function Cell({ value }) {
+  if (!Array.isArray(value)) return value
+  return value.map((part, i) =>
+    typeof part === 'string' ? (
+      <Fragment key={i}>{part}</Fragment>
+    ) : (
+      <Link key={i} to={part.to} className="vst__link">
+        {part.label}
+      </Link>
+    ),
+  )
+}
 
 export default function Vs() {
   const { slug } = useParams()
-  const { t } = useI18n()
-  const v = t.pages.vs
-  const page = v.pages[slug]
-  useMeta({ title: page ? `${v.titleFn(page.name)} · Alphractal` : 'Alphractal', description: page?.sub })
-  if (!page) return <Soon />
-  const c = t.pages.common
+  const page = vs.pages[slug]
+  const url = `${ORIGIN}/vs/${slug}`
 
-  const faq = page.faq.map(([q, a]) => ({ q, a }))
-  const others = Object.entries(v.pages).filter(([k]) => k !== slug)
+  useMeta({
+    title: page ? page.meta.title : 'Alphractal',
+    description: page?.meta.description,
+    jsonLd: page && {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', '@id': `${url}#webpage`, url, name: page.meta.title, description: page.meta.description, inLanguage: 'en' },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: c.breadcrumbHome, item: `${ORIGIN}/` },
+            { '@type': 'ListItem', position: 2, name: `Alphractal vs ${page.name}`, item: url },
+          ],
+        },
+      ],
+    },
+  })
+  if (!page) return <Soon />
+
+  const others = vs.order.filter((k) => k !== slug)
 
   return (
     <PageShell>
       <PageHero
-        eyebrow={v.heroEyebrow}
-        title={v.titleFn(page.name)}
-        sub={page.sub}
-        visual={<VsViz name={page.name} />}
+        eyebrow={c.eyebrow}
+        title={`Alphractal vs ${page.name}`}
+        sub={
+          <>
+            <span className="vs__support">{page.support}</span>
+            {page.sub}
+          </>
+        }
+        visual={<VsPanel page={page} />}
         actions={
           <>
-            <GlowButton href={LINKS.start}>{v.cta}</GlowButton>
-            <a className="link-arrow phero__more" href="#matrix">
-              {v.matrixTitle} <span>→</span>
+            <GlowButton href={LINKS.start}>{c.cta}</GlowButton>
+            <a className="link-arrow phero__more" href="#comparison">
+              {c.heroMore} <span aria-hidden="true">→</span>
             </a>
           </>
         }
-        note={c.noCard}
       />
 
-      <Section id="matrix">
+      <Section id="comparison">
         <div className="container">
           <div className="section__head">
             <p className="eyebrow" data-reveal="fade">
-              {v.matrixEyebrow}
+              {c.comparisonEyebrow}
             </p>
             <h2 className="h2" data-reveal="lines">
-              {v.matrixTitle}
+              {c.comparisonTitle}
             </h2>
+            <p className="vs__intro">{c.comparisonIntro}</p>
           </div>
-          <ul className="vsm" data-stagger>
-            {page.rows.map((r) => {
-              const who = r.winner === 'us' ? WHO.us : r.winner === 'them' ? page.name : null
-              return (
-                <li className={`vsm__row vsm__row--${r.winner}`} data-item key={r.topic}>
-                  <h3>{r.topic}</h3>
-                  <span className="vsm__win mono">
-                    <i className={r.winner === 'them' ? 'is-hollow' : ''} aria-hidden="true" />
-                    {who ? `${who} · ${v.winner}` : v.tie}
-                  </span>
-                  <p>{r.note}</p>
-                </li>
-              )
-            })}
-          </ul>
+
+          <div className="vst__scroll" role="region" aria-label={`${c.tableCaption} ${page.name}`} tabIndex={0}>
+            <table className="vst">
+              <caption className="sr-only">
+                {c.tableCaption} {page.name}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="vst__topic">
+                    {c.topic}
+                  </th>
+                  <th scope="col" className="vst__us">
+                    <span className="vst__brand">
+                      <span className="vst__mark" aria-hidden="true" />
+                      <span className="vst__brandname">Alphractal</span>
+                    </span>
+                  </th>
+                  <th scope="col" className="vst__them">
+                    {page.name}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {page.rows.map((r) => (
+                  <tr key={r.topic}>
+                    <th scope="row" className="vst__topic">
+                      {r.topic}
+                    </th>
+                    <td className="vst__us">
+                      <Cell value={r.us} />
+                    </td>
+                    <td className="vst__them">
+                      <Cell value={r.them} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="vst__foot">
+            <p className="vst__reviewed">{c.reviewed}</p>
+            <div className="vst__sources">
+              <span>{c.sourcesLabel}</span>
+              <ul>
+                {page.sources.map((s) => (
+                  <li key={s.href}>
+                    <a href={s.href} target="_blank" rel="noopener noreferrer">
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {page.contextNote && <p className="vst__note">{page.contextNote}</p>}
+          </div>
+
+          <div className="vs__guide">
+            <h3>{c.guidanceLabel}</h3>
+            <p>{page.guidance}</p>
+          </div>
         </div>
       </Section>
 
-      <Steps eyebrow={v.migrationEyebrow} title={v.migrationTitle} steps={v.migration} kinds={['grid', 'builder', 'stream']} />
+      <Section id="moving-over">
+        <div className="container">
+          <div className="section__head">
+            <p className="eyebrow" data-reveal="fade">
+              {c.stepsEyebrow}
+            </p>
+            <h2 className="h2" data-reveal="lines">
+              {c.stepsTitle}
+            </h2>
+          </div>
+          <ol className="vss">
+            {c.steps.map((s, i) => (
+              <li className="vss__item" key={s.title}>
+                <span className="vss__n" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Section>
 
-      <Section id="vsfaq">
+      <Section id="before-you-switch">
         <div className="container faq__grid">
           <div className="section__head faq__head">
             <p className="eyebrow" data-reveal="fade">
-              {v.faqEyebrow}
+              {c.switchEyebrow}
             </p>
             <h2 className="h2" data-reveal="lines">
-              {v.faqTitle}
+              {c.switchTitle}
             </h2>
-            <p className="vs__price mono" data-reveal="fade">
-              {v.priceNote}
-            </p>
+            <p className="vs__intro">{c.switchIntro}</p>
           </div>
-          <Accordion items={faq} idPrefix="vsfaq" />
+          <Accordion items={page.faq} idPrefix="vsfaq" />
         </div>
       </Section>
 
       <Section id="others">
         <div className="container">
           <p className="eyebrow" data-reveal="fade">
-            {v.all}
+            {c.othersLabel}
           </p>
-          <ul className="vsothers" data-stagger>
-            {others.map(([k, o]) => (
-              <li data-item key={k}>
-                <Link to={`/vs/${k}`} className="vsothers__link">
-                  <span className="mono">vs</span>
-                  <b>{o.name}</b>
+          <ul className="vso">
+            {others.map((k) => (
+              <li key={k}>
+                <Link to={`/vs/${k}`} className="vso__link">
+                  <span>Alphractal vs</span>
+                  <b>{vs.pages[k].name}</b>
                   <span aria-hidden="true">→</span>
                 </Link>
               </li>
@@ -148,7 +234,7 @@ export default function Vs() {
         </div>
       </Section>
 
-      <FinalCta title={v.ctaTitle} sub={c.ctaSub} primary={v.cta} secondary={c.seePlatform} />
+      <FinalCta title={c.ctaTitle} sub={c.ctaSub} primary={c.cta} secondary={c.ctaSecondary} secondaryTo={LINKS.plans} />
     </PageShell>
   )
 }

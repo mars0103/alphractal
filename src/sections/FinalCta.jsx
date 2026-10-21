@@ -7,7 +7,7 @@ import GradientWaves from '../components/GradientWaves.jsx'
 import GlowButton from '../components/GlowButton.jsx'
 
 /* Mirrors the hero to close the loop: the same gradient, flipped, paper → ink. Copy is overridable per page. */
-export default function FinalCta({ title, sub, primary, primaryHref = LINKS.start, secondary, secondaryTo = '/platform' }) {
+export default function FinalCta({ title, sub, primary, primaryHref = LINKS.start, secondary, secondaryTo = LINKS.login, solo = false }) {
   const { t } = useI18n()
   const c = t.cta
   const lines = title || c.title
@@ -49,10 +49,16 @@ export default function FinalCta({ title, sub, primary, primaryHref = LINKS.star
           <p className="cta__sub">{sub || c.sub}</p>
           <div className="cta__actions">
             <GlowButton href={primaryHref}>{primary || c.primary}</GlowButton>
-            {(secondary || !title) && (
-              <Link to={secondaryTo} className="link-arrow">
-                {secondary || c.secondary} <span>→</span>
-              </Link>
+            {!solo && (secondary || !title) && (
+              /^https?:/.test(secondaryTo) ? (
+                <a href={secondaryTo} className="link-arrow">
+                  {secondary || c.secondary} <span>→</span>
+                </a>
+              ) : (
+                <Link to={secondaryTo} className="link-arrow">
+                  {secondary || c.secondary} <span>→</span>
+                </Link>
+              )
             )}
           </div>
         </div>

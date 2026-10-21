@@ -5,13 +5,10 @@ import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import Hero from '../sections/Hero.jsx'
-import AppPreview from '../sections/AppPreview.jsx'
 import Band from '../sections/Band.jsx'
 import Consolidation from '../sections/Consolidation.jsx'
 import HowItWorks from '../sections/HowItWorks.jsx'
 import Inside from '../sections/Inside.jsx'
-import Grounded from '../sections/Grounded.jsx'
-import Compare from '../sections/Compare.jsx'
 import Proof from '../sections/Proof.jsx'
 import TerminalTeaser from '../sections/TerminalTeaser.jsx'
 import Faq from '../sections/Faq.jsx'
@@ -44,17 +41,14 @@ export default function Home() {
         <i />
       </div>
       <Hero />
-      <AppPreview />
       <Band />
       <Consolidation />
-      <HowItWorks />
-      <Inside />
-      <Grounded />
-      <Compare />
       <Proof />
+      <HowItWorks />
       <TerminalTeaser />
+      <Inside />
       <Faq />
-      <FinalCta />
+      <FinalCta solo />
     </div>
   )
 }

@@ -1,130 +1,89 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { gsap, useGSAP, MQ } from '../lib/gsap.js'
+import { LINKS } from '../lib/facts.js'
+import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
+import { createScreen, createState, tileRect } from '../lib/heroScreen.js'
 import GradientWaves from '../components/GradientWaves.jsx'
-import HeroGrid from '../components/HeroGrid.jsx'
-import BorderGlow from '../components/BorderGlow.jsx'
-import Viz from '../components/Viz.jsx'
-import { LiveCandles, OrderLadder } from '../components/visuals/HeroLive.jsx'
+import Starfield from '../components/Starfield.jsx'
+import ImacScreen from '../components/ImacScreen.jsx'
 
 // Real routes already in the project — see App.jsx. No invented destinations.
-const STEP_HREF = ['/platform', '/platform/alpha-ai', '/terminal']
-// Where scroll progress (0..1) lands when a stepper button is clicked — comfortably inside
-// each step's "settled" window, not right on a transition boundary.
-const STEP_TARGET = [0.04, 0.5, 0.92]
+const STEP_HREF = [LINKS.login, '/platform/alpha-ai', '/terminal']
 const PIN_QUERY = `${MQ.motion} and ${MQ.desktop} and (min-height: 681px)`
-// Phones pin too: the hero locks and the three steps advance as the visitor scrolls, like on
-// desktop, and the page does not move on until the journey is done. Only very short phones (or
-// reduced motion) fall back to the stacked layout.
+// Phones pin too: the hero locks and the three scenes advance as the visitor scrolls, like on desktop.
 const PIN_MOBILE_QUERY = `${MQ.motion} and ${MQ.mobile} and (min-height: 700px)`
-const PANEL_BG = '#03050d' // the app's own surface, a step darker than the page
-
-function PanelBar({ url }) {
-  return (
-    <div className="hpanel__bar" aria-hidden="true">
-      <span className="hpanel__dots">
-        <i />
-        <i />
-        <i />
-      </span>
-      <span className="hpanel__url mono">{url}</span>
-      <span className="hpanel__live mono">
-        <i />
-      </span>
-    </div>
-  )
-}
 
 /*
- * Three-step scroll journey: Analyze → Ask Alpha AI → Trade. Desktop pins the hero and scrubs
- * one GSAP timeline across the three stages (same pin+scrub+progress-bucket technique as
- * sections/HowItWorks.jsx and sections/AppPreview.jsx). Mobile, short viewports and
- * prefers-reduced-motion get the plain stacked layout from hero.css instead — no pin, no
- * scroll-jacking, just native scroll with a light reveal per step.
- *
- * Each panel is a window of the real app (same surface and chrome as the interface previews
- * further down). On top of the scroll timeline everything keeps a small loop of its own:
- * the candles print and breathe, depth bars flicker, the gauge needle sways.
+ * A black iMac photo (components/ImacScreen.jsx) carries the app. Its screen is a 2D canvas drawn by lib/heroScreen.js and
+ * warped behind the photo's transparent screen area; this timeline animates that canvas' state while the hero stays pinned:
+ *   1 · twelve real metrics, a cursor picks Liquidation Levels and its block grows to the window size
+ *   2 · Alpha AI, with a question about the decision that chart informs
+ *   3 · Alpha Terminal, where the machine stays still and the scroll is released
+ * The machine rises from below on entry, its base hidden behind the blue gradient. Text and screen swap together.
  */
 export default function Hero() {
   const { t } = useI18n()
   const h = t.hero
   const root = useRef(null)
-  const stRef = useRef(null)
+  const wrapRef = useRef(null)
+  const stateRef = useRef(null)
+  if (!stateRef.current) stateRef.current = createState()
+  const screenRef = useRef(null)
+  const [screen, setScreen] = useState(null)
   const [active, setActive] = useState(0)
   const [pinned, setPinned] = useState(false)
 
-  const goTo = (i) => {
-    setActive(i)
-    const st = stRef.current
-    if (!st) return
-    const y = st.start + (st.end - st.start) * STEP_TARGET[i]
-    window.scrollTo({ top: y, behavior: window.matchMedia(MQ.reduced).matches ? 'auto' : 'smooth' })
-  }
+  // The display texture exists only in the browser (it needs a canvas); the page reads fine without it.
+  useEffect(() => {
+    const s = createScreen(h, stateRef.current)
+    screenRef.current = s
+    setScreen(s)
+    return () => {
+      screenRef.current = null
+    }
+  }, [h])
+
+  // Entrance: the machine rises from below (its base stays hidden behind the blue gradient), then the metric blocks cascade in.
+  useGSAP(
+    () => {
+      const S = stateRef.current
+      if (window.matchMedia(MQ.reduced).matches) {
+        S.tiles = 2
+        return undefined
+      }
+      const wrap = wrapRef.current
+      if (!wrap) return undefined
+      gsap.fromTo(wrap, { yPercent: 62, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 2.4, ease: 'power3.out', delay: 0.2 })
+      gsap.to(S, { tiles: 1.7, duration: 1.8, ease: 'none', delay: 1.9 })
+      return undefined
+    },
+    { scope: root },
+  )
 
   useGSAP(
     () => {
       const q = (s) => root.current.querySelector(s)
       const qa = (s) => gsap.utils.toArray(s, root.current)
       const mm = gsap.matchMedia()
+      const S = stateRef.current
 
       mm.add(MQ.motion, () => {
-        // Entrance: plays once on load — step 1 is fully settled before any scroll happens.
-        const intro = gsap.timeline({ defaults: { ease: 'power4.out' } })
-        intro
-          .from(qa('.hero__step')[0].querySelectorAll('.mask__in'), { yPercent: 118, duration: 1.3, stagger: 0.13 }, 0.35)
-          .from(q('.hero__step .eyebrow'), { autoAlpha: 0, y: 12, duration: 0.8 }, 0.3)
-          .from(qa('.hero__step')[0].querySelector('.jstep__sub'), { autoAlpha: 0, y: 18, duration: 1 }, 0.85)
-          .from(qa('.hero__step')[0].querySelector('.jstep__cta'), { autoAlpha: 0, y: 16, duration: 0.9 }, 1.1)
-          .from(q('.hero__scene--analyze'), { autoAlpha: 0, y: 34, scale: 0.97, duration: 1.3 }, 0.7)
-          .from(qa('.hero__scene--analyze .candle'), { scaleY: 0, autoAlpha: 0 }, 0)
-          .to(qa('.hero__scene--analyze .candle'), { scaleY: 1, autoAlpha: 1, duration: 0.7, stagger: 0.035, ease: 'back.out(1.6)' }, 1.2)
-          .from(qa('.hero-domains__item'), { autoAlpha: 0, y: 12, duration: 0.6, stagger: 0.08 }, 1.8)
-          .from(q('.hero-steps'), { autoAlpha: 0, y: 10, duration: 0.7 }, 1.9)
-
-        const star = q('.ai__star')
-        gsap.to(star, { rotate: 360, duration: 9, ease: 'none', repeat: -1, transformOrigin: '50% 50%' })
-        gsap.to(star, { scale: 1.14, duration: 1.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-
-        // The panels lean a few degrees toward the pointer (fine pointers only)
-        const pointerMM = gsap.matchMedia()
-        pointerMM.add('(pointer: fine)', () => {
-          const el = root.current
-          const onMove = (e) => {
-            const r = el.getBoundingClientRect()
-            el.style.setProperty('--tx', (((e.clientX - r.left) / r.width - 0.5) * 2).toFixed(3))
-            el.style.setProperty('--ty', (((e.clientY - r.top) / r.height - 0.5) * 2).toFixed(3))
-          }
-          const onLeave = () => {
-            el.style.setProperty('--tx', '0')
-            el.style.setProperty('--ty', '0')
-          }
-          el.addEventListener('pointermove', onMove)
-          el.addEventListener('pointerleave', onLeave)
-          return () => {
-            el.removeEventListener('pointermove', onMove)
-            el.removeEventListener('pointerleave', onLeave)
-          }
-        })
+        // Entrance of the copy: plays once on load.
+        const first = qa('.hero__step')[0]
+        gsap
+          .timeline({ defaults: { ease: 'power4.out' } })
+          .from(first.querySelectorAll('.mask__in'), { yPercent: 118, duration: 1.3, stagger: 0.13 }, 0.35)
+          .from(first.querySelector('.eyebrow'), { autoAlpha: 0, y: 12, duration: 0.8 }, 0.3)
+          .from(first.querySelector('.jstep__sub'), { autoAlpha: 0, y: 18, duration: 1 }, 0.85)
+          .from(first.querySelector('.jstep__cta'), { autoAlpha: 0, y: 16, duration: 0.9 }, 1.1)
 
         const build = (scrollTrigger) => {
           const steps = qa('.hero__step')
-          const scenes = qa('.hero__scene')
-          const aiSteps = qa('.ai__step')
-          const typedEl = q('.ask__typed')
           const question = h.question
+          const pick = tileRect(Math.max(0, h.tiles.findIndex((x) => x.pick)))
 
           gsap.set(steps.slice(1), { autoAlpha: 0, y: 18 })
-          gsap.set(scenes.slice(1), { autoAlpha: 0, y: 14, scale: 0.97 })
-          gsap.set(qa('.hero__scene--trade .candle'), { scaleY: 0, autoAlpha: 0 })
-          gsap.set(aiSteps, { autoAlpha: 0, y: 6 })
-          gsap.set(q('.ai__result'), { autoAlpha: 0, y: 6 })
-          gsap.set(q('.ask'), { autoAlpha: 0 })
-          gsap.set(q('.ai'), { autoAlpha: 0 })
-          gsap.set(qa('.trade-panel__row, .trade-panel__cta, .trade-panel__tabs, .ladder'), { autoAlpha: 0, y: 8 })
-          gsap.set(q('.trade-ai'), { autoAlpha: 0, y: 8 })
-          if (typedEl) typedEl.textContent = ''
 
           let idx = 0
           const tl = gsap.timeline({
@@ -132,8 +91,9 @@ export default function Hero() {
             scrollTrigger: {
               ...scrollTrigger,
               scrub: 1,
+              refreshPriority: 10,
               onUpdate: (self) => {
-                const next = self.progress < 0.3 ? 0 : self.progress < 0.72 ? 1 : 2
+                const next = self.progress < 0.3 ? 0 : self.progress < 0.62 ? 1 : 2
                 if (next !== idx) {
                   idx = next
                   setActive(next)
@@ -141,124 +101,82 @@ export default function Hero() {
               },
             },
           })
-          stRef.current = tl.scrollTrigger
 
-          // ---- Step 1 read pause (already settled by the entrance above) ----
-          tl.to({}, { duration: 2.2 })
+          // ---- Scene 1: a read pause, then the cursor picks Liquidation Levels and its block grows to the window ----
+          // the cursor is already on screen (it floats until the visitor scrolls); on the first scroll it glides, slowly, to the block
+          tl.to({}, { duration: 0.4 })
+          tl.to(S, { curX: pick.x + pick.w * 0.55, curY: pick.y + pick.h * 0.55, duration: 2.1, ease: 'sine.inOut' }, 0.4)
+          tl.to(S, { pickS: 0.95, ripple: 0.001, duration: 0.15 }, 2.55)
+          tl.to(S, { pickS: 1, ripple: 1, duration: 0.55, ease: 'power1.out' }, 2.7)
+          tl.to(S, { bigA: 1, duration: 0.01 }, 2.7)
+          tl.to(S, { curA: 0, duration: 0.4 }, 3.0)
+          tl.to(S, { bigT: 1, duration: 1.1, ease: 'power3.inOut' }, 2.8)
+          tl.to({}, { duration: 0.9 })
 
-          // ---- Transition 1 → 2 ----
-          tl.to(steps[0], { autoAlpha: 0, y: -18, duration: 0.5 }, 2.2)
-          tl.to(scenes[0], { autoAlpha: 0, y: -14, scale: 0.97, duration: 0.45 }, 2.2)
-          tl.to(steps[1], { autoAlpha: 1, y: 0, duration: 0.55 }, 2.55)
-          tl.to(scenes[1], { autoAlpha: 1, y: 0, scale: 1, duration: 0.5 }, 2.6)
+          // ---- Turn 1 → 2: the scene slides, the copy swaps (the machine never moves) ----
+          const t1 = 5.2
+          tl.to(steps[0], { autoAlpha: 0, y: -18, duration: 0.5 }, t1)
+          tl.to(S, { s1: 0, s1x: -70, duration: 0.8 }, t1 + 0.2)
+          tl.to(S, { s2: 1, s2x: 0, duration: 0.9 }, t1 + 0.45)
+          tl.to(steps[1], { autoAlpha: 1, y: 0, duration: 0.55 }, t1 + 0.55)
 
-          // ---- Step 2: ask bar fills, then the AI result organizes itself by category ----
-          tl.to(q('.ask'), { autoAlpha: 1, duration: 0.3 }, 2.9)
-          const typed = { n: 0 }
-          tl.to(
-            typed,
-            {
-              n: question.length,
-              duration: 0.9,
-              ease: 'none',
-              onUpdate: () => {
-                if (typedEl) typedEl.textContent = question.slice(0, Math.round(typed.n))
-              },
-            },
-            3.0,
-          )
-          tl.to(q('.ai'), { autoAlpha: 1, duration: 0.3 }, 3.95)
-          tl.to(aiSteps, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.22 }, 4.1)
-          tl.to(q('.ai__result'), { autoAlpha: 1, y: 0, duration: 0.4 }, 4.1 + aiSteps.length * 0.22 + 0.2)
+          // ---- Scene 2: the question types in, then the answer organizes itself by category ----
+          tl.to(S, { askA: 1, duration: 0.3 }, t1 + 1.3)
+          tl.to(S, { typed: question.length, duration: 1.1, ease: 'none' }, t1 + 1.4)
+          tl.to(S, { aiA: 1, duration: 0.3 }, t1 + 2.6)
+          tl.to(S, { aiSteps: h.domains.length, duration: 0.9, ease: 'none' }, t1 + 2.75)
+          tl.to(S, { resultA: 1, duration: 0.4 }, t1 + 2.75 + h.domains.length * 0.22 + 0.2)
           tl.to({}, { duration: 1 })
 
-          // ---- Transition 2 → 3 ----
-          tl.to(steps[1], { autoAlpha: 0, y: -18, duration: 0.5 }, 6.4)
-          tl.to(scenes[1], { autoAlpha: 0, y: -14, scale: 0.97, duration: 0.45 }, 6.4)
-          tl.to(steps[2], { autoAlpha: 1, y: 0, duration: 0.55 }, 6.75)
-          tl.to(scenes[2], { autoAlpha: 1, y: 0, scale: 1, duration: 0.5 }, 6.8)
+          // ---- Turn 2 → 3 ----
+          const t2 = t1 + 5.2
+          tl.to(steps[1], { autoAlpha: 0, y: -18, duration: 0.5 }, t2)
+          tl.to(S, { s2: 0, s2x: -70, duration: 0.8 }, t2 + 0.2)
+          tl.to(S, { s3: 1, s3x: 0, duration: 0.9 }, t2 + 0.45)
+          tl.to(steps[2], { autoAlpha: 1, y: 0, duration: 0.55 }, t2 + 0.55)
+          tl.to({}, { duration: 1.6 })
 
-          // ---- Step 3: candles print, order panel and the AI note settle in ----
-          tl.to(qa('.hero__scene--trade .candle'), { scaleY: 1, autoAlpha: 1, duration: 0.5, stagger: 0.03, ease: 'back.out(1.6)' }, 7.1)
-          tl.to(q('.trade-panel__tabs'), { autoAlpha: 1, y: 0, duration: 0.35 }, 7.5)
-          tl.to(qa('.trade-panel__row'), { autoAlpha: 1, y: 0, duration: 0.35, stagger: 0.12 }, 7.65)
-          tl.to(q('.ladder'), { autoAlpha: 1, y: 0, duration: 0.45 }, 7.7)
-          tl.to(q('.trade-panel__cta'), { autoAlpha: 1, y: 0, duration: 0.35 }, 8.0)
-          tl.to(q('.trade-ai'), { autoAlpha: 1, y: 0, duration: 0.4 }, 8.2)
-          tl.to({}, { duration: 1 })
+          // ---- End: the machine simply stays on the Terminal scene and the page scroll is released (no zoom, no melt) ----
         }
 
         const dmm = gsap.matchMedia()
-
         dmm.add(PIN_QUERY, () => {
           setPinned(true)
-          build({
-            trigger: q('.hero__pin'),
-            start: 'top top',
-            end: '+=420%',
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          })
+          build({ trigger: q('.hero__pin'), start: 'top top', end: '+=520%', pin: true, anticipatePin: 1, invalidateOnRefresh: true })
           return () => setPinned(false)
         })
-
         dmm.add(PIN_MOBILE_QUERY, () => {
           setPinned(true)
-          build({
-            trigger: q('.hero__pin'),
-            start: 'top top',
-            end: '+=380%',
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          })
+          build({ trigger: q('.hero__pin'), start: 'top top', end: '+=480%', pin: true, anticipatePin: 1, invalidateOnRefresh: true })
           return () => setPinned(false)
         })
-
-        // Mobile / short viewport (still inside the MQ.motion gate above): no pin — each
-        // step's text + visual get one light reveal as they scroll into view, native scroll
-        // throughout. Reduced motion never reaches this far: CSS alone keeps every step
-        // stacked and visible without any JS (see hero.css).
-        dmm.add(`(${MQ.mobile.slice(1, -1)}) and (max-height: 699px), (${MQ.desktop.slice(1, -1)}) and (max-height: 680px)`, () => {
-          const groups = qa('.hero__step-group')
-          groups.forEach((group, i) => {
-            if (i === 0) return // step 1 is already visible via the entrance above
-            const step = group.querySelector('.hero__step')
-            const scene = group.querySelector('.hero__scene')
-            gsap.set([step, scene], { autoAlpha: 0, y: 22 })
-            gsap.to([step, scene], {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.8,
-              stagger: 0.1,
-              scrollTrigger: { trigger: group, start: 'top 80%', once: true },
-            })
-          })
-        })
-
-        return () => {
-          dmm.revert()
-          pointerMM.revert()
-        }
+        return () => dmm.revert()
       })
 
-      return () => mm.revert()
+      // The sections below measured their scroll positions with or without this pin's spacer, depending on mount order
+      // (hot reload and late fonts/images both reorder it). Re-measure everything once this pin exists and once the page has settled.
+      const settle = () => ScrollTrigger.refresh()
+      const t1 = setTimeout(settle, 250)
+      const t2 = setTimeout(settle, 1500)
+      document.fonts?.ready.then(settle)
+      window.addEventListener('load', settle)
+
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+        window.removeEventListener('load', settle)
+        mm.revert()
+      }
     },
     { scope: root, dependencies: [h] },
   )
 
-  // Loops only run while their step is the one on screen (or always, in the stacked layouts)
-  const on = (i) => !pinned || active === i
-
   return (
     <section ref={root} className="hero hero--journey" data-nav-theme="dark" id="top">
       <div className="hero__pin">
-        {/* The background lives inside the pinned element, not the section — the section
-            itself grows tall enough to reserve the pin's scroll distance (GSAP inserts a
-            pin-spacer sized to it), but .hero__pin stays ~100vh for the whole journey.
-            A background sized to the section instead would get stretched to match it. */}
-        <HeroGrid />
+        {/* Layer order: stars < the machine < the blue gradient (it hides the stand) < the copy. */}
+        <Starfield className="hero__stars" />
+        <ImacScreen screen={screen} wrapRef={wrapRef} />
         <GradientWaves scrollTrigger={root} />
 
         <div className="container hero__grid">
@@ -275,164 +193,21 @@ export default function Hero() {
                 </h1>
                 <p className="jstep__sub">{s.sub}</p>
                 <div className="jstep__cta">
-                  <Link to={STEP_HREF[i]} className="btn btn--glow btn--lg">
-                    <span className="ring" aria-hidden="true" />
-                    <span>{s.cta}</span>
-                  </Link>
+                  {/^https?:/.test(STEP_HREF[i]) ? (
+                    <a href={STEP_HREF[i]} className="btn btn--glow btn--lg">
+                      <span className="ring" aria-hidden="true" />
+                      <span>{s.cta}</span>
+                    </a>
+                  ) : (
+                    <Link to={STEP_HREF[i]} className="btn btn--glow btn--lg">
+                      <span className="ring" aria-hidden="true" />
+                      <span>{s.cta}</span>
+                    </Link>
+                  )}
                 </div>
-              </div>
-
-              <div className={`hero__scene hero__scene--${['analyze', 'ask', 'trade'][i]}`} aria-hidden="true">
-                <BorderGlow className="hero__panel" backgroundColor={PANEL_BG}>
-                  {i === 0 && (
-                    <>
-                      <PanelBar url="app.alphractal.com/metrics" />
-                      <div className="hpanel__body">
-                        <div className="hpanel__head">
-                          <span className="hpanel__chip">
-                            <i /> BTC
-                          </span>
-                          <span className="hpanel__metric mono">{h.chartLabel}</span>
-                          <span className="hpanel__ranges mono">
-                            <i className="is-on">1D</i>
-                            <i>1W</i>
-                            <i>1M</i>
-                            <i>ALL</i>
-                          </span>
-                        </div>
-                        <LiveCandles seed={11} drift={0.012} vol={0.3} name={h.chartLabel} running={on(0)} />
-                        <ul className="hero-domains">
-                          {h.domains.map((d) => (
-                            <li className="hero-domains__item" key={d.key}>
-                              <Viz kind={d.key} />
-                              <span className="mono">{d.label}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </>
-                  )}
-
-                  {i === 1 && (
-                    <>
-                      <PanelBar url="app.alphractal.com/alpha-ai" />
-                      <div className="hpanel__body hpanel__body--ask">
-                        <p className="hpanel__logo">
-                          <b>Alpha</b> <em>AI</em>
-                        </p>
-                        <div className="ask">
-                          <span className="ring ring--ask" aria-hidden="true" />
-                          <span className="ask__glow" aria-hidden="true" />
-                          <div className="ask__field">
-                            <svg className="ask__search" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-                              <circle cx="11" cy="11" r="7" />
-                              <path d="m21 21-4.3-4.3" />
-                            </svg>
-                            <span className="ask__text">
-                              <span className="ask__typed">{h.question}</span>
-                              <i className="ask__caret" aria-hidden="true" />
-                            </span>
-                          </div>
-                          <div className="ask__bar">
-                            <span className="ask__chip">QUICK ASK</span>
-                            <span className="ask__chip ask__chip--trade">$ TRADE</span>
-                            <span className="ask__credits">
-                              1,000 credits · <b>49,000</b> left
-                            </span>
-                            <span className="ask__send">
-                              <img src="/figma/send.svg" alt="" width="18" height="18" />
-                            </span>
-                          </div>
-                        </div>
-                        <div className="ai">
-                          <div className="ai__head">
-                            <img className="ai__star" src="/figma/spark.svg" alt="" width="30" height="30" />
-                            <span className="ai__title">{h.thinking}</span>
-                            <span className="ai__dots" aria-hidden="true">
-                              <i />
-                              <i />
-                              <i />
-                            </span>
-                          </div>
-                          <ul className="ai__list">
-                            {h.domains.map((d) => (
-                              <li className="ai__step is-done" key={d.key}>
-                                <img src="/figma/check.svg" alt="" width="11" height="9" />
-                                <span>{d.label}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <p className="ai__result mono">{h.resultLabel}</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {i === 2 && (
-                    <>
-                      <PanelBar url="app.alphractal.com/terminal" />
-                      <div className="hpanel__body">
-                        <div className="hpanel__head">
-                          <span className="hpanel__chip">
-                            <i /> {h.trade.pair}
-                          </span>
-                          <span className="hpanel__ranges mono">
-                            <i>1m</i>
-                            <i className="is-on">15m</i>
-                            <i>1h</i>
-                            <i>4h</i>
-                          </span>
-                        </div>
-                        <LiveCandles seed={23} drift={0.004} vol={0.3} height={196} tag="LAST" name={h.trade.pair} running={on(2)} />
-                        <div className="trade-grid">
-                          <div className="trade-panel">
-                            <div className="trade-panel__tabs mono">
-                              <span className="is-active">{h.trade.buy}</span>
-                              <span>{h.trade.sell}</span>
-                            </div>
-                            <div className="trade-panel__row">
-                              <span className="mono">{h.trade.price}</span>
-                              <b className="mono">—</b>
-                            </div>
-                            <div className="trade-panel__row">
-                              <span className="mono">{h.trade.amount}</span>
-                              <b className="mono">—</b>
-                            </div>
-                            <span className="btn btn--blue btn--sm trade-panel__cta">{h.trade.cta}</span>
-                          </div>
-                          <OrderLadder />
-                        </div>
-                        <p className="trade-ai mono">
-                          <img src="/figma/spark.svg" alt="" width="16" height="16" />
-                          <span>{h.trade.aiNote}</span>
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </BorderGlow>
               </div>
             </div>
           ))}
-
-          <ol className={`hero-steps${pinned ? ' is-live' : ''}`} aria-label={h.indicator.join(', ')}>
-            {h.indicator.map((label, i) => (
-              <li key={label}>
-                <button
-                  type="button"
-                  className={`hero-steps__item${i === active ? ' is-active' : ''}`}
-                  aria-current={i === active ? 'step' : undefined}
-                  onClick={() => goTo(i)}
-                >
-                  <span className="mono hero-steps__n">{String(i + 1).padStart(2, '0')}</span>
-                  <span>{label}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-
-          <p className="jstep__legal">
-            <span>{h.disclaimer}</span>
-          </p>
         </div>
       </div>
     </section>

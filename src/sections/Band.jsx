@@ -3,7 +3,7 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { FACTS } from '../lib/facts.js'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 
-/* The 152px band between the two full-bleed rules in the Figma (y 1171 → 1323). Numbers count up once. */
+/* A short, thin trust strip right after the hero zoom. Numbers count up once. */
 export default function Band() {
   const { t, num } = useI18n()
   const root = useRef(null)
@@ -39,9 +39,10 @@ export default function Band() {
         {t.band.map((b) => (
           <div className="band__cell" data-item key={b.key}>
             <span className="band__num display num">
-              <span data-count={FACTS[b.key]}>{num(FACTS[b.key])}</span>+
+              <span data-count={FACTS[b.key]}>{num(FACTS[b.key])}</span>
+              {b.suffix}
             </span>
-            <span className="band__label mono">{b.label}</span>
+            <span className="band__label">{b.label}</span>
           </div>
         ))}
       </div>

@@ -25,9 +25,6 @@ export default function Grounded() {
               </p>
             ))}
           </div>
-          <p className="grounded__legal mono" data-reveal="fade">
-            {g.disclaimer}
-          </p>
         </div>
 
         <div data-reveal="scale">
