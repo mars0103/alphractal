@@ -5,14 +5,11 @@ import { StaticRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { I18nProvider } from './i18n/I18nProvider.jsx'
 import { headState } from './hooks/useMeta.js'
-import { loadPosts } from './lib/blog.js'
 
 // One call = one route. Every route but Home is React.lazy()-loaded (App.jsx keeps that
 // for the client bundle's code-splitting), so we need onAllReady — renderToString would
-// just emit the Suspense fallback (null) for every one of those pages. Blog/Post also fetch
-// posts in a useEffect, which never runs server-side, so that cache is warmed first too.
+// just emit the Suspense fallback (null) for every one of those pages.
 export async function render(url) {
-  await loadPosts()
   headState.current = null
 
   const html = await new Promise((resolve, reject) => {

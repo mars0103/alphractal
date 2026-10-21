@@ -1,9 +1,11 @@
 import { useRef } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { AUDIENCE, LINKS } from '../lib/facts.js'
+import { AUDIENCE } from '../lib/facts.js'
+import PostsCarousel from '../components/PostsCarousel.jsx'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 
-/* Proof in layers (brief §5.1 sec. 7): verifiable numbers, a real subscriber quote, real posts. No invented testimonials. */
+/* Proof in layers: the survey headline, a signed subscriber quote, the survey bars, then the ten approved posts
+   on a moving, reflected 9:16 row. The posts are never links. */
 export default function Proof() {
   const { t, num } = useI18n()
   const p = t.proof
@@ -45,7 +47,7 @@ export default function Proof() {
             {p.eyebrow}
           </p>
           <h2 className="h2" data-reveal="lines">
-            {p.title}
+            {p.title.replace('59%', `${AUDIENCE.rows.find((r) => r.key === 'goal').value}%`)}
           </h2>
         </div>
 
@@ -53,7 +55,13 @@ export default function Proof() {
           <figure className="quote" data-reveal="up">
             <span className="quote__mark" aria-hidden="true" />
             <blockquote lang="en">{p.quote}</blockquote>
-            <figcaption className="mono">{p.quoteBy}</figcaption>
+            <figcaption className="quote__by">
+              <img src="/people/rafaela-romano.webp" alt="" width="56" height="56" loading="lazy" />
+              <span>
+                <strong>{p.quoteBy}</strong>
+                <em>{p.quoteLine}</em>
+              </span>
+            </figcaption>
           </figure>
 
           <div className="aud" data-reveal="up" data-delay="0.12">
@@ -74,16 +82,9 @@ export default function Proof() {
           </div>
         </div>
 
-        <div className="xcard" data-reveal="up">
-          <div>
-            <h3>{p.xTitle}</h3>
-            <p>{p.xText}</p>
-          </div>
-          <a className="btn btn--ink btn--sm" href={LINKS.x} rel="noopener noreferrer">
-            {p.xCta} <span aria-hidden="true">↗</span>
-          </a>
-        </div>
       </div>
+
+      <PostsCarousel label={p.postsLabel} />
     </section>
   )
 }

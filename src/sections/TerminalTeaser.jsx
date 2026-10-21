@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import TerminalPreview from '../components/TerminalPreview.jsx'
+import Placeholder from '../components/Placeholder.jsx'
 
-/* The copy stays quiet (no countdown, no urgency); the terminal under it is a working
-   preview, marked testnet, that never sends anything. Same component as /terminal. */
+/* The copy stays quiet (no countdown, no urgency). The real Terminal capture goes under it;
+   until Gustavo sends it, a named placeholder holds the spot. */
 export default function TerminalTeaser() {
   const { t } = useI18n()
   const c = t.terminal
@@ -31,11 +31,10 @@ export default function TerminalTeaser() {
           <Link className="btn btn--blue" to="/terminal">
             {c.cta}
           </Link>
-          <p className="terminal__legal mono">{c.disclaimer}</p>
         </div>
       </div>
       <div className="container terminal__live" data-reveal="up">
-        <TerminalPreview />
+        <Placeholder dark name={c.shot} note={c.shotNote} />
       </div>
     </section>
   )

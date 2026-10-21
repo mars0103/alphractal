@@ -17,7 +17,7 @@
   border-radius: 3px;
   background: rgba(75, 107, 255, 0.12);
   color: #aab5ff;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.6;
   vertical-align: baseline;
@@ -53,7 +53,7 @@
 }
 .cons__punch {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(22px, 2vw, 28px);
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -71,7 +71,7 @@
 .cons__count-n {
   min-width: 1ch;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 64px;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -200,7 +200,7 @@
 .cv__tick,
 .cv__value,
 .cv__big {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
 }
 .cv__label {
   font-size: 6.5px;
@@ -371,7 +371,7 @@
   fill: #4b6bff;
 }
 .cv__last text {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 5.5px;
   font-weight: 600;
   fill: #fff;
@@ -521,24 +521,16 @@
   color: var(--blue);
 }
 
-/* .how__panel renders as <BorderGlow className="how__panel"> (see sections/HowItWorks.jsx):
-   BorderGlow's own .border-glow-card owns position/background/border/glow, so this rule only
-   sets the box's size, and .border-glow-inner (its sole child) clips the absolutely-positioned
-   .scene layers without clipping the glow, which needs to bleed past the box edges. */
 .how__panel {
+  position: relative;
   aspect-ratio: 1.16;
   min-height: 430px;
-}
-.how__panel .border-glow-inner {
-  position: relative;
   color: var(--on-dark);
-  overflow: hidden;
-  height: 100%;
 }
 .scene {
   position: absolute;
   inset: 0;
-  padding: 30px;
+  padding: 0;
   display: none;
 }
 .scene--assets {
@@ -576,45 +568,45 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(10px, 1.6vw, 16px);
+  gap: clamp(14px, 1.8vw, 22px);
 }
 .inc-row {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: clamp(10px, 1.6vw, 16px);
+  gap: clamp(14px, 1.8vw, 22px);
 }
 .inc-card {
   display: grid;
   flex: none;
   place-items: center;
-  width: clamp(64px, 8vw, 84px);
-  height: clamp(64px, 8vw, 84px);
-  border-radius: 20%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.75);
+  width: clamp(88px, 10.6vw, 124px);
+  height: clamp(88px, 10.6vw, 124px);
+  border-radius: 22%;
+  background: rgba(42, 61, 255, 0.1);
+  border: 1px solid rgba(75, 107, 255, 0.34);
   transition: border-color 0.4s, background-color 0.4s, box-shadow 0.4s;
 }
 .inc-card img {
-  width: 46%;
-  height: 46%;
+  width: 52%;
+  height: 52%;
   border-radius: 50%;
 }
 .inc-card--lg {
-  width: clamp(118px, 15vw, 152px);
-  height: clamp(118px, 15vw, 152px);
+  width: clamp(168px, 21vw, 232px);
+  height: clamp(168px, 21vw, 232px);
   border-radius: 24%;
 }
 .inc-card.is-picked {
   border-color: var(--coin, var(--blue));
-  background: color-mix(in srgb, var(--coin, var(--blue)) 18%, #161a26);
-  box-shadow: 0 0 0 1px var(--coin, var(--blue)), 0 0 40px -4px color-mix(in srgb, var(--coin, var(--blue)) 75%, transparent);
+  background: color-mix(in srgb, var(--coin, var(--blue)) 16%, #070a1a);
 }
 .assets__pick {
-  margin-top: 18px;
-  font-size: 13px;
-  color: #8f9bff;
+  margin-top: 22px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6f86ff;
 }
 
 /* ---------- Step 2: Liquidation Levels heatmap ---------- */
@@ -692,7 +684,7 @@
   left: 11px;
   font-size: 9px;
   font-style: normal;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   color: #9aa1b2;
   white-space: nowrap;
 }
@@ -763,7 +755,7 @@
   padding: 8px 10px;
   border: 1px solid #2a3040;
   text-align: left;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 11.5px;
   color: #8f9bff;
   transition: border-color 0.3s, color 0.3s;
@@ -813,12 +805,12 @@
     height: 220px;
   }
   .inc-card {
-    width: 46px;
-    height: 46px;
+    width: 58px;
+    height: 58px;
   }
   .inc-card--lg {
-    width: 76px;
-    height: 76px;
+    width: 96px;
+    height: 96px;
   }
   .liq-split {
     grid-template-columns: 1fr;
@@ -877,9 +869,6 @@
     min-height: 0;
     aspect-ratio: auto;
   }
-  .scene {
-    padding: 22px;
-  }
   .liq-split {
     gap: 8px;
   }
@@ -888,5 +877,192 @@
   }
   .liq-split__chat {
     padding-top: 8px;
+  }
+}
+
+/* ---------- How it works · steps 2–4: real captures, free-standing ---------- */
+.js-anim .scene--chart,
+.js-anim .scene--ask,
+.scene--chart,
+.scene--ask {
+  display: flex;
+  align-items: center;
+}
+.scene--chart .shot,
+.scene--ask .shot {
+  width: 100%;
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0a0e1f;
+  border: 1px solid rgba(75, 107, 255, 0.3);
+}
+.scene--chart .shot img,
+.scene--ask .shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ask__split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+}
+.ask__card {
+  padding: 14px;
+  background: #070a18;
+  border: 1px solid rgba(75, 107, 255, 0.4);
+  border-radius: 8px;
+}
+.ask__card .ai__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ask__card .ai__star {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.ask__card img:not(.ai__star) {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  border-radius: 6px;
+}
+.scene--act {
+  display: block;
+}
+.js-anim .scene--act {
+  display: flex;
+}
+.scene__ph {
+  flex: 1;
+  height: 100%;
+}
+@media (max-width: 991px) {
+  .ask__split {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .scene--ask .shot img {
+    height: 150px;
+    object-fit: cover;
+    object-position: left center;
+  }
+  .ask__card img:not(.ai__star) {
+    max-height: 170px;
+    object-fit: cover;
+    object-position: top;
+  }
+}
+
+/* ---------- The solution: black glass cards drawn into light, the symbol revealed ---------- */
+.sx__stage {
+  position: relative;
+  background: transparent;
+  overflow: visible;
+}
+.sx__card {
+  position: absolute;
+  width: clamp(112px, 22%, 160px);
+  aspect-ratio: 1.45;
+  margin: calc(clamp(112px, 22%, 160px) * -0.36) 0 0 calc(clamp(112px, 22%, 160px) * -0.5);
+  transform: scale(var(--s, 1));
+  will-change: transform, opacity;
+}
+.sx__card-in {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 6px;
+  padding: 12px 13px 12px;
+  border-radius: 18px;
+  color: #e8edff;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(180deg, #0b0e1d 0%, #05060d 100%);
+  /* a hairline rim lit from the top, and the blue glow of the home gradient pooling under the card */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 0 1px rgba(120, 140, 255, 0.22),
+    inset 0 -22px 26px -14px rgba(60, 90, 255, 0.85),
+    0 22px 40px -14px rgba(34, 40, 255, 0.55),
+    0 2px 6px rgba(5, 8, 24, 0.4);
+  animation: sx-float 6.4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes sx-float {
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.sx__card-name {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #dfe5ff;
+}
+.sx__card-in svg {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  align-self: end;
+  filter: drop-shadow(0 0 5px rgba(75, 107, 255, 0.6));
+}
+.sx__logo {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  width: 30%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  overflow: visible;
+  pointer-events: none;
+}
+.sx__word {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 69%;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(30px, 3.4vw, 46px);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  pointer-events: none;
+}
+.sx__letter {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx__card,
+  .sx__stroke {
+    display: none;
+  }
+  .sx__card-in {
+    animation: none;
+  }
+}
+@media (max-width: 991px) {
+  .cons__stage.sx__stage {
+    height: 400px;
+    min-height: 0;
+  }
+  .sx__card-in {
+    padding: 9px 10px;
+    border-radius: 14px;
+  }
+  .sx__card-name {
+    font-size: 10px;
+  }
+  .sx__logo {
+    width: 34%;
   }
 }

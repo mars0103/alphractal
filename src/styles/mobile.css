@@ -66,3 +66,13 @@
     filter: none;
   }
 }
+
+/* Phones lose the blur above (cost), so the floating bar stays near-opaque instead of see-through. */
+@media (max-width: 991px), (hover: none) {
+  .site-header.is-stuck[data-theme='dark'] {
+    --hbg: rgba(11, 13, 20, 0.97);
+  }
+  .site-header.is-stuck[data-theme='paper'] {
+    --hbg: rgba(250, 250, 249, 0.98);
+  }
+}

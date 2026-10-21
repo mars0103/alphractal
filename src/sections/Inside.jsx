@@ -1,18 +1,167 @@
-import { useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
 import { series, toPath } from '../lib/chart.js'
 import { FACTS } from '../lib/facts.js'
-import { MetricsPreview, AlphaAiReplica, DashMix } from '../components/visuals/BentoVisuals.jsx'
+import { MetricsPreview } from '../components/visuals/BentoVisuals.jsx'
+import ImacScreen from '../components/ImacScreen.jsx'
+import { createScreen } from '../lib/heroScreen.js'
 import AvatarGroup from '../components/AvatarGroup.jsx'
 import { AI_LOGOS } from '../lib/ai-logos.js'
+
+// The animated aurora (React Bits) loads on its own so the home bundle stays light.
+const Aurora = lazy(() => import('../components/Aurora.jsx'))
+const SoftAurora = lazy(() => import('../components/SoftAurora.jsx'))
+
+/* The shader effects need WebGL2. `children` mounts only when the browser can start it; if it can't (or the shader fails), a quiet
+   blue gradient in CSS takes its place, so a card never shows a blank block. While the check runs nothing extra is drawn. */
+function GlBox({ className, children }) {
+  const [state, setState] = useState('idle')
+  const ref = useRef(null)
+
+  useEffect(() => {
+    let gl2 = false
+    try {
+      gl2 = !!document.createElement('canvas').getContext('webgl2')
+    } catch {
+      gl2 = false
+    }
+    if (!gl2) {
+      setState('fail')
+      return undefined
+    }
+    setState('ok')
+    const el = ref.current
+    const fail = () => setState('fail')
+    el?.addEventListener('webglcontextcreationerror', fail, true)
+    return () => el?.removeEventListener('webglcontextcreationerror', fail, true)
+  }, [])
+
+  return (
+    <div ref={ref} className={className} aria-hidden="true">
+      {state === 'fail' && <span className="viz-fallback" />}
+      {state === 'ok' && <Suspense fallback={null}>{children}</Suspense>}
+    </div>
+  )
+}
+
+/* Card 02: the iMac photo with the Alpha AI screen (the same canvas drawn for the hero, frozen on its answer scene). */
+function AlphaImac() {
+  const { t } = useI18n()
+  const [screen, setScreen] = useState(null)
+
+  useEffect(() => {
+    const h = t.hero
+    const sc = createScreen({ ...h, tiles: [] })
+    Object.assign(sc.state, {
+      s1: 0,
+      s2: 1,
+      s2x: 0,
+      askA: 1,
+      typed: h.question.length,
+      aiA: 1,
+      aiSteps: h.domains.length,
+      resultA: 1,
+      curA: 0,
+    })
+    setScreen(sc)
+  }, [t])
+
+  return (
+    <div className="viz-imac">
+      <ImacScreen screen={screen} />
+    </div>
+  )
+}
+
+function AiAurora() {
+  return (
+    <GlBox className="card__aurora">
+      <Aurora
+        colorStops={['#1f31ff', '#4b6bff', '#2a3dff']}
+        amplitude={1}
+        blend={0.5}
+        height={0.5}
+        speed={1}
+        glow={0.6}
+        scale={1}
+        brightness={1}
+        layers={1}
+        direction="top"
+        opacity={1}
+        mouseInteraction
+        intro
+        lightMode={false}
+      />
+    </GlBox>
+  )
+}
+
+function TopoViz() {
+  return (
+    <GlBox className="viz-topo">
+      <Aurora
+        colorStops={['#1f31ff', '#4b6bff', '#2a3dff']}
+        amplitude={1}
+        blend={0.5}
+        height={0.5}
+        speed={1}
+        glow={0.6}
+        scale={1}
+        brightness={1}
+        layers={1}
+        direction="bottom"
+        opacity={1}
+        mouseInteraction
+        intro
+        lightMode={false}
+      />
+    </GlBox>
+  )
+}
+
+/* Research & Academy: the soft aurora in the blues of the home gradient (spectrum 0 keeps it to the two blues, no rainbow). */
+function SoftViz() {
+  return (
+    <div className="viz-soft-wrap">
+    <GlBox className="viz-soft">
+      <SoftAurora
+        speed={0.6}
+        scale={1.5}
+        brightness={1}
+        color1="#8fa0ff"
+        color2="#2a3dff"
+        bandHeight={0.5}
+        bandSpread={1}
+        enableMouseInteraction
+        mouseInfluence={0.25}
+        spectrum={0}
+        colorSpeed={1}
+        noiseFrequency={2.5}
+        noiseAmplitude={1}
+        tilt={0}
+        octaveDecay={0.1}
+        layerOffset={0}
+        clickPulse
+        intro
+        lightMode={false}
+      />
+    </GlBox>
+      <span className="viz-mic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="3" width="6" height="11" rx="3" />
+          <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M8.5 21h7" />
+        </svg>
+      </span>
+    </div>
+  )
+}
 
 const MACRO = ['Liquidity', 'Rates', 'Risk regime'].map((l, i) => ({
   l,
   d: toPath(series(30, 70 + i * 13, { drift: 0.004 * (i + 1), vol: 0.12, start: 0.35 }), 100, 44, 4),
 }))
-const WAVE = Array.from({ length: 34 }, (_, i) => 0.25 + 0.75 * Math.abs(Math.sin(i * 0.63) * Math.cos(i * 0.21)))
 
 const DARK_CARDS = new Set(['metrics', 'ai', 'dash', 'research'])
 
@@ -22,7 +171,7 @@ function CardViz({ kind }) {
     case 'metrics':
       return <MetricsPreview />
     case 'ai':
-      return <AlphaAiReplica />
+      return <AlphaImac />
     case 'mcp':
       return (
         <div className="viz-mcp">
@@ -56,7 +205,7 @@ function CardViz({ kind }) {
         </ul>
       )
     case 'dash':
-      return <DashMix />
+      return <TopoViz />
     case 'macro':
       return (
         <div className="viz-macro" aria-hidden="true">
@@ -71,13 +220,7 @@ function CardViz({ kind }) {
         </div>
       )
     default:
-      return (
-        <div className="viz-wave" aria-hidden="true">
-          {WAVE.map((v, i) => (
-            <i key={i} style={{ '--h': v }} />
-          ))}
-        </div>
-      )
+      return <SoftViz />
   }
 }
 
@@ -119,26 +262,6 @@ export default function Inside() {
             gsap.set(mcp, { opacity: 0.12 })
             tl.to(mcp, { opacity: 1, duration: 0.25, stagger: { each: 0.03, repeat: window.matchMedia(MQ.desktop).matches ? -1 : 0, repeatDelay: 1.2, yoyo: true } }, 0.3)
           }
-
-          const wave = card.querySelectorAll('.viz-wave i')
-          // one ScrollTrigger + one forever-tween per bar is a lot for a phone: desktop only
-          if (wave.length && window.matchMedia(MQ.desktop).matches) {
-            wave.forEach((el, i) =>
-              gsap.fromTo(
-                el,
-                { scaleY: 0.2 },
-                {
-                  scaleY: () => Number(el.style.getPropertyValue('--h')),
-                  duration: 0.9 + (i % 5) * 0.12,
-                  ease: 'sine.inOut',
-                  yoyo: true,
-                  repeat: -1,
-                  delay: i * 0.03,
-                  scrollTrigger: { trigger: card, start: 'top 90%', toggleActions: 'play pause resume pause' },
-                },
-              ),
-            )
-          }
         })
       })
 
@@ -172,6 +295,7 @@ export default function Inside() {
             >
               <span className="card__ring ring" aria-hidden="true" />
               <span className="card__glow" aria-hidden="true" />
+              {c.key === 'ai' && <AiAurora />}
               <span className="card__n mono">{String(i + 1).padStart(2, '0')}</span>
               <div className="card__body">
                 <h3>{c.title}</h3>

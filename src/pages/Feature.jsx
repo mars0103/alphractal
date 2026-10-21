@@ -20,6 +20,12 @@ import {
 import FinalCta from '../sections/FinalCta.jsx'
 import McpHero from '../components/McpHero.jsx'
 import Soon from './Soon.jsx'
+import Metrics from './product/Metrics.jsx'
+import Api from './product/Api.jsx'
+import Research from './product/Research.jsx'
+import AlphaAi from './product/AlphaAi.jsx'
+import Mcp from './product/Mcp.jsx'
+import Dashboards from './product/Dashboards.jsx'
 
 // Recreated demos, not screenshots — a static capture can't show the interaction the copy is
 // actually selling (a citation you click to open its chart, a panel you drag and resize), and
@@ -85,8 +91,7 @@ function Domains({ data }) {
   )
 }
 
-export default function Feature() {
-  const { slug } = useParams()
+function LegacyFeature({ slug }) {
   const { t } = useI18n()
   const c = t.pages.common
   const f = t.pages.features[slug]
@@ -95,7 +100,7 @@ export default function Feature() {
   if (!f) return <Soon />
 
   const Viz = HERO_VIZ[slug]
-  const heroNote = slug === 'alpha-ai' ? c.disclaimer : null
+  const heroNote = null
 
   const actions = (
     <>
@@ -149,4 +154,13 @@ export default function Feature() {
       <FinalCta title={c.ctaTitle} sub={c.ctaSub} primary={c.startFree} secondary={c.seePlatform} />
     </PageShell>
   )
+}
+
+// Pages already rebuilt from the 20 Oct 2026 package; the rest still use the template above until they are.
+const PAGES = { metrics: Metrics, api: Api, research: Research, 'alpha-ai': AlphaAi, mcp: Mcp, dashboards: Dashboards }
+
+export default function Feature() {
+  const { slug } = useParams()
+  const Page = PAGES[slug]
+  return Page ? <Page /> : <LegacyFeature slug={slug} />
 }

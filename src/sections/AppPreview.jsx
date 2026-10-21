@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { FACTS } from '../lib/facts.js'
-import { swapSeparators } from '../lib/preview-data.js'
 import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
 import Icon from '../components/preview/Icon.jsx'
 import {
@@ -24,7 +23,7 @@ const ICON = { cryptos: 'bitcoin', ai: 'network', screeners: 'list', alerts: 'be
  * Everything inside the window is sample data, always captioned as such.
  */
 export default function AppPreview() {
-  const { lang, t, num } = useI18n()
+  const { t, num } = useI18n()
   const p = t.preview
   const root = useRef(null)
   const seen = useRef(false)
@@ -34,7 +33,7 @@ export default function AppPreview() {
   const tabs = useRef(null)
   const current = ORDER[active]
 
-  const loc = lang === 'pt' ? swapSeparators : (s) => s
+  const loc = (s) => s
 
   useGSAP(
     () => {
@@ -240,8 +239,6 @@ export default function AppPreview() {
 
       <p className="pv-note mono container">
         <span>{p.caption}</span>
-        <span aria-hidden="true">·</span>
-        <span>{p.disclaimer}</span>
       </p>
     </section>
   )

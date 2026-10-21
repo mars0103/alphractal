@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { series, toPath } from '../../lib/chart.js'
 import AppFrame from './AppFrame.jsx'
 
@@ -31,33 +30,10 @@ const COPY = {
     chapter: 'Chapter 2',
     illustrative: 'Illustrative report',
   },
-  pt: {
-    asset: 'Bitcoin',
-    stats: ['Preço atual', 'Valor de mercado', 'Volume 24h', 'Variação 7D'],
-    values: ['$ — — —', '$ — — —', '$ — — —', '— —%'],
-    nav: 'Research',
-    search: 'Buscar relatórios',
-    tabs: ['Relatórios', 'Academy'],
-    cats: ['Recentes', 'On-chain', 'Derivativos', 'Macro', 'Sentimento', 'Ciclo'],
-    head: 'Relatório da semana',
-    ask: 'Explicar este relatório',
-    panelTitle: 'O funding vira enquanto a alavancagem cresce',
-    panelSub: 'Capítulo 2 de 5 · os gráficos atualizam enquanto você lê',
-    live: 'GRÁFICO AO VIVO',
-    version: 'V3 · ATUALIZADO',
-    rows: [
-      { q: 'Como o posicionamento alavancado está mudando?', a: 'Open interest e funding, lidos juntos.', link: 'Abrir o gráfico' },
-      { q: 'Onde a exposição a liquidações se concentra?', a: 'Os dois lados do preço, com a estimativa rotulada.', link: 'Abrir o gráfico' },
-    ],
-    narration: 'Narração',
-    chapter: 'Capítulo 2',
-    illustrative: 'Relatório ilustrativo',
-  },
 }
 
 export default function ResearchApp() {
-  const { lang } = useI18n()
-  const c = COPY[lang] || COPY.en
+  const c = COPY.en
   const paths = useMemo(
     () => ({
       main: toPath(series(70, 41, { drift: 0.004, vol: 0.12, start: 0.35 }), 760, 150, 10),

@@ -7,6 +7,7 @@
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { ORIGIN, SITEMAP_PATHS } from '../src/lib/seo.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const clientDir = join(root, 'dist/client')
@@ -15,11 +16,8 @@ const serverEntry = join(root, 'dist/server/entry-server.js')
 const FEATURE_SLUGS = ['alpha-ai', 'metrics', 'mcp', 'api', 'dashboards', 'research']
 const VS_SLUGS = ['glassnode', 'nansen', 'coinglass', 'messari']
 
-const blogPosts = JSON.parse(readFileSync(join(root, 'src/content/blog.json'), 'utf-8'))
-
 const routes = [
   '/',
-  '/platform',
   ...FEATURE_SLUGS.map((s) => `/platform/${s}`),
   '/terminal',
   '/institutional',
@@ -27,8 +25,6 @@ const routes = [
   ...VS_SLUGS.map((s) => `/vs/${s}`),
   '/privacy',
   '/terms',
-  '/blog',
-  ...blogPosts.map((p) => `/blog/${p.slug}`),
 ]
 
 const esc = (s) =>
@@ -53,6 +49,18 @@ function injectHead(html, head) {
     /<meta[^>]*\bname="robots"[^>]*>/,
     `<meta name="robots" content="${head.noindex ? 'noindex' : 'index,follow'}" />`,
   )
+  const social = [
+    `<meta property="og:site_name" content="Alphractal" />`,
+    `<meta name="twitter:card" content="${head.image ? 'summary_large_image' : 'summary'}" />`,
+    head.image ? `<meta property="og:image" content="${esc(head.image)}" />` : '',
+    head.image ? '<meta property="og:image:width" content="1200" />' : '',
+    head.image ? '<meta property="og:image:height" content="630" />' : '',
+    head.image ? `<meta property="og:image:alt" content="${esc(head.title)}" />` : '',
+    head.image ? `<meta name="twitter:image" content="${esc(head.image)}" />` : '',
+    `<meta name="twitter:title" content="${esc(head.title)}" />`,
+    head.description ? `<meta name="twitter:description" content="${esc(head.description)}" />` : '',
+  ].filter(Boolean)
+  out = out.replace('</head>', `${social.join('\n    ')}\n  </head>`)
   if (head.jsonLd) {
     const script = `<script type="application/ld+json" data-page="true">${JSON.stringify(head.jsonLd)}</script>\n  </head>`
     out = out.replace('</head>', script)
@@ -89,6 +97,14 @@ async function main() {
       failures.push({ route, err })
     }
   }
+
+  // sitemap.xml + robots.txt from the final inventory (lib/seo.js). No lastmod: none is tracked per real content change.
+  const urls = SITEMAP_PATHS.map((p) => `  <url><loc>${ORIGIN}${p === '/' ? '/' : p}</loc></url>`).join('\n')
+  writeFileSync(
+    join(clientDir, 'sitemap.xml'),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+  )
+  writeFileSync(join(clientDir, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`)
 
   rmSync(join(root, 'dist/server'), { recursive: true, force: true })
 

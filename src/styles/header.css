@@ -18,7 +18,16 @@
   --hline: rgba(91, 98, 112, 0.55);
 }
 .site-header.is-stuck[data-theme='dark'] {
-  --hbg: rgba(11, 13, 20, 0.94);
+  --hbg: rgba(11, 13, 20, 0.8);
+}
+.site-header.is-stuck[data-theme='paper'] {
+  --hbg: rgba(250, 250, 249, 0.84);
+}
+/* Blurred glass once the bar floats: without it, the footer wordmark and links showed straight through the
+   transparent bar when the page scrolled to the very bottom. */
+.site-header.is-stuck .bar__frame {
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
 }
 
 .bar {
@@ -136,27 +145,6 @@
   border-radius: 5px;
 }
 
-.lang {
-  display: inline-flex;
-  gap: 2px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-}
-.lang button {
-  padding: 5px 7px;
-  border-radius: 3px;
-  opacity: 0.55;
-  transition: opacity 0.3s, background-color 0.3s;
-}
-.lang button:hover {
-  opacity: 1;
-}
-.lang button[aria-pressed='true'] {
-  opacity: 1;
-  background: rgba(75, 107, 255, 0.22);
-}
-
 /* ---------- Mega menu ---------- */
 .mega {
   position: absolute;
@@ -259,7 +247,7 @@
 }
 .drawer a.drawer__link {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: clamp(30px, 8vw, 44px);
   letter-spacing: -0.02em;
   padding: 10px 0;
@@ -295,8 +283,7 @@
     display: none;
   }
   .nav,
-  .login,
-  .lang--bar {
+  .login {
     display: none;
   }
   .bar__actions {

@@ -1,43 +1,18 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo } from 'react'
 import en from './en.js'
-import pt from './pt.js'
 import pagesEn from './pages.en.js'
-import pagesPt from './pages.pt.js'
 
-const DICTS = { en: { ...en, pages: pagesEn }, pt: { ...pt, pages: pagesPt } }
-const I18nContext = createContext({ t: DICTS.en, lang: 'en', setLang: () => {}, num: (n) => String(n) })
-
-const read = () => {
-  try {
-    const stored = window.localStorage.getItem('alphractal-lang')
-    if (stored === 'en' || stored === 'pt') return stored
-  } catch {
-    /* storage can be blocked, English is the default */
-  }
-  return 'en'
-}
+// English only. `lang` stays in the context so call sites that key off it keep working.
+const DICT = { ...en, pages: pagesEn }
+const NUM = new Intl.NumberFormat('en-US')
+const VALUE = { lang: 'en', t: DICT, num: (n) => NUM.format(n) }
+const I18nContext = createContext(VALUE)
 
 export function I18nProvider({ children }) {
-  const [lang, setLangState] = useState(read)
-
-  const setLang = useCallback((next) => {
-    setLangState(next)
-    try {
-      window.localStorage.setItem('alphractal-lang', next)
-    } catch {
-      /* ignore */
-    }
-  }, [])
-
   useEffect(() => {
-    document.documentElement.lang = DICTS[lang].meta.lang
-  }, [lang])
-
-  const value = useMemo(() => {
-    const locale = lang === 'pt' ? 'pt-BR' : 'en-US'
-    return { lang, setLang, t: DICTS[lang], num: (n) => new Intl.NumberFormat(locale).format(n) }
-  }, [lang, setLang])
-
+    document.documentElement.lang = DICT.meta.lang
+  }, [])
+  const value = useMemo(() => VALUE, [])
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }
 

@@ -106,7 +106,7 @@
   margin-top: 34px;
 }
 .hero__note {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 12px;
   color: #a4abbb;
 }
@@ -163,9 +163,24 @@
    it by. No fade mask here: that is what used to dissolve the white back into the ink. */
 @media (min-width: 992px) {
   .hero--journey .waves {
-    top: calc(100vh - 0.186 * var(--ww));
+    top: calc(100vh - 0.186 * var(--ww) + 110px);
     mask-image: none;
     -webkit-mask-image: none;
+  }
+}
+/* Phones: same idea — lower the field and keep the mask off, so the hero ends on the paper-white
+   layer instead of fading back into the ink. */
+@media (max-width: 991px) {
+  .hero--journey .waves {
+    top: calc(100svh - 0.186 * var(--ww) + 0px);
+    bottom: auto;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  /* The still is stretched downward so the white end of the gradient lands on the bottom edge of the hero. */
+  .hero--journey .waves__still {
+    height: calc(var(--ww) * 0.36);
+    object-fit: fill;
   }
 }
 
@@ -199,8 +214,8 @@
   max-width: 56ch;
 }
 .jstep__title {
-  font-size: clamp(32px, 3.6vw, 46px);
-  line-height: 1.04;
+  font-size: clamp(30px, 3.1vw, 42px);
+  line-height: 1.06;
   color: var(--on-dark);
 }
 .jstep__sub {
@@ -302,7 +317,7 @@
   display: flex;
   align-items: center;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 600;
   font-size: 16px;
   line-height: 1;
   color: var(--on-dark);
@@ -374,7 +389,7 @@
 }
 .ai__step {
   position: relative;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--on-dark);
 }
 .ai__step img {
@@ -469,7 +484,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 2px;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 0.02em;
   color: #6f7788;
@@ -490,7 +505,7 @@
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 6px;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 0.02em;
   color: #6f7788;
@@ -771,7 +786,7 @@
   fill: #4b6bff;
 }
 .lc__last text {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 8.5px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1171,7 +1186,7 @@
   stroke-width: 1;
 }
 .lc__lvl text {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 7.5px;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -1305,5 +1320,315 @@
   .hero--journey .hpanel__body {
     gap: 8px;
     padding: 10px 14px 12px;
+  }
+}
+
+/* =====================================================================================
+   Hero v3 — twelve real metrics, scenes that turn like a cube, zoom exit, starfield
+   ===================================================================================== */
+.hero__stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 78%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 78%);
+  pointer-events: none;
+}
+.hero__flood {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: radial-gradient(80% 70% at 84% 80%, #5876ff 0%, #2a3dff 38%, #0c1247 100%);
+  opacity: 0;
+}
+
+/* Scene 1: the metric wall */
+.hpanel__body--grid {
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+  display: flex;
+}
+.mgrid {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.mgrid__tiles {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 8px;
+}
+.hmt {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #232838;
+  border-radius: 4px;
+  background: #090c17;
+}
+.hmt img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.92;
+}
+.hmt--empty {
+  display: grid;
+  place-items: center;
+  border-style: dashed;
+  border-color: rgba(251, 248, 248, 0.22);
+  background: #090c17 repeating-linear-gradient(135deg, transparent 0 9px, rgba(251, 248, 248, 0.04) 9px 10px);
+}
+.hmt--empty em {
+  font-style: normal;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(251, 248, 248, 0.42);
+}
+.hmt__name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 8px 6px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #e5e8f0;
+  background: linear-gradient(to top, rgba(3, 5, 13, 0.92), transparent);
+}
+.hmt--empty .hmt__name {
+  background: none;
+  padding-bottom: 7px;
+}
+.mgrid__big {
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  border: 1px solid #3a4260;
+  border-radius: 4px;
+  background: #03050d;
+}
+.mgrid__big img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+}
+.mgrid__big .hmt__name {
+  font-size: 12.5px;
+  padding: 22px 12px 10px;
+}
+.mgrid__cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+/* Scene 3: Terminal shot + the Long button the exit zoom dives into */
+.hpanel__body--shot {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  padding: 14px;
+  display: flex;
+}
+.hero__ph {
+  flex: 1;
+  height: 100%;
+}
+.hero__long {
+  position: absolute;
+  right: 9%;
+  bottom: 9%;
+  padding: 8px 22px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #1ead64;
+  border-radius: 3px;
+}
+.hero__zoom {
+  transform-origin: 88% 86%;
+  will-change: transform;
+}
+
+@media (max-width: 560px) {
+  .mgrid__tiles {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
+
+/* =====================================================================================
+   Hero v4 — the silver iMac carries the app (components/IMac3D.jsx)
+   ===================================================================================== */
+.imac3d {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+/* The screen content lives on the glass: positioned at the top-left and warped onto the 3D display by a per-frame matrix3d. */
+.imac__screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  transform-origin: 0 0;
+  background: #03050d;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+  color: var(--on-dark);
+  font-family: var(--font-ui);
+}
+.imac__screen.is-3d {
+  visibility: visible;
+}
+.imac__screen .hpanel__bar {
+  flex: 0 0 auto;
+}
+.imac__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.imac__scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  padding: 16px;
+}
+.imac__scene .mgrid {
+  flex: 1;
+}
+.imac__scene--ask {
+  align-items: center;
+  justify-content: center;
+}
+.imac__scene--ask .hpanel__body--ask {
+  width: 100%;
+}
+.imac__scene--trade .hpanel__body--shot {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+.imac__screen .hmt__name {
+  font-size: 13px;
+}
+.imac__screen .hmt--empty em {
+  font-size: 11px;
+}
+
+/* The metric blocks cascade in on the screen once the machine has risen (CSS, so it never fights the scroll timeline). */
+@keyframes hmt-in {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.imac__screen:not(.is-3d) .hmt {
+  opacity: 0;
+}
+.imac__screen.is-3d .hmt {
+  animation: hmt-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(1.7s + var(--i) * 0.06s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .imac__screen.is-3d .hmt {
+    animation: none;
+  }
+}
+
+/* Scenes 2 and 3 were drawn for a smaller window: scale their content up so it reads on the machine. */
+.imac__scene--ask .hpanel__body--ask {
+  zoom: 1.55;
+  width: min(100%, 620px);
+  margin: 0 auto;
+}
+.imac__scene--ask .ask,
+.imac__scene--ask .ai {
+  width: 100%;
+}
+.imac__scene--trade .placeholder strong {
+  font-size: 26px;
+}
+.imac__scene--trade .placeholder em {
+  font-size: 17px;
+}
+.imac__scene--trade .hero__long {
+  font-size: 20px;
+  padding: 12px 34px;
+}
+
+/* =====================================================================================
+   Hero v5 — flat iMac photo + live screen behind it (components/ImacScreen.jsx)
+   ===================================================================================== */
+.imac2d {
+  position: absolute;
+  z-index: 1;
+  right: max(24px, calc((100vw - var(--col)) / 2));
+  top: clamp(110px, 19vh, 180px);
+  width: min(54vw, 780px);
+  aspect-ratio: 4 / 3;
+  /* the dive scales around the middle of the glass */
+  transform-origin: 49.6% 49.6%;
+  pointer-events: none;
+  will-change: transform;
+}
+.imac2d__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  /* the photo is a light grey aluminium unit: take it down to a black machine */
+  filter: brightness(0.5) contrast(1.15);
+}
+.imac2d__screen {
+  z-index: 1;
+}
+@media (max-width: 991px) {
+  .imac2d {
+    right: auto;
+    left: 50%;
+    top: 47%;
+    bottom: auto;
+    width: min(132vw, 800px);
+    margin-left: calc(min(132vw, 800px) / -2 + 8vw);
   }
 }
