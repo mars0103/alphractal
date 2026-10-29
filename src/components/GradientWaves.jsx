@@ -110,10 +110,17 @@ export default function GradientWaves({ scrollTrigger, className = '', interacti
 
           // Cursor lean (fine pointers only)
           let move
+          let io = null
           if (interactive && window.matchMedia('(pointer: fine)').matches) {
             const qx = gsap.quickTo(inner.current, 'x', { duration: 1.6, ease: 'power3.out' })
             const qy = gsap.quickTo(inner.current, 'y', { duration: 1.6, ease: 'power3.out' })
+            // Only lean while the field is actually on screen: every pointer move re-rasterises the 50px blur, and doing
+            // that under a different section made every hover elsewhere on the page stutter.
+            let onScreen = false
+            io = new IntersectionObserver(([e]) => (onScreen = e.isIntersecting))
+            io.observe(root.current)
             move = (e) => {
+              if (!onScreen) return
               qx((e.clientX / window.innerWidth - 0.5) * -46)
               qy((e.clientY / window.innerHeight - 0.5) * -26)
             }
@@ -121,6 +128,7 @@ export default function GradientWaves({ scrollTrigger, className = '', interacti
           }
 
           return () => {
+            io?.disconnect()
             gate?.kill()
             parallax?.kill()
             drift.forEach((t) => t.kill())

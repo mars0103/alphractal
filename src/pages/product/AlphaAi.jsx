@@ -1,15 +1,21 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import '../../styles/p-alpha-ai.css'
 import { useMeta } from '../../hooks/useMeta.js'
 import { LINKS } from '../../lib/facts.js'
+import { gsap } from '../../lib/gsap.js'
+import { useLive } from '../../lib/live.js'
 import PageShell from '../../components/PageShell.jsx'
+import PageHero from '../../components/PageHero.jsx'
+import GlowButton from '../../components/GlowButton.jsx'
+import AlphaSphere from '../../components/AlphaSphere.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
-import { Cards, PBlock, ProductHero, Shot } from '../../components/ProductBlocks.jsx'
+import { ExtLink, PBlock, Rows } from '../../components/ProductBlocks.jsx'
 
-/* /platform/alpha-ai — hero with the recorded demonstration, the problem, four ways to ask, related, closing CTA.
-   Copy: Textos/Alpha AI.md · script: Alpha AI demonstracao.md · the only AI answer shown is the one in Alpha AI resposta real.md. */
-
-const RECORDED = 'Recorded example · 19 Oct 2026'
+/* /platform/alpha-ai — centred hero over a particle sphere, the problem, four ways to ask, related, closing CTA.
+   Copy: Guia completo para IA.md (Alpha AI) and Textos/08 - Alpha AI.md. Nothing here is a real AI answer: the
+   conversations are drawn on the page with structural text and named [placeholders] where a figure would go, until the
+   real recordings exist. Every scene is a loose drawing on paper: it types / streams in when first seen, keeps moving
+   while on screen, and the charts zoom under a mouse. Final state is the server markup (also the reduced-motion state). */
 
 const SUGGESTED = [
   'What does Bitcoin’s liquidation activity say about leverage risk?',
@@ -18,56 +24,22 @@ const SUGGESTED = [
   'Which metrics should I examine to test this thesis?',
 ]
 
-/* Verbatim from the real run. The three blocks are a typographic split of the same text, nothing added or cut. */
-const QUESTION =
-  'Using only data accessible on this plan, summarize Bitcoin’s 24-hour long and short liquidations and 12-hour short liquidations. Is this a one-sided setup? Cite the actual metrics consulted and include their data timestamp if available. If no timestamp is available, say so. Do not use Liquidation Levels. Keep the answer under 100 words.'
-const ANSWER = [
-  'Bitcoin 24h liquidations: $58.95M total, with $33.18M longs vs $25.77M shorts; 12h short liquidations are $15.58M.',
-  'The platform does not track standalone metrics named “24-hour long liquidations,” “24-hour short liquidations,” or “12-hour short liquidations”, so these figures come from the BTC liquidations summary. No timestamp is available in the accessible data.',
-  'This is not strongly one-sided over 24h since longs lead by only $7.41M, but the last 12h was more skewed against shorts at $15.58M vs $3.42M longs.',
-]
-const DATA = [
-  ['Total liquidations, 24h', '$58.95M'],
-  ['Longs, 24h', '$33.18M'],
-  ['Shorts, 24h', '$25.77M'],
-  ['Shorts, 12h', '$15.58M'],
-]
-/* Hold time of each moment (ms): question, query, data, answer, check. */
-const HOLD = [3000, 2000, 4000, 12000, 6000]
-const MOMENTS = ['Question', 'Query', 'Data', 'Answer', 'Check']
+const SOURCES = ['On-chain', 'Derivatives', 'Sentiment', 'Macro']
 
-const MODES = [
-  {
-    n: '01',
-    id: 'quick',
-    title: 'Quick Ask',
-    text: 'Ask a focused question about an asset, metric or market condition. Get a direct explanation and follow up as your analysis develops.',
-    prompt: 'What does Bitcoin’s liquidation activity say about leverage risk?',
-  },
-  {
-    n: '02',
-    id: 'deep',
-    title: 'Deep Research',
-    text: 'Take a market thesis further with multi-step analysis across relevant data sources. Bring the findings together in a structured report you can review in detail.',
-    prompt: 'Is Bitcoin’s current derivatives positioning supported by on-chain activity and macro conditions?',
-  },
-  {
-    n: '03',
-    id: 'chart',
-    title: 'Chart copilot',
-    text: 'Ask about the chart in front of you. Keep the asset and metric in context while you explore what the data means for your thesis.',
-    prompt: 'What does this chart show, and what should I compare it with before drawing a conclusion?',
-  },
-  {
-    n: '04',
-    id: 'voice',
-    title: 'Voice',
-    text: 'Speak your question and turn it into text, then continue the conversation with Alpha AI.',
-    prompt: 'What changed in Bitcoin’s leverage conditions?',
-  },
-]
+const PROMPT = {
+  quick: 'Is Bitcoin’s current leverage positioning vulnerable to a long squeeze?',
+  deep: 'Build an investment thesis for HYPE. Assess Hyperliquid’s adoption, competitive positioning, token utility, unlock schedule and valuation. What supports the thesis, what could invalidate it, and what are the key risks?',
+  chart: 'What does this chart show, and what should I compare it with before drawing a conclusion?',
+  voice: 'What changed in Bitcoin’s leverage conditions?',
+}
 
-const STEPS = ['Asset', 'Focus', 'Depth', 'Sources', 'Launch']
+const REPORT = [
+  'Investment thesis',
+  'Adoption & market traction',
+  'Tokenomics & unlock risks',
+  'Competition & valuation',
+  'Bull case, bear case & thesis invalidation',
+]
 
 const RELATED = [
   { title: 'Metrics & Models', text: 'Explore the metrics and models behind your analysis.', href: '/platform/metrics', linkLabel: 'Open Metrics & Models' },
@@ -75,285 +47,587 @@ const RELATED = [
   { title: 'Research & Academy', text: 'Explore the research and learn how to interpret the data.', href: '/platform/research', linkLabel: 'Open Research & Academy' },
 ]
 
-/* Starts CSS animations the first time a block scrolls into view. Content is always in the HTML and visible by default. */
-function usePlayOnView(ref) {
-  useEffect(() => {
-    const el = ref.current
-    if (!el || typeof IntersectionObserver === 'undefined') return undefined
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          el.setAttribute('data-play', '')
-          io.disconnect()
-        }
-      },
-      { threshold: 0.35 },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [ref])
-}
+/* ---------------------------------------------------------------- helpers */
+const f1 = (n) => n.toFixed(1)
 
-function Spark() {
-  return (
-    <svg className="aai-spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" fill="currentColor" />
-    </svg>
+// Types `full` into `el` over `dur` seconds, at position `at` of the timeline `tl`; the caret shows while it types.
+function typeTo(tl, el, full, dur, at) {
+  const o = { p: 0 }
+  tl.fromTo(
+    o,
+    { p: 0 },
+    {
+      p: 1,
+      duration: dur,
+      ease: 'none',
+      onStart: () => el.parentNode.setAttribute('data-typing', ''),
+      onUpdate: () => {
+        el.textContent = full.slice(0, Math.round(o.p * full.length))
+      },
+      onComplete: () => el.parentNode.removeAttribute('data-typing'),
+    },
+    at,
   )
 }
 
-/* The hero panel. Server/initial render shows the finished state (everything readable); after mount, when motion is
-   allowed, it replays the five moments once, with Pause / Previous / Next / Replay. */
-function DemoPanel() {
-  const [step, setStep] = useState(4)
-  const [playing, setPlaying] = useState(false)
-  const motion = useRef(false)
-  const timer = useRef(0)
-
-  useEffect(() => {
-    motion.current = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (motion.current) {
-      setStep(0)
-      setPlaying(true)
-    }
-  }, [])
-
-  useEffect(() => {
-    clearTimeout(timer.current)
-    if (!playing) return undefined
-    if (step >= HOLD.length - 1) {
-      setPlaying(false)
-      return undefined
-    }
-    timer.current = setTimeout(() => setStep((s) => s + 1), HOLD[step])
-    return () => clearTimeout(timer.current)
-  }, [playing, step])
-
-  const go = useCallback((n) => {
-    setPlaying(false)
-    setStep(Math.max(0, Math.min(HOLD.length - 1, n)))
-  }, [])
-  const toggle = () => {
-    if (playing) setPlaying(false)
-    else {
-      if (step >= HOLD.length - 1) setStep(0)
-      setPlaying(true)
-    }
-  }
-  const atEnd = step >= HOLD.length - 1
-
+// A quote, set as type: large blue marks, no box. The text inside is what gets typed.
+function Quote({ children, className = '' }) {
   return (
-    <div className="aai-panel" id="alpha-demo" data-step={step}>
-      <div className="aai-panel__bar">
-        <span className="aai-panel__brand">
-          <Spark /> Alpha AI
-        </span>
-        <span className="aai-mode">Quick Ask</span>
-      </div>
+    <p className={`aai-quote ${className}`}>
+      <span className="aai-qm" aria-hidden="true">“</span>
+      <span className="aai-quote__t" data-full={children}>{children}</span>
+      <span className="aai-qm" aria-hidden="true">”</span>
+    </p>
+  )
+}
 
-      <div className="aai-panel__body">
-        <p className="aai-q">{QUESTION}</p>
+// An answer line as words (so it can stream); { r: 1 } is a numbered reference.
+function Words({ tokens }) {
+  return (
+    <p>
+      {tokens.map((t, i) =>
+        typeof t === 'string' ? (
+          <span className="aai-w" key={i}>{t} </span>
+        ) : (
+          <span className="aai-w aai-ref" key={i}>[{t.r}] </span>
+        ),
+      )}
+    </p>
+  )
+}
 
-        <div className={`aai-fetch ${step >= 1 ? 'is-on' : ''} ${step >= 2 ? 'is-done' : ''}`} aria-live="polite">
-          <i aria-hidden="true" />
-          <span>{step === 1 ? 'Fetching screener data…' : 'Screener data fetched'}</span>
-        </div>
+// A thin line chart path from a function of u in 0..1, drawn in a w x h box.
+function curve(n, w, h, fn) {
+  let d = ''
+  for (let i = 0; i <= n; i++) d += `${i ? 'L' : 'M'}${f1((i / n) * w)} ${f1(h * fn(i / n))}`
+  return d
+}
 
-        <div className={`aai-data ${step >= 2 ? 'is-on' : ''}`}>
-          <p className="aai-data__tag">Source consulted{step >= 4 ? '' : ''}</p>
-          <table>
-            <caption>BTC liquidations summary</caption>
-            <tbody>
-              {DATA.map(([k, v]) => (
-                <tr key={k}>
-                  <th scope="row">{k}</th>
-                  <td>{v}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="aai-a">
-          {ANSWER.map((p, i) => (
-            <p key={p} className={step >= 3 ? 'is-on' : ''} style={{ '--i': i }}>
-              {p}
-            </p>
-          ))}
-        </div>
-      </div>
-
-      <div className="aai-panel__foot">
-        <span className="aai-rec">{RECORDED}</span>
-        <div className="aai-ctrl" role="group" aria-label="Demonstration controls">
-          <ol className="aai-dots">
-            {MOMENTS.map((m, i) => (
-              <li key={m}>
-                <button type="button" className={i === step ? 'is-on' : i < step ? 'is-past' : ''} onClick={() => go(i)} aria-label={`Show moment ${i + 1}: ${m}`} aria-current={i === step ? 'step' : undefined} />
-              </li>
-            ))}
-          </ol>
-          <button type="button" className="aai-btn" onClick={toggle}>
-            {playing ? 'Pause' : atEnd ? 'Replay' : 'Play'}
-          </button>
-        </div>
-      </div>
+/* ---------------------------------------------------------------- hero */
+function HeroVisual() {
+  return (
+    <div className="aai-hero">
+      <AlphaSphere />
+      <ul className="aai-suggest">
+        {SUGGESTED.map((q) => (
+          <li key={q}>{q}</li>
+        ))}
+      </ul>
     </div>
   )
 }
 
-function HeroVisual() {
+/* ---------------------------------------------------------------- problem: one line, question -> sources -> answer */
+const PW = 300
+const PH = 170
+const pf = (u) => 0.55 - 0.2 * Math.sin(u * 5.2 + 0.4) - 0.1 * Math.sin(u * 11.7) - 0.18 * u
+const PCURVE = curve(60, PW, PH, pf)
+
+function Trace() {
+  const root = useRef(null)
+  useLive(root, (el) => {
+    const line = el.querySelector('.aai-trace__line')
+    const cols = [...el.querySelectorAll('.aai-trace__col')]
+    const src = [...el.querySelectorAll('.aai-trace__src li')]
+    const q = el.querySelector('.aai-quote__t')
+    const full = q.dataset.full
+    const words = [...el.querySelectorAll('.aai-w')]
+    const path = el.querySelector('.aai-pc__line')
+    const marks = [...el.querySelectorAll('.aai-pc__mark')]
+    const runner = el.querySelector('.aai-trace__run')
+    const len = path.getTotalLength()
+    let tl = null
+    let run = null
+    q.textContent = ''
+    gsap.set(line, { '--p': 0 })
+    gsap.set([...cols, ...src, ...words, ...marks], { autoAlpha: 0 })
+    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len })
+    gsap.set(runner, { autoAlpha: 0 })
+    return {
+      start() {
+        tl = gsap.timeline()
+        tl.to(line, { '--p': 1, duration: 3.4, ease: 'power1.inOut' }, 0)
+        tl.to(cols[0], { autoAlpha: 1, duration: 0.4 }, 0)
+        typeTo(tl, q, full, 1.6, 0.2)
+        tl.to(src, { autoAlpha: 1, duration: 0.5, stagger: 0.28 }, 1.1)
+        tl.to(cols[1], { autoAlpha: 1, duration: 0.1 }, 1.1)
+        tl.to(cols[2], { autoAlpha: 1, duration: 0.1 }, 2.3)
+        tl.to(words, { autoAlpha: 1, duration: 0.3, stagger: 0.07 }, 2.4)
+        tl.to(path, { strokeDashoffset: 0, duration: 1.8, ease: 'power1.inOut' }, 2.6)
+        tl.to(marks, { autoAlpha: 1, duration: 0.4, stagger: 0.5 }, 3.2)
+        // a small point keeps travelling the line from question to answer
+        tl.call(() => {
+          run = gsap.fromTo(runner, { '--x': 0, autoAlpha: 0 }, { '--x': 1, autoAlpha: 1, duration: 5.5, ease: 'none', repeat: -1, repeatDelay: 1.5 })
+        })
+      },
+      toggle(on) {
+        if (tl) tl.paused(!on)
+        if (run) run.paused(!on)
+      },
+      kill() {
+        if (tl) tl.kill()
+        if (run) run.kill()
+      },
+    }
+  })
+
   return (
-    <div className="aai-hero">
-      <DemoPanel />
-      <div className="aai-suggest">
-        <p className="aai-suggest__label">Questions to start with</p>
-        <ul>
-          {SUGGESTED.map((q) => (
-            <li key={q}>
-              <a href="#alpha-demo">{q}</a>
-            </li>
+    <div ref={root} className="aai-trace" aria-label="From question, through the data sources, to an answer">
+      <span className="aai-trace__line" aria-hidden="true" />
+      <span className="aai-trace__run" aria-hidden="true" />
+      <div className="aai-trace__col aai-trace__q">
+        <Quote>{SUGGESTED[0]}</Quote>
+      </div>
+      <div className="aai-trace__col aai-trace__s">
+        <ul className="aai-trace__src">
+          {SOURCES.map((s) => (
+            <li key={s}>{s}</li>
           ))}
         </ul>
+      </div>
+      <div className="aai-trace__col aai-trace__a">
+        <div className="aai-ans">
+          <Words tokens={['Positioning read from derivatives data', { r: 1 }, 'and checked against on-chain behavior', { r: 2 }]} />
+        </div>
+        <div className="aai-zoom live-zoom">
+          <svg viewBox={`0 0 ${PW} ${PH}`} className="aai-pc" focusable="false" aria-hidden="true">
+            <line className="aai-pc__grid" x1="0" x2={PW} y1={PH * 0.33} y2={PH * 0.33} />
+            <line className="aai-pc__grid" x1="0" x2={PW} y1={PH * 0.66} y2={PH * 0.66} />
+            <path className="aai-pc__line" d={PCURVE} />
+            {[[0.3, 1], [0.72, 2]].map(([u, n]) => (
+              <g className="aai-pc__mark" key={n} transform={`translate(${f1(u * PW)} ${f1(PH * pf(u))})`}>
+                <line x1="0" x2="0" y1="0" y2="-26" />
+                <circle r="3" />
+                <text y="-32" textAnchor="middle">{n}</text>
+              </g>
+            ))}
+          </svg>
+        </div>
       </div>
     </div>
   )
 }
 
 function Problem() {
-  const ref = useRef(null)
-  usePlayOnView(ref)
   return (
     <PBlock id="problem" eyebrow="THE PROBLEM" title="A market answer needs market data.">
       <div className="aai-problem">
-        <div className="aai-problem__text" data-stagger>
-          <p className="lede" data-item>
-            A convincing explanation is only useful when you can understand what supports it. Without the right data, a market summary can miss the positioning, context and risks behind a move.
-          </p>
-          <p className="aai-problem__p" data-item>
+        <p className="lede" data-reveal="up">
+          A convincing explanation is only useful when you can understand what supports it. Without the right data, a market summary can miss the positioning, context and risks behind a move.
+        </p>
+        <div className="aai-problem__r" data-reveal="up">
+          <p>
             Alpha AI connects your questions to Alphractal’s analytics. Explore on-chain behavior, derivatives, sentiment and macro context, then follow the available data and chart references to examine the analysis yourself.
           </p>
+          <p>Test theses, cross evidence and observe next steps.</p>
         </div>
-        <ol ref={ref} className="aai-flow" aria-label="From question to answer">
-          <li style={{ '--i': 0 }}>
-            <b>Your question</b>
-            <span>{SUGGESTED[0]}</span>
-          </li>
-          <li style={{ '--i': 1 }}>
-            <b>Alphractal data</b>
-            <span className="aai-flow__chips">
-              <i>On-chain</i>
-              <i>Derivatives</i>
-              <i>Sentiment</i>
-              <i>Macro</i>
-            </span>
-          </li>
-          <li style={{ '--i': 2 }}>
-            <b>An answer you can check</b>
-            <span>Read the explanation next to the data it was built on.</span>
-          </li>
-        </ol>
       </div>
+      <Trace />
     </PBlock>
   )
 }
 
-function ModeText({ m }) {
+/* ---------------------------------------------------------------- modes */
+// Quick Ask and Deep Research are the two modes of one selector: the underline shows which one is on.
+function Selector({ on }) {
   return (
-    <div className="aai-mode-text">
-      <p className="aai-mode-n">{m.n}</p>
-      <h3>{m.title}</h3>
-      <p>{m.text}</p>
-      <p className="aai-prompt">
-        <span>Example prompt</span>
-        {m.prompt}
-      </p>
+    <p className="aai-sel" aria-hidden="true">
+      <span className={on === 0 ? 'is-on' : undefined}>Quick Ask</span>
+      <span className={on === 1 ? 'is-on' : undefined}>Deep Research</span>
+    </p>
+  )
+}
+
+function ModeText({ title, text, className = '' }) {
+  return (
+    <div className={`aai-mode-text ${className}`}>
+      <h3>{title}</h3>
+      <p>{text}</p>
     </div>
   )
 }
 
-function QuickVisual() {
-  const ref = useRef(null)
-  usePlayOnView(ref)
+/* Quick Ask: the question, a consulting line, the answer streaming block by block with numbered references that point
+   to a thin chart on the right; it ends still. */
+const QW = 280
+const QH = 230
+const qf = (u) => 0.62 - 0.22 * Math.sin(u * 4.6 + 0.3) - 0.08 * Math.sin(u * 13) - 0.22 * u
+const QCURVE = curve(70, QW, QH, qf)
+const QANS = [
+  ['Leverage positioning, read from derivatives data', { r: 1 }],
+  ['Whether on-chain activity confirms it', { r: 2 }],
+  ['Next steps to observe: [metric] and [metric], before drawing a conclusion.'],
+]
+
+function QuickScene() {
+  const root = useRef(null)
+  useLive(root, (el) => {
+    const q = el.querySelector('.aai-quote__t')
+    const full = q.dataset.full
+    const consult = el.querySelector('.aai-consult')
+    const src = [...el.querySelectorAll('.aai-consult__s span')]
+    const blocks = [...el.querySelectorAll('.aai-ans p')]
+    const path = el.querySelector('.aai-qc__line')
+    const marks = [...el.querySelectorAll('.aai-qc__mark')]
+    const dot = el.querySelector('.aai-qc__dot')
+    const len = path.getTotalLength()
+    let tl = null
+    let pulse = null
+    q.textContent = ''
+    gsap.set(consult, { autoAlpha: 0 })
+    gsap.set(src, { opacity: 0.25 })
+    gsap.set(blocks.flatMap((b) => [...b.children]), { autoAlpha: 0 })
+    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len })
+    gsap.set([...marks, dot], { autoAlpha: 0 })
+    return {
+      start() {
+        tl = gsap.timeline()
+        typeTo(tl, q, full, 1.8, 0.2)
+        tl.to(consult, { autoAlpha: 1, duration: 0.4 }, 2.1)
+        tl.to(src, { opacity: 1, duration: 0.3, stagger: 0.45 }, 2.4)
+        tl.to(consult, { opacity: 0.55, duration: 0.6 }, 4.6)
+        blocks.forEach((b, i) => tl.to([...b.children], { autoAlpha: 1, duration: 0.25, stagger: 0.06 }, 4.8 + i * 1.5))
+        tl.to(path, { strokeDashoffset: 0, duration: 3.6, ease: 'power1.inOut' }, 4.8)
+        tl.to(marks[0], { autoAlpha: 1, duration: 0.4 }, 5.4)
+        tl.to(marks[1], { autoAlpha: 1, duration: 0.4 }, 6.9)
+        tl.to(dot, { autoAlpha: 1, duration: 0.4 }, 8.2)
+        tl.call(() => {
+          pulse = gsap.to(dot, { scale: 1.9, svgOrigin: dot.getAttribute('data-o'), duration: 1.4, yoyo: true, repeat: -1, ease: 'sine.inOut' })
+        })
+      },
+      toggle(on) {
+        if (tl) tl.paused(!on)
+        if (pulse) pulse.paused(!on)
+      },
+      kill() {
+        if (tl) tl.kill()
+        if (pulse) pulse.kill()
+      },
+    }
+  })
+
   return (
-    <div ref={ref} className="aai-vis aai-vis--dark aai-quick">
-      <p className="aai-vis__tag">Excerpt · {RECORDED}</p>
-      <p className="aai-q">{QUESTION}</p>
-      <p className="aai-fetch is-on is-done aai-quick__f">
-        <i aria-hidden="true" />
-        <span>Screener data fetched</span>
-      </p>
-      <p className="aai-quick__a">{ANSWER[0]}</p>
-      <p className="aai-quick__a aai-quick__a--2">{ANSWER[2]}</p>
+    <div ref={root} className="aai-quick" aria-hidden="true">
+      <Selector on={0} />
+      <Quote>{PROMPT.quick}</Quote>
+      <div className="aai-quick__grid">
+        <div className="aai-quick__chat">
+          <p className="aai-consult">
+            <i className="aai-consult__dots"><b /><b /><b /></i>
+            <span className="aai-consult__s">
+              {SOURCES.map((s) => (
+                <span key={s}>{s}</span>
+              ))}
+            </span>
+          </p>
+          <div className="aai-ans">
+            {QANS.map((t, i) => (
+              <Words key={i} tokens={t} />
+            ))}
+          </div>
+        </div>
+        <div className="aai-zoom live-zoom">
+          <svg viewBox={`0 0 ${QW} ${QH}`} className="aai-qc" focusable="false">
+            {[0.25, 0.5, 0.75].map((k) => (
+              <line key={k} className="aai-pc__grid" x1="0" x2={QW} y1={QH * k} y2={QH * k} />
+            ))}
+            <path className="aai-qc__line" d={QCURVE} />
+            {[[0.28, 1], [0.66, 2]].map(([u, n]) => (
+              <g className="aai-qc__mark" key={n} transform={`translate(${f1(u * QW)} ${f1(QH * qf(u))})`}>
+                <line x1="0" x2="0" y1="0" y2="-30" />
+                <circle r="3" />
+                <text y="-36" textAnchor="middle">{n}</text>
+              </g>
+            ))}
+            <circle className="aai-qc__dot" cx={QW} cy={f1(QH * qf(1))} r="3.5" data-o={`${QW} ${f1(QH * qf(1))}`} />
+          </svg>
+        </div>
+      </div>
     </div>
   )
 }
 
-function DeepVisual() {
+/* Deep Research: the report sections light up line by line along a fine progress line, and the sources fill in. */
+function DeepScene() {
+  const root = useRef(null)
+  useLive(root, (el) => {
+    const q = el.querySelector('.aai-quote__t')
+    const full = q.dataset.full
+    const rows = [...el.querySelectorAll('.aai-sections li')]
+    const bar = el.querySelector('.aai-sections__bar')
+    const srcT = el.querySelector('.aai-deep__srct')
+    const srcFull = srcT.dataset.full
+    const srcBar = el.querySelector('.aai-deep__srcbar')
+    let tl = null
+    q.textContent = ''
+    srcT.textContent = ''
+    gsap.set(rows, { opacity: 0.22 })
+    gsap.set([bar, srcBar], { '--p': 0 })
+    return {
+      start() {
+        tl = gsap.timeline({ repeat: -1, repeatDelay: 3.2 })
+        tl.call(() => {
+          q.textContent = ''
+          srcT.textContent = ''
+        }, null, 0)
+        typeTo(tl, q, full, 2.4, 0.2)
+        tl.fromTo(bar, { '--p': 0 }, { '--p': 1, duration: rows.length * 1.1, ease: 'none' }, 2.8)
+        tl.fromTo(srcBar, { '--p': 0 }, { '--p': 1, duration: rows.length * 1.1, ease: 'none' }, 2.8)
+        tl.fromTo(rows, { opacity: 0.22 }, { opacity: 1, duration: 0.5, stagger: 1.1 }, 2.9)
+        typeTo(tl, srcT, srcFull, rows.length * 1.1, 2.8)
+      },
+      toggle(on) {
+        if (tl) tl.paused(!on)
+      },
+      kill() {
+        if (tl) tl.kill()
+      },
+    }
+  })
+
   return (
-    <div className="aai-vis aai-deep">
-      <Shot
-        name="Deep Research setup"
-        src="/product/deep-research.webp"
-        alt="The Deep Research setup in Alpha AI: five steps (Asset, Focus, Depth, Sources, Launch), with a research focus typed in"
-        ratio="1132 / 990"
-        dark
-      />
-      <p className="aai-vis__tag aai-vis__tag--foot">Setup flow of the app. A completed report is not shown.</p>
+    <div ref={root} className="aai-deep" aria-hidden="true">
+      <Selector on={1} />
+      <Quote className="aai-quote--lg">{PROMPT.deep}</Quote>
+      <div className="aai-deep__body">
+        <ol className="aai-sections">
+          <span className="aai-sections__bar" />
+          {REPORT.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </ol>
+        <div className="aai-deep__src">
+          <p>
+            Sources consulted
+          </p>
+          <p className="aai-deep__srct" data-full={SOURCES.join(' · ')}>{SOURCES.join(' · ')}</p>
+          <span className="aai-deep__srcbar" />
+        </div>
+      </div>
     </div>
   )
 }
 
-function ChartVisual() {
-  return (
-    <div className="aai-vis aai-chart">
-      <Shot
-        name="Chart copilot panel"
-        src="/product/chart-copilot.webp"
-        alt="The Alpha AI panel open beside the Bitcoin Supply in Profit chart, with a question typed in"
-        ratio="16 / 8.6"
-      />
-    </div>
-  )
+/* Chart copilot: a large line chart that keeps flowing, the Alpha AI panel sliding open beside it. The hover zoom only
+   magnifies the chart; the panel and the full chart stay on the page. */
+const CW = 900
+const CH = 380
+const CN_WIDE = 150
+const CN_LITE = 70
+const cser = (u, t) => {
+  const x = u * 7 + t * 0.35
+  return 0.42 - 0.16 * Math.sin(x * 0.9) - 0.09 * Math.sin(x * 2.3 + 1) - 0.035 * Math.sin(x * 6.1 + 2)
 }
+const cser2 = (u, t) => {
+  const x = u * 5.4 + t * 0.28
+  return 0.8 - 0.07 * Math.sin(x * 1.1 + 2) - 0.05 * Math.sin(x * 3.2) - 0.018 * Math.sin(x * 8)
+}
+function chartFrame(n, t) {
+  const price = []
+  const metric = []
+  for (let i = 0; i <= n; i++) {
+    price.push([(i / n) * CW, CH * cser(i / n, t)])
+    metric.push([(i / n) * CW, CH * cser2(i / n, t)])
+  }
+  const d = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${f1(x)} ${f1(y)}`).join('')
+  const a = Math.round(n * 0.58)
+  const b = Math.round(n * 0.78)
+  const k = Math.round(n * 0.68)
+  return { price: d(price), metric: d(metric), hl: d(price.slice(a, b + 1)), mx: price[k][0], my: price[k][1] }
+}
+const C0 = chartFrame(CN_WIDE, 0)
 
-function VoiceVisual() {
-  const ref = useRef(null)
-  usePlayOnView(ref)
+function ChartScene() {
+  const root = useRef(null)
+  useLive(root, (el) => {
+    const clip = el.querySelector('.aai-cc__clip rect')
+    const panel = el.querySelector('.aai-cpanel')
+    const inner = [...el.querySelectorAll('.aai-cpanel__in > *')]
+    const q = el.querySelector('.aai-quote__t')
+    const full = q.dataset.full
+    const words = [...el.querySelectorAll('.aai-cpanel .aai-w')]
+    const price = el.querySelector('.aai-cc__price')
+    const metric = el.querySelector('.aai-cc__metric')
+    const hl = el.querySelector('.aai-cc__hl')
+    const mark = el.querySelector('.aai-cc__mark')
+    const vline = el.querySelector('.aai-cc__v')
+    const wide = window.matchMedia('(min-width: 901px)').matches
+    const lite = window.matchMedia('(max-width: 991px)').matches
+    const n = lite ? CN_LITE : CN_WIDE
+    let t = 0
+    let tl = null
+    q.textContent = ''
+    gsap.set(clip, { attr: { width: 0 } })
+    gsap.set(inner, { autoAlpha: 0, y: 10 })
+    gsap.set(words, { autoAlpha: 0 })
+    if (wide) gsap.set(panel, { width: 0 })
+    else gsap.set(panel, { autoAlpha: 0 })
+    return {
+      start() {
+        const p = { w: 0 }
+        tl = gsap.timeline()
+        tl.to(p, { w: CW, duration: 2.6, ease: 'power1.inOut', onUpdate: () => clip.setAttribute('width', f1(p.w)) }, 0)
+        if (wide) tl.to(panel, { width: '34%', duration: 1, ease: 'power3.inOut' }, 2.8)
+        else tl.to(panel, { autoAlpha: 1, duration: 0.6 }, 2.8)
+        tl.to(inner, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.25 }, 3.5)
+        typeTo(tl, q, full, 2.2, 4.4)
+        tl.to(words, { autoAlpha: 1, duration: 0.3, stagger: 0.08 }, 6.8)
+      },
+      frame(dt) {
+        t += dt
+        const c = chartFrame(n, t)
+        price.setAttribute('d', c.price)
+        metric.setAttribute('d', c.metric)
+        hl.setAttribute('d', c.hl)
+        mark.setAttribute('cx', f1(c.mx))
+        mark.setAttribute('cy', f1(c.my))
+        vline.setAttribute('x1', f1(c.mx))
+        vline.setAttribute('x2', f1(c.mx))
+        vline.setAttribute('y1', f1(c.my))
+      },
+      toggle(on) {
+        if (tl) tl.paused(!on)
+      },
+      kill() {
+        if (tl) tl.kill()
+      },
+    }
+  })
+
   return (
-    <div ref={ref} className="aai-vis aai-vis--dark aai-voice">
-      <button type="button" className="aai-mic" tabIndex={-1} aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="9" y="3" width="6" height="12" rx="3" />
-          <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+    <div ref={root} className="aai-chart" aria-hidden="true">
+      <div className="aai-zoom live-zoom">
+        <svg viewBox={`0 0 ${CW} ${CH}`} className="aai-cc" focusable="false">
+          <defs>
+            <clipPath id="aai-cc-clip" className="aai-cc__clip">
+              <rect x="0" y="-10" width={CW} height={CH + 20} />
+            </clipPath>
+          </defs>
+          <g clipPath="url(#aai-cc-clip)">
+            {[0.2, 0.4, 0.6, 0.8].map((k) => (
+              <line key={k} className="aai-pc__grid" x1="0" x2={CW} y1={CH * k} y2={CH * k} />
+            ))}
+            <line className="aai-cc__v" x1={f1(C0.mx)} x2={f1(C0.mx)} y1={f1(C0.my)} y2={CH} />
+            <path className="aai-cc__metric" d={C0.metric} />
+            <path className="aai-cc__price" d={C0.price} />
+            <path className="aai-cc__hl" d={C0.hl} />
+            <circle className="aai-cc__mark" cx={f1(C0.mx)} cy={f1(C0.my)} r="4.5" />
+          </g>
         </svg>
-      </button>
-      <span className="aai-wave" aria-hidden="true">
-        {Array.from({ length: 14 }, (_, i) => (
-          <i key={i} style={{ '--i': i }} />
-        ))}
-      </span>
-      <p className="aai-voice__t">Voice input → text</p>
-      <p className="aai-q aai-voice__q">{MODES[3].prompt}</p>
+      </div>
+      <div className="aai-cpanel">
+        <div className="aai-cpanel__in">
+          <p className="aai-cpanel__h">
+            <b>BTC</b> <span>[chart name]</span>
+          </p>
+          <Quote>{PROMPT.chart}</Quote>
+          <div className="aai-ans">
+            <Words tokens={['This chart shows [metric] for [asset].']} />
+            <Words tokens={['Compare it with [second metric] before drawing a conclusion.']} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* Voice: microphone, a waveform while it listens, then the transcribed question typed on the page. Loops about every 8s.
+   It never asks for the visitor's microphone: it is a drawing. */
+const VBARS = 26
+const vh = (i) => 6 + 24 * Math.abs(Math.sin(i * 1.3) * Math.cos(i * 0.45))
+
+function VoiceScene() {
+  const root = useRef(null)
+  useLive(root, (el) => {
+    const mic = el.querySelector('.aai-mic')
+    const bars = [...el.querySelectorAll('.aai-wave i')]
+    const q = el.querySelector('.aai-quote__t')
+    const full = q.dataset.full
+    const quote = el.querySelector('.aai-quote')
+    let listening = false
+    let t = 0
+    let tl = null
+    q.textContent = ''
+    gsap.set(bars, { scaleY: 0.12 })
+    gsap.set(mic, { autoAlpha: 0 })
+    return {
+      start() {
+        tl = gsap.timeline({ repeat: -1 })
+        tl.call(() => {
+          q.textContent = ''
+        }, null, 0)
+        tl.fromTo(mic, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 0.1)
+        tl.call(() => {
+          listening = true
+          mic.classList.add('is-live')
+        }, null, 0.5)
+        tl.call(() => {
+          listening = false
+          mic.classList.remove('is-live')
+          gsap.to(bars, { scaleY: 0.12, duration: 0.5, overwrite: true })
+        }, null, 3.4)
+        tl.fromTo(quote, { autoAlpha: 0.0 }, { autoAlpha: 1, duration: 0.3 }, 3.9)
+        typeTo(tl, q, full, 2.6, 4)
+        tl.to(quote, { autoAlpha: 0, duration: 0.5 }, 7.5)
+        tl.to({}, { duration: 0.1 }, 8)
+      },
+      frame(dt) {
+        t += dt
+        if (!listening) return
+        for (let i = 0; i < bars.length; i++) {
+          const e = Math.sin(i * 0.5 + t * 7) * Math.sin(i * 0.17 + t * 2.1)
+          gsap.set(bars[i], { scaleY: 0.18 + 0.82 * Math.abs(e) })
+        }
+      },
+      toggle(on) {
+        if (tl) tl.paused(!on)
+      },
+      kill() {
+        if (tl) tl.kill()
+      },
+    }
+  })
+
+  return (
+    <div ref={root} className="aai-voice" aria-hidden="true">
+      <div className="aai-voice__row">
+        <span className="aai-mic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="3" width="6" height="12" rx="3" />
+            <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+          </svg>
+        </span>
+        <span className="aai-wave">
+          {Array.from({ length: VBARS }, (_, i) => (
+            <i key={i} style={{ height: `${vh(i).toFixed(1)}px` }} />
+          ))}
+        </span>
+      </div>
+      <Quote>{PROMPT.voice}</Quote>
     </div>
   )
 }
 
 function Modes() {
-  const visuals = [QuickVisual, DeepVisual, ChartVisual, VoiceVisual]
   return (
     <PBlock id="how" eyebrow="HOW IT WORKS" title="Four ways to ask." intro="Start with a question, investigate a thesis or explore the chart in front of you.">
       <div className="aai-modes">
-        {MODES.map((m, i) => {
-          const V = visuals[i]
-          return (
-            <article className="aai-mode-row" key={m.id} data-reveal="up">
-              <ModeText m={m} />
-              <V />
-            </article>
-          )
-        })}
+        <article className="aai-mode aai-mode--quick" data-reveal="up">
+          <ModeText title="Quick Ask" text="Ask a focused question about an asset, metric or market condition. Get a direct explanation and follow up as your analysis develops." />
+          <QuickScene />
+        </article>
+        <article className="aai-mode aai-mode--deep" data-reveal="up">
+          <ModeText title="Deep Research" text="Take a market thesis further with multi-step analysis across relevant data sources. Bring the findings together in a structured report you can review in detail." />
+          <DeepScene />
+        </article>
+        <article className="aai-mode aai-mode--chart" data-reveal="up">
+          <ChartScene />
+          <ModeText title="Chart copilot" text="Ask about the chart in front of you. Keep the asset and metric in context while you explore what the data means for your thesis." />
+        </article>
+        <article className="aai-mode aai-mode--voice" data-reveal="up">
+          <VoiceScene />
+          <ModeText title="Voice" text="Speak your question and turn it into text, then continue the conversation with Alpha AI." />
+        </article>
       </div>
     </PBlock>
   )
@@ -367,14 +641,20 @@ export default function AlphaAi() {
 
   return (
     <PageShell>
-      <ProductHero
-        current="alpha-ai"
+      <PageHero
+        centered
         eyebrow="ALPHA AI"
         title="An AI that turns the data into your next move."
         sub="Ask about an asset or setup. Alpha AI brings on-chain, derivatives, sentiment and macro data into the conversation, helping you understand market conditions, assess risk and explore what matters for your strategy."
-        line="Ask in your language. Explore the data behind the answer."
-        primary={{ label: 'Start free', href: LINKS.start }}
-        secondary={{ label: 'See the four modes', href: '#how' }}
+        actions={
+          <>
+            <GlowButton href={LINKS.start}>Start free</GlowButton>
+            <ExtLink className="link-arrow phero__more" href="#how">
+              See the four modes <span>→</span>
+            </ExtLink>
+          </>
+        }
+        note="Ask in your language. Explore the data behind the answer."
         visual={<HeroVisual />}
       />
 
@@ -382,7 +662,7 @@ export default function AlphaAi() {
       <Modes />
 
       <PBlock id="related" eyebrow="KEEP GOING" title="Continue your analysis.">
-        <Cards cols={3} items={RELATED} />
+        <Rows items={RELATED} />
       </PBlock>
 
       <FinalCta

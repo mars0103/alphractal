@@ -23,17 +23,22 @@ const upsert = (selector, create) => {
  * This is client-side. For crawlers that do not run JS, pre-render the routes at build time.
  */
 export function useMeta({ title, description, jsonLd, noindex = false }) {
-  const { pathname } = useLocation()
-  // Routes in lib/seo.js take their title, description and a single JSON-LD graph from that table.
+  const loc = useLocation()
+  // One canonical per route: no trailing slash, no query or hash (campaign and referral parameters never reach it).
+  const pathname = loc.pathname.length > 1 ? loc.pathname.replace(/\/+$/, '') : loc.pathname
+  // Routes in lib/seo.js take their title, description and a single JSON-LD graph from that table; other public
+  // pages keep their own title/description and still get the shared graph. Nothing else injects JSON-LD.
   const seo = seoFor(pathname)
   if (seo) {
     title = seo.title
     description = seo.description
     jsonLd = graphFor(pathname)
+  } else {
+    jsonLd = noindex ? null : graphFor(pathname, { title, description })
   }
 
   const image = ogImageFor(pathname)
-  headState.current = { title, description, jsonLd, noindex, image, url: `${ORIGIN}${pathname}` }
+  headState.current = { title, description, jsonLd, noindex, image, url: noindex ? null : `${ORIGIN}${pathname}` }
 
   useEffect(() => {
     document.title = title
@@ -60,18 +65,30 @@ export function useMeta({ title, description, jsonLd, noindex = false }) {
     }
     set('meta[name="twitter:title"]', 'content', title, meta('twitter:title'))
     if (description) set('meta[name="twitter:description"]', 'content', description, meta('twitter:description'))
-    set('meta[property="og:url"]', 'content', `${ORIGIN}${pathname}`, prop('og:url'))
-    set('link[rel="canonical"]', 'href', `${ORIGIN}${pathname}`, () => Object.assign(document.createElement('link'), { rel: 'canonical' }))
+    const canonical = document.head.querySelector('link[rel="canonical"]')
+    if (noindex) {
+      canonical?.remove()
+    } else {
+      set('meta[property="og:url"]', 'content', `${ORIGIN}${pathname}`, prop('og:url'))
+      set('link[rel="canonical"]', 'href', `${ORIGIN}${pathname}`, () => Object.assign(document.createElement('link'), { rel: 'canonical' }))
+    }
     set('meta[name="robots"]', 'content', noindex ? 'noindex' : 'index,follow', meta('robots'))
 
-    let script = null
+    // The prerendered page already ships the graph in <head>: reuse that one script instead of adding a second.
+    const scripts = document.head.querySelectorAll('script[type="application/ld+json"]')
+    scripts.forEach((el, i) => i > 0 && el.remove())
+    let script = scripts[0]
     if (jsonLd) {
-      script = document.createElement('script')
-      script.type = 'application/ld+json'
-      script.dataset.page = 'true'
-      script.textContent = JSON.stringify(jsonLd)
-      document.head.appendChild(script)
+      if (!script) {
+        script = document.createElement('script')
+        script.type = 'application/ld+json'
+        script.dataset.page = 'true'
+        document.head.appendChild(script)
+      }
+      const text = JSON.stringify(jsonLd)
+      if (script.textContent !== text) script.textContent = text
+    } else {
+      script?.remove()
     }
-    return () => script?.remove()
   }, [title, description, pathname, noindex, jsonLd, image])
 }

@@ -20,6 +20,7 @@ const routes = [
   '/',
   ...FEATURE_SLUGS.map((s) => `/platform/${s}`),
   '/terminal',
+  '/home-b',
   '/institutional',
   '/about',
   ...VS_SLUGS.map((s) => `/vs/${s}`),
@@ -43,8 +44,9 @@ function injectHead(html, head) {
     /<meta[^>]*\bproperty="og:description"[^>]*>/,
     head.description ? `<meta property="og:description" content="${esc(head.description)}" />` : '<meta property="og:description" content="" />',
   )
-  out = out.replace(/<meta[^>]*\bproperty="og:url"[^>]*>/, `<meta property="og:url" content="${esc(head.url)}" />`)
-  out = out.replace(/<link[^>]*\brel="canonical"[^>]*>/, `<link rel="canonical" href="${esc(head.url)}" />`)
+  // noindex pages (404, test routes) carry no canonical: it would point crawlers at a URL that should not exist
+  out = out.replace(/<meta[^>]*\bproperty="og:url"[^>]*>/, head.url ? `<meta property="og:url" content="${esc(head.url)}" />` : '')
+  out = out.replace(/<link[^>]*\brel="canonical"[^>]*>/, head.url ? `<link rel="canonical" href="${esc(head.url)}" />` : '')
   out = out.replace(
     /<meta[^>]*\bname="robots"[^>]*>/,
     `<meta name="robots" content="${head.noindex ? 'noindex' : 'index,follow'}" />`,

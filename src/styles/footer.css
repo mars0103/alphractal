@@ -93,7 +93,7 @@
   gap: 18px;
   font-family: var(--font-ui);
   font-size: 12px;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-label);
 }
 .footer__social a {
   transition: color 0.3s;
@@ -110,7 +110,7 @@
   padding-bottom: 13px;
   font-family: var(--font-ui);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: #6f7788;
 }

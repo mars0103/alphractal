@@ -1,0 +1,32 @@
+/* GlassLogoReveal (components/GlassLogoReveal.jsx): the canvas is added inside, absolutely positioned. */
+.glass-reveal {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+/* no WebGL2: a flat copy of the logo, masked, in the middle */
+.glass-reveal__flat {
+  position: absolute;
+  inset: 0;
+  display: block;
+  margin: auto;
+  max-width: 40%;
+  max-height: 40%;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+/* the About community card: the glass replaces the blue mosaic that used to paint it */
+.abt-comm__scene--glass {
+  background-image: none;
+  border: 0;
+  border-radius: 0;
+}
+.abt-comm__scene--glass::before {
+  display: none;
+}

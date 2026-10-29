@@ -46,6 +46,15 @@ export const SCREEN_CENTER = [
   QUAD.reduce((a, p) => a + p[1], 0) / 4 / 768,
 ]
 
+/* A solid black backing under the live screen, a touch larger than the glass quad: the photo's cut-out is anti-aliased, so
+   without it the page background shows through as a thin, stair-stepped light seam all around the screen. The bezel sits on top. */
+const BACK = (() => {
+  const cx = QUAD.reduce((a, p) => a + p[0], 0) / 4
+  const cy = QUAD.reduce((a, p) => a + p[1], 0) / 4
+  const pts = QUAD.map(([x, y]) => `${(((cx + (x - cx) * 1.03) / IMG_W) * 100).toFixed(2)}% ${(((cy + (y - cy) * 1.03) / 768) * 100).toFixed(2)}%`)
+  return `polygon(${pts.join(',')})`
+})()
+
 export default function ImacScreen({ screen, wrapRef, className = '' }) {
   const box = useRef(null)
   const canvas = useRef(null)
@@ -61,6 +70,7 @@ export default function ImacScreen({ screen, wrapRef, className = '' }) {
     canvas.current = el
 
     const fit = () => {
+      if (!box.current) return // the observer can fire once more after the page has unmounted
       const k = box.current.getBoundingClientRect().width / IMG_W || 1
       // the screen's longest edge in device pixels / the logical width: that is the bitmap scale that avoids any shrinking
       const edge = Math.hypot(QUAD[1][0] - QUAD[0][0], QUAD[1][1] - QUAD[0][1]) * k
@@ -104,6 +114,7 @@ export default function ImacScreen({ screen, wrapRef, className = '' }) {
 
   return (
     <div ref={setBox} className={`imac2d ${className}`} aria-hidden="true">
+      <div className="imac2d__back" style={{ clipPath: BACK }} />
       <canvas ref={canvas} className="imac2d__screen" width="1" height="1" />
       <img className="imac2d__photo" src="/hero-imac.webp" alt="" width="1024" height="768" decoding="async" fetchPriority="high" />
     </div>

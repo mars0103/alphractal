@@ -28,6 +28,12 @@
   --font-display: 'Albert Sans Variable', 'Albert Sans', system-ui, sans-serif;
   --font-ui: 'Inter Variable', 'Inter', system-ui, sans-serif;
 
+  /* Letter spacing: Albert Sans for titles and reading text, Inter's default for menus, buttons and labels */
+  --track-title: -0.02em;
+  --track-body: 0;
+  --track-ui: 0;
+  --track-label: 0.08em;
+
   --gutter: 24px;
   --col: min(1304px, calc(100vw - 2 * var(--gutter)));
 

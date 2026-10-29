@@ -4,7 +4,7 @@ import { useMeta } from '../hooks/useMeta.js'
 
 export default function Soon() {
   const { t } = useI18n()
-  useMeta({ title: 'Alphractal', noindex: true })
+  useMeta({ title: 'Page not found | Alphractal', noindex: true })
   return (
     <section className="soon" data-nav-theme="paper">
       <div className="container soon__inner">

@@ -1,0 +1,62 @@
+/* TextShimmer — dark-surface defaults: soft grey base, white shine. Override with the baseColor / shimmerColor props. */
+.text-shimmer {
+  --ts-base: #7d8294;
+  --ts-hi: #ffffff;
+  position: relative;
+  display: inline-block;
+  padding-block: 0.14em;
+  line-height: 1.12;
+  text-wrap: balance;
+  background-size: 250% 100%, auto;
+  background-repeat: no-repeat, padding-box;
+  background-position: 105% center, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transform: translateZ(0);
+  animation: ts-fwd var(--ts-duration, 3s) linear infinite both;
+}
+.text-shimmer__line {
+  display: block;
+}
+.text-shimmer[data-shimmer-direction='right'] {
+  animation-name: ts-rev;
+}
+.text-shimmer[data-shimmer-yoyo='true'] {
+  animation-direction: alternate;
+}
+.text-shimmer[data-shimmer-paused='true'] {
+  animation-play-state: paused;
+}
+@keyframes ts-fwd {
+  from {
+    background-position: 105% center, 0 0;
+  }
+  to {
+    background-position: -5% center, 0 0;
+  }
+}
+@keyframes ts-rev {
+  from {
+    background-position: -5% center, 0 0;
+  }
+  to {
+    background-position: 105% center, 0 0;
+  }
+}
+@media (max-width: 720px) {
+  .text-shimmer__line {
+    display: inline;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-shimmer {
+    animation: none;
+    background-image: none !important;
+    -webkit-text-fill-color: var(--ts-hi);
+    color: var(--ts-hi);
+  }
+}

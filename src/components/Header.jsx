@@ -19,11 +19,12 @@ export default function Header() {
   useGSAP(
     () => {
       const header = root.current
-      const stuck = ScrollTrigger.create({
-        start: 24,
-        end: 'max',
-        onToggle: (self) => header.classList.toggle('is-stuck', self.isActive),
-      })
+      // Floating state follows the raw scroll offset. A trigger's isActive turns false once the scroll range ends, which
+      // dropped the bar's background right at the footer; reading the offset keeps it for the whole page.
+      const mark = () => header.classList.toggle('is-stuck', (window.scrollY || document.documentElement.scrollTop) > 24)
+      const stuck = ScrollTrigger.create({ start: 0, end: 'max', onUpdate: mark, onRefresh: mark })
+      window.addEventListener('scroll', mark, { passive: true })
+      mark()
       // Theme = whichever [data-nav-theme] section is under the header line. Measured from the live layout,
       // so pin spacers never throw it off.
       let sections = Array.from(document.querySelectorAll('[data-nav-theme]'))
@@ -58,6 +59,7 @@ export default function Header() {
       return () => {
         mo?.disconnect()
         if (raf) cancelAnimationFrame(raf)
+        window.removeEventListener('scroll', mark)
         stuck.kill()
         watcher.kill()
       }
@@ -230,10 +232,17 @@ export default function Header() {
         <div className="drawer__sub">
           {pm.items.map((item) => (
             <Link key={item.to} to={item.to}>
-              {item.title}
+              <strong>{item.title}</strong>
+              <span>{item.text}</span>
             </Link>
           ))}
-          <Link to={pm.terminal.to}>{pm.terminal.title}</Link>
+          <Link to={pm.terminal.to}>
+            <strong>{pm.terminal.title}</strong>
+            <span>{pm.terminal.text}</span>
+          </Link>
+          <a href={LINKS.login}>
+            <strong>{pm.hub}</strong>
+          </a>
         </div>
         <Link to="/institutional" className="drawer__link">
           {t.nav.institutional}

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { useI18n } from '../i18n/I18nProvider.jsx'
 import { LINKS } from '../lib/facts.js'
 import PageHero from './PageHero.jsx'
 import GlowButton from './GlowButton.jsx'
@@ -33,23 +32,6 @@ export function ExtLink({ href, children, className = '', ...rest }) {
   )
 }
 
-/* The six product pages as a pill rail, current one lit. */
-export function ProductRail({ current }) {
-  const { t } = useI18n()
-  const rows = t.pages.hub.rows.filter((r) => ['metrics', 'alpha-ai', 'mcp', 'api', 'dashboards', 'research'].includes(r.key))
-  return (
-    <ul className="phero__rail" aria-label="Platform">
-      {rows.map((r, i) => (
-        <li key={r.key}>
-          <Link to={r.to} className={r.key === current ? 'is-on' : ''} aria-current={r.key === current ? 'page' : undefined}>
-            <b className="mono">{String(i + 1).padStart(2, '0')}</b> {r.title}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
 /* Hero: eyebrow, H1, subtitle, two buttons, one short line, the page's own visual on the right. */
 export function ProductHero({ current, eyebrow, title, sub, line, primary, secondary, visual }) {
   const actions = (
@@ -62,13 +44,13 @@ export function ProductHero({ current, eyebrow, title, sub, line, primary, secon
       )}
     </>
   )
-  return <PageHero eyebrow={eyebrow} title={title} sub={sub} actions={actions} note={line} visual={visual} rail={<ProductRail current={current} />} centered />
+  return <PageHero eyebrow={eyebrow} title={title} sub={sub} actions={actions} note={line} visual={visual} centered />
 }
 
 /* A page section with the usual eyebrow / H2 / lede head. */
-export function PBlock({ id, eyebrow, title, intro, dark = false, children, className = '' }) {
+export function PBlock({ id, eyebrow, title, intro, dark = false, rule = true, children, className = '' }) {
   return (
-    <Section id={id} dark={dark} className={`pblock ${className}`}>
+    <Section id={id} dark={dark} rule={rule} className={`pblock ${className}`}>
       <div className="container">
         {(eyebrow || title || intro) && (
           <div className="section__head">
@@ -130,6 +112,31 @@ export function Cards({ items, cols = 2, className = '' }) {
         </article>
       ))}
     </div>
+  )
+}
+
+/* Editorial replacement for Cards: ruled rows, no boxes, no shadow, no lift on hover. Each row is
+   [title | text + optional tech line | link]; `media` (any node) sits on the right when given. */
+export function Rows({ items, className = '' }) {
+  return (
+    <ul className={`prows ${className}`} data-stagger>
+      {items.map((c) => (
+        <li className="prow" data-item key={c.title}>
+          <div className="prow__main">
+            {c.tag && <p className="ptag">{c.tag}</p>}
+            <h3>{c.title}</h3>
+            {c.text && <p>{c.text}</p>}
+            {c.tech && <p className="prow__tech">{c.tech}</p>}
+            {c.href && (
+              <ExtLink className="prow__link link-arrow" href={c.href}>
+                {c.linkLabel} <span>→</span>
+              </ExtLink>
+            )}
+          </div>
+          {c.media && <div className="prow__media">{c.media}</div>}
+        </li>
+      ))}
+    </ul>
   )
 }
 

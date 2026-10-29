@@ -85,3 +85,12 @@ export const SQUAD = [
   { name: 'Rafaela Romano', net: 'X', url: 'https://x.com/hi_disruptivas', photo: 'rafaela-romano' },
   { name: 'Orlando on Crypto', net: 'YouTube', url: 'https://www.youtube.com/@orlandooncrypto', photo: 'orlando-on-crypto' },
 ]
+
+// TODO(links review): provisional destinations for the three Institutional solution CTAs. The final targets are
+// contextualised forms (one per solution) that the internal team will deliver; until then each one opens an email to the
+// institutional inbox with the chosen solution in the subject, so the request already arrives contextualised.
+export const SOLUTION_LINKS = {
+  'alpha-intelligence': `mailto:${CONTACT}?subject=Alpha%20Intelligence`,
+  'terminal-intelligence': `mailto:${CONTACT}?subject=Alphractal%20Intelligence%20for%20Terminals`,
+  research: `mailto:${CONTACT}?subject=Institutional%20Research%20%26%20Reports`,
+}

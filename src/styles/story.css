@@ -36,6 +36,15 @@
   align-items: center;
   padding-block: 96px;
 }
+@media (max-width: 991px) {
+  .cons__pin {
+    min-height: 0;
+    padding-block: 72px;
+  }
+  .cons__grid {
+    grid-template-columns: 1fr;
+  }
+}
 .cons__grid {
   display: grid;
   grid-template-columns: 5fr 7fr;

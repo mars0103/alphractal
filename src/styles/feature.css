@@ -12,7 +12,7 @@
   perspective: 1400px;
 }
 .phero__tilt {
-  transform: rotateY(calc(var(--tx) * -3.5deg)) rotateX(calc(var(--ty) * 2.5deg));
+  transform: none;
   transition: transform 0.6s var(--ease-out);
   transform-style: preserve-3d;
 }
@@ -547,7 +547,7 @@
   width: min(100%, 940px);
 }
 .phero--center .phero__tilt {
-  transform: rotateX(calc(6deg + var(--ty) * 1.5deg)) rotateY(calc(var(--tx) * -3deg));
+  transform: none;
   transform-origin: 50% 100%;
 }
 @media (max-width: 991px) {

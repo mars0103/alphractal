@@ -1619,6 +1619,12 @@
   /* the photo is a light grey aluminium unit: take it down to a black machine */
   filter: brightness(0.5) contrast(1.15);
 }
+.imac2d__back {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #000;
+}
 .imac2d__screen {
   z-index: 1;
 }

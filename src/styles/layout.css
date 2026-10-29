@@ -10,6 +10,9 @@
 }
 
 /* Two vertical rules that run the full page, edge of the content column (Figma "Line 6/7") */
+.home__rest {
+  position: relative;
+}
 .col-lines {
   position: absolute;
   inset: 0;
@@ -124,4 +127,15 @@
 .how__grid,
 .footer .container {
   padding-inline: clamp(20px, 3.2vw, 56px);
+}
+
+/* The numbered rail of sibling products under the product hero is gone (Guia, Direção geral). PageHero no longer renders it;
+   this keeps it out of any hero that still passes its own (McpHero, Feature) until those pages drop the prop. */
+.phero__rail {
+  display: none !important;
+}
+
+/* Tag labels follow the same tracking as eyebrows (no wide 0.14em outlier) */
+html .badge {
+  letter-spacing: var(--track-label);
 }

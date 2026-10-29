@@ -3,9 +3,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { Draggable } from 'gsap/Draggable'
 import { Flip } from 'gsap/Flip'
+import { Observer } from 'gsap/Observer'
 import { useGSAP } from '@gsap/react'
 
-gsap.registerPlugin(ScrollTrigger, SplitText, Draggable, Flip, useGSAP)
+gsap.registerPlugin(ScrollTrigger, SplitText, Draggable, Flip, Observer, useGSAP)
 
 gsap.defaults({ ease: 'power3.out', duration: 0.9 })
 
@@ -16,4 +17,4 @@ export const MQ = {
   mobile: '(max-width: 991px)',
 }
 
-export { gsap, ScrollTrigger, SplitText, Draggable, Flip, useGSAP }
+export { gsap, ScrollTrigger, SplitText, Draggable, Flip, Observer, useGSAP }

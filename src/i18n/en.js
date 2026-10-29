@@ -24,6 +24,13 @@ export default {
       hub: 'See everything in the platform',
     },
   },
+  hero3: {
+    title: ['The next-generation analytics platform', 'for the entire crypto market.'],
+    alert: 'Alert triggered: elevated funding, fading momentum. Long liquidation clusters below.',
+    reply: 'Set up the short. Right now.',
+    legend: ['Price', 'Whale vs Retail Delta', 'Funding Rate', 'Open Interest'],
+    chartLabel: 'Price chart with an Alpha AI alert',
+  },
   hero: {
     steps: [
       {
@@ -35,7 +42,7 @@ export default {
       {
         eyebrow: '02 / AI-POWERED ANALYSIS',
         title: ['An AI that turns the data into your next move.'],
-        sub: 'Ask about any asset or setup. Alpha AI reads the data for you and answers with a clear read: direction, key levels and risk, with every number cited.',
+        sub: 'Ask about any asset or setup. Alpha AI reads the data for you and answers with a clear read: direction, key levels and risk, traced back to the metrics.',
         cta: 'Meet Alpha AI',
       },
       {
@@ -45,8 +52,6 @@ export default {
         cta: 'Trade now',
       },
     ],
-    // Twelve real metrics from the platform. `img` is a real capture already in public/metrics;
-    // the rest wait for a capture (a labelled placeholder holds the tile). The cursor picks the `pick` one.
     tiles: [
       { label: 'CVDD Channel', img: 'cvdd-channel' },
       { label: 'Repetition Fractal Cycle', img: 'fractal-cycle' },
@@ -72,7 +77,7 @@ export default {
       { key: 'macro', label: 'Macro' },
     ],
     terminalShot: 'Alpha Terminal · real platform screenshot',
-    terminalShotNote: 'To be provided by Gustavo: Liquidation Levels on the chart, with the Long button',
+    terminalShotNote: 'Liquidation Levels on the chart, with the Long button',
   },
   band: [
     { key: 'traders', label: 'Traders & Analysts', suffix: '' },
@@ -80,7 +85,6 @@ export default {
   ],
   preview: {
     label: 'The platform in one window',
-    caption: 'Illustrative interface with sample data, not live.',
     tabs: {
       cryptos: 'Cryptos',
       ai: 'Alpha AI',
@@ -96,7 +100,7 @@ export default {
       screeners: 'Rank the whole market by RSI, MACD, funding or a signal you define yourself.',
       alerts: 'Price, on-chain and derivatives triggers, delivered to email or Telegram the moment they fire.',
       research: 'In-house reports on on-chain, derivatives and macro, with live charts built in.',
-      macro: 'Rates, M2, CPI, equities and the dollar — 46 panels reading the macro backdrop for crypto.',
+      macro: 'Explore global liquidity, interest rates, recession signals and policy uncertainty.',
       sentiment: 'Fear & Greed, funding, dominance and liquidations, read together instead of tab by tab.',
     },
     cryptos: {
@@ -114,14 +118,22 @@ export default {
         liq: 'Liq. 24h',
         signal: 'Signal',
       },
-      signals: { bullish: 'Bullish', neutral: 'Neutral', bearish: 'Bearish' },
+      signals: {
+        bullish: 'Bullish',
+        neutral: 'Neutral',
+        bearish: 'Bearish',
+      },
     },
     ai: {
       name: 'Alpha AI',
       status: 'Online',
       modes: ['Quick Ask', 'Deep Research'],
       user: 'Is ETH cheap or expensive against its on-chain fundamentals?',
-      lead: ['On these valuation models ETH reads ', 'below fair value', ' against network activity. Here’s the breakdown, each reading cited:'],
+      lead: [
+        'On these valuation models ETH reads ',
+        'below fair value',
+        ' against network activity. Here’s the breakdown, each reading cited:',
+      ],
       rows: [
         { label: 'MVRV ratio', text: 'Below its fair-value band', tone: 'up' },
         { label: 'Active addresses', text: 'Rising over 30 days', tone: 'up' },
@@ -136,9 +148,26 @@ export default {
       title: 'Crypto screener',
       ranked: 'assets ranked',
       filters: ['All signals', 'Buy only', 'Custom'],
-      cols: { asset: 'Asset', price: 'Price', rsi: 'RSI (14)', macd: 'MACD', funding: 'Funding', signal: 'Signal', strength: 'Strength' },
-      macd: { buy: 'Buy', sell: 'Sell', neutral: 'Neutral' },
-      signals: { strongBuy: 'Strong buy', buy: 'Buy', neutral: 'Neutral', sell: 'Sell' },
+      cols: {
+        asset: 'Asset',
+        price: 'Price',
+        rsi: 'RSI (14)',
+        macd: 'MACD',
+        funding: 'Funding',
+        signal: 'Signal',
+        strength: 'Strength',
+      },
+      macd: {
+        buy: 'Buy',
+        sell: 'Sell',
+        neutral: 'Neutral',
+      },
+      signals: {
+        strongBuy: 'Strong buy',
+        buy: 'Buy',
+        neutral: 'Neutral',
+        sell: 'Sell',
+      },
     },
     alerts: {
       title: 'Smart alerts',
@@ -147,12 +176,54 @@ export default {
       active: 'active',
       watching: 'Watching',
       items: [
-        { kind: 'Price', sym: 'BTC', text: 'Price crossed above $96,000', ch: ['Email', 'Telegram'], when: '2 min ago', st: 'triggered' },
-        { kind: 'On-chain', sym: 'ETH', text: 'Active addresses up 15% in 7 days', ch: ['Telegram'], when: '18 min ago', st: 'triggered' },
-        { kind: 'Metric', sym: 'BTC', text: 'MVRV Z-Score entered the overvalued zone', ch: ['Email', 'Telegram'], when: '1 h ago', st: 'triggered' },
-        { kind: 'Derivatives', sym: 'SOL', text: 'Open interest up 20% in 24 hours', ch: ['Email'], when: '3 h ago', st: 'triggered' },
-        { kind: 'Price', sym: 'BNB', text: 'Falls below the $600 support level', ch: ['Telegram'], when: '', st: 'watching' },
-        { kind: 'Derivatives', sym: 'BTC', text: 'Funding rate above 0.05%', ch: ['Email', 'Telegram'], when: '', st: 'watching' },
+        {
+          kind: 'Price',
+          sym: 'BTC',
+          text: 'Price crossed above $96,000',
+          ch: ['Email', 'Telegram'],
+          when: '2 min ago',
+          st: 'triggered',
+        },
+        {
+          kind: 'On-chain',
+          sym: 'ETH',
+          text: 'Active addresses up 15% in 7 days',
+          ch: ['Telegram'],
+          when: '18 min ago',
+          st: 'triggered',
+        },
+        {
+          kind: 'Metric',
+          sym: 'BTC',
+          text: 'MVRV Z-Score entered the overvalued zone',
+          ch: ['Email', 'Telegram'],
+          when: '1 h ago',
+          st: 'triggered',
+        },
+        {
+          kind: 'Derivatives',
+          sym: 'SOL',
+          text: 'Open interest up 20% in 24 hours',
+          ch: ['Email'],
+          when: '3 h ago',
+          st: 'triggered',
+        },
+        {
+          kind: 'Price',
+          sym: 'BNB',
+          text: 'Falls below the $600 support level',
+          ch: ['Telegram'],
+          when: '',
+          st: 'watching',
+        },
+        {
+          kind: 'Derivatives',
+          sym: 'BTC',
+          text: 'Funding rate above 0.05%',
+          ch: ['Email', 'Telegram'],
+          when: '',
+          st: 'watching',
+        },
       ],
     },
     research: {
@@ -160,18 +231,50 @@ export default {
       filters: ['All', 'On-chain', 'Derivatives', 'Macro'],
       read: 'min read',
       items: [
-        { title: 'Long-term holder supply at a cycle high: what it has meant before', kind: 'On-chain', mins: 15, tags: ['BTC'], tier: 'Free' },
-        { title: 'Open interest divergence: reading record leverage in ETH and SOL', kind: 'Derivatives', mins: 18, tags: ['ETH', 'SOL'], tier: 'Pro' },
-        { title: 'M2 expansion and crypto: a framework for liquidity-driven rallies', kind: 'Macro', mins: 22, tags: ['BTC', 'ETH'], tier: 'Free' },
-        { title: 'Realized price bands: where the BTC support zone sits now', kind: 'On-chain', mins: 12, tags: ['BTC'], tier: 'Max' },
+        {
+          title: 'Long-term holder supply at a cycle high: what it has meant before',
+          kind: 'On-chain',
+          mins: 15,
+          tags: ['BTC'],
+          tier: 'Free',
+        },
+        {
+          title: 'Open interest divergence: reading record leverage in ETH and SOL',
+          kind: 'Derivatives',
+          mins: 18,
+          tags: ['ETH', 'SOL'],
+          tier: 'Pro',
+        },
+        {
+          title: 'M2 expansion and crypto: a framework for liquidity-driven rallies',
+          kind: 'Macro',
+          mins: 22,
+          tags: ['BTC', 'ETH'],
+          tier: 'Free',
+        },
+        {
+          title: 'Realized price bands: where the BTC support zone sits now',
+          kind: 'On-chain',
+          mins: 12,
+          tags: ['BTC'],
+          tier: 'Max',
+        },
       ],
     },
     macro: {
-      title: 'Macro terminal',
+      title: 'Macroeconomic Panels',
       badge: 'Macro',
       panels: 'panels',
       filters: ['All', 'Rates', 'Equity', 'Commodities'],
-      cols: { name: 'Name', last: 'Last', prev: 'Prev.', chg: 'Change', d30: '30D', ytd: 'YTD', trend: 'Trend' },
+      cols: {
+        name: 'Name',
+        last: 'Last',
+        prev: 'Prev.',
+        chg: 'Change',
+        d30: '30D',
+        ytd: 'YTD',
+        trend: 'Trend',
+      },
       rows: [
         { name: 'US 10Y Treasury', type: 'Bond' },
         { name: 'DXY Index', type: 'Currency' },
@@ -187,7 +290,11 @@ export default {
       title: 'Market sentiment',
       snapshot: 'Sample snapshot',
       gauge: 'Greed',
-      stats: { dominance: 'BTC dominance', funding: 'Average funding', oi: 'Total open interest' },
+      stats: {
+        dominance: 'BTC dominance',
+        funding: 'Average funding',
+        oi: 'Total open interest',
+      },
       social: 'Social sentiment (bull vs bear)',
       liq: '24h liquidations',
       longs: 'Longs',
@@ -208,39 +315,37 @@ export default {
     toolsOne: 'platform',
   },
   how: {
-    eyebrow: 'HOW IT WORKS',
-    title: 'Four steps to your first smart trade',
+    title: 'Four steps to your first smart trade.',
     steps: [
       {
-        n: '01',
         title: 'Pick your asset',
         text: '300+ assets, 14 years of on-chain history, 17+ exchanges. Explore on-chain data across 13+ blockchains, beyond Bitcoin.',
+        shot: 'step-1-recording',
+        shotNote: 'App home, Crypto, filters, then BTC',
       },
       {
-        n: '02',
         title: 'Open a chart no one else has',
         text: '23 models computed in-house. CVDD Channel, Fractal Cycle, Liquidation Levels, Whale vs Retail Delta... 1,500+ metrics.',
+        shot: 'step-2-recording',
+        shotNote: 'BTC, Alpha Metrics, a proprietary chart',
       },
       {
-        n: '03',
-        title: 'Ask Alpha AI why it matters now',
-        text: 'It answers from the chart in front of you and cites the metrics it used. Click any citation to open the underlying data.',
+        title: 'Find your next move with Alpha AI',
+        text: 'Ask what to do next. Alpha AI connects Alphractal’s live market data to identify potential setups, explain the reasoning and highlight the levels that matter.',
+        shot: 'step-3-recording',
+        shotNote: 'On the chart, Alpha AI, a question and its answer',
       },
       {
-        n: '04',
-        title: 'Act on it in Alpha Terminal',
-        text: 'Take the read into the trading chart: entry, stop and target from live order-book depth and our overlays. You review, then you submit.',
+        title: 'Trade in Alpha Terminal',
+        text: 'Investigate setups with embedded metrics and AI. Uncover market dynamics beyond price action, refine your entry, stop and target, and execute—all in one workspace.',
+        shot: 'step-4-recording',
+        shotNote: 'Alpha Terminal',
       },
     ],
-    chartLabel: 'Whale vs Retail Delta',
-    askLabel: 'Alpha AI',
-    actShot: 'Alpha Terminal · real platform screenshot',
-    actShotNote: 'To be provided by Gustavo (different framing from the hero scene)',
-    pick: 'Select an asset',
   },
   inside: {
-    eyebrow: 'THE PLATFORM',
-    title: 'What’s inside.',
+    eyebrow: 'Alpha Studio:',
+    title: 'Everything else keeps your strategy running.',
     cta: 'Explore',
     cards: [
       {
@@ -248,6 +353,7 @@ export default {
         to: '/platform/metrics',
         title: 'Metrics & Models',
         text: '1,500+ metrics across on-chain, derivatives, sentiment and macro. 23 of them are ours.',
+        alt: 'CVDD Channel, one of the proprietary Alphractal models',
       },
       {
         key: 'ai',
@@ -259,31 +365,38 @@ export default {
         key: 'mcp',
         to: '/platform/mcp',
         title: 'MCP',
-        text: '47 tools over the Model Context Protocol. Connect Claude, Cursor or your own agent.',
+        text: 'Bring Alphractal data into Claude, Cursor or your own agent through the Model Context Protocol.',
+        logos: ['Claude', 'ChatGPT', 'Grok'],
       },
       {
         key: 'api',
         to: '/platform/api',
         title: 'API',
-        text: 'REST access to the full library. Pay-per-call credits on every tier, including free.',
+        text: 'The most powerful crypto data API. On-chain, derivatives, sentiment and macro—built for your applications, trading models and automated workflows.',
+        stat: '100K+',
+        statLabel: 'API requests per day',
       },
       {
         key: 'dash',
         to: '/platform/dashboards',
         title: 'Dashboards, Alerts & Screeners',
-        text: 'Build your own layouts. Compose alerts across on-chain, derivatives and macro in a single rule. Rank the whole market by any metric.',
+        text: 'Build and save your own layouts. Monitor supported metrics with configurable alerts, and compare assets in screeners.',
       },
       {
         key: 'macro',
         to: '/platform/metrics',
-        title: 'Macro Terminal',
-        text: '46 panels: liquidity, rates, recession signals, policy uncertainty, global risk regime.',
+        title: 'Macroeconomic Panels',
+        text: 'Explore global liquidity, interest rates, recession signals and policy uncertainty. Understand the macro environment shaping your trades.',
       },
       {
         key: 'research',
         to: '/platform/research',
         title: 'Research & Academy',
-        text: 'In-house reports with live charts embedded, and voice narration you can listen to on your commute.',
+        text: 'In-house research led by Rafael, our Chief Research Officer, with a PhD in Physics and 12+ years of market experience. Original analysis connects market data, cycle dynamics and the reasoning behind each thesis.',
+        person: 'Rafael',
+        role: 'Chief Research Officer · PhD in Physics · 12+ years of market experience',
+        photo: '/team/rafael.jpg',
+        alt: 'An Alphractal research report with an embedded chart',
       },
     ],
   },
@@ -306,7 +419,6 @@ export default {
       pillB: 'open_interest_eth',
       chartTitle: 'funding_rate_eth',
       chartHint: 'Click a citation to open the chart',
-      illustrative: 'Illustrative conversation',
       hover: 'Preview',
       open: 'Open chart',
     },
@@ -315,8 +427,12 @@ export default {
     eyebrow: 'COMPARISON',
     title: 'Where they win. Where we do.',
     body: 'When the other tool is better, we say so in writing. It’s the only way a comparison is worth reading.',
-    cols: { tool: 'Compared with', theyWin: 'Where they win', weWin: 'Where Alphractal wins', link: 'Full comparison' },
-    // VERIFICAR: rows 3 and 4 need confirming against comparisonLandings.ts (brief §4.2).
+    cols: {
+      tool: 'Compared with',
+      theyWin: 'Where they win',
+      weWin: 'Where Alphractal wins',
+      link: 'Full comparison',
+    },
     rows: [
       {
         key: 'glassnode',
@@ -330,7 +446,7 @@ export default {
         to: '/vs/nansen',
         name: 'Nansen',
         they: 'A deeper wallet label graph.',
-        we: 'A 46-panel macro terminal and 23 proprietary models.',
+        we: 'Macroeconomic panels and 23 proprietary models.',
       },
       {
         key: 'coinglass',
@@ -349,33 +465,15 @@ export default {
     ],
   },
   proof: {
-    eyebrow: 'PROOF',
-    title: '59% of new users sign up to improve their trading',
-    quote:
-      'Currently, Alphractal covers 90% of my research workflow. Alpha AI is becoming hard to replace. It acts like a 24/7 analyst that helps check my thesis.',
-    quoteBy: 'Rafaela Romano',
-    quoteLine: 'Decide on evidence, not FOMO.',
-    audienceTitle: 'Who signs up',
-    audienceNote: 'Onboarding survey, n = 1,845',
-    rows: {
-      traders: 'are traders',
-      holders: 'are long-term holders',
-      goal: 'say the goal is to improve their trading',
-      btc: 'are Bitcoin-first',
-      proprietary: 'ask for the proprietary metrics by name',
-    },
+    phrase: '63% of surveyed users cancelled subscriptions to other platforms. With the data they needed in Alphractal, they reported better trading results—without constantly switching between platforms.',
     postsLabel: 'Posts from people who use Alphractal',
   },
   terminal: {
-    badge: 'COMING',
-    title: 'Alpha Terminal. Act where you analyze.',
-    body: [
-      'Research shows what the market is doing. The terminal is where you act: non-custodial, on Hyperliquid, with our proprietary overlays drawn inside the trading chart.',
-      'In testnet today.',
-    ],
-    cta: 'Explore Alpha Terminal',
-    shot: 'Alpha Terminal · real platform screenshot',
-    shotNote: 'To be provided by Gustavo (Liquidation Levels on the chart)',
+    kicker: 'Trading terminal',
+    title: 'The Terminal that talks back.',
+    body: 'Assisted trading backed by 1,500+ metrics across blockchains, derivatives and macro. See the levels, weigh the risk and place your trade without leaving Alphractal.',
+    cta: 'Trade now',
+    label: 'Alpha Terminal',
   },
   faq: {
     eyebrow: 'FAQ',
@@ -399,18 +497,24 @@ export default {
       },
       {
         q: 'Can I connect my own AI agent?',
-        a: 'Yes. Point Claude, Cursor or your own agent at one MCP endpoint: 47 tools, 39 for reading and 8 for writing alerts and favourites. Read-only by default.',
+        a: 'Yes. Point Claude, Cursor or your own agent at one MCP endpoint to read Alphractal data and manage alerts and favorites.',
       },
       {
         q: 'Can I trade from Alphractal?',
         a: 'Alpha Terminal is our upcoming trading product, designed to bring analysis and execution together.',
-        link: { label: 'Explore Alpha Terminal', to: '/terminal' },
+        link: {
+          label: 'Explore Alpha Terminal',
+          to: '/terminal',
+        },
         after: ' to see what’s coming.',
       },
       {
         q: 'How much do paid plans cost?',
         a: 'Prices are shown inside the app because they change with promotions. Pro includes a 3-day free trial and you can cancel anytime.',
-        link: { label: 'See the plans in the platform', to: 'https://app.alphractal.com/plans' },
+        link: {
+          label: 'See the plans in the platform',
+          to: 'https://app.alphractal.com/plans',
+        },
       },
     ],
   },
@@ -421,7 +525,7 @@ export default {
     secondary: 'See the platform',
   },
   footer: {
-    tagline: 'Crypto and macro analytics, with an AI that cites every number.',
+    tagline: 'Crypto market intelligence: on-chain, derivatives, sentiment and macro data.',
     cols: [
       {
         title: 'Platform',
@@ -460,9 +564,9 @@ export default {
     rights: '© 2026 Alphractal',
   },
   soon: {
-    eyebrow: 'NEXT DELIVERY',
-    title: 'This page is on the way.',
-    text: 'The home page is the first delivery. The rest of the sitemap reuses the same system.',
+    eyebrow: '404',
+    title: 'Page not found.',
+    text: 'This address does not exist or has moved. Head back to the home page or pick a product from the Platform menu.',
     back: 'Back to home',
   },
 }

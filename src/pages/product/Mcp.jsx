@@ -1,54 +1,150 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import '../../styles/p-mcp.css'
 import { useMeta } from '../../hooks/useMeta.js'
 import { LINKS } from '../../lib/facts.js'
 import { gsap, useGSAP, MQ } from '../../lib/gsap.js'
 import PageShell from '../../components/PageShell.jsx'
+import PageHero from '../../components/PageHero.jsx'
+import GlowButton from '../../components/GlowButton.jsx'
+import McpLogos from '../../components/McpLogos.jsx'
+import McpCatalog from '../../components/McpCatalog.jsx'
+import { ConditionsSeq, ConnectDraw, GroundedChat, ProblemChat, RecurringSeq, ThesisSeq } from '../../components/McpVisuals.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
-import { ExtLink, PBlock, ProductFaq, ProductHero, Shot } from '../../components/ProductBlocks.jsx'
+import { ExtLink, PBlock, ProductFaq, Shot } from '../../components/ProductBlocks.jsx'
 
-/* /platform/mcp — hero, problem, how it works, What you get (three examples), catalog, FAQ, related, closing CTA.
-   Copy: Textos/MCP.md. The page sells no tool count; the catalog is described by group. */
+/* /platform/mcp — hero with the AI-client marks, problem (a conversation drawn on paper), how it works (three steps, one
+   image each: a drawn connection screen, the real capture, a drawn grounded answer), What you get (three line
+   sequences that zoom), the connected-tools strip, FAQ, related, closing CTA. Drawings live in McpVisuals.jsx.
+   Copy: Guia completo para IA.md (MCP) and Textos/09 - MCP.md. The page sells no tool count; the carousel is a curated
+   selection of real tools, not the full catalog. Protocol and endpoint details live in the FAQ and the docs. */
 
 const ENDPOINT = 'https://mcp.alphractal.com/mcp'
 const DOCS = 'https://docs.alphractal.com/mcp'
 const CONNECT = LINKS.start // TODO(links review): point to the app's MCP connection page once the final URL is confirmed
 
 const STEPS = [
-  { n: '01', title: 'Open the MCP connection page', text: 'Sign in to Alphractal and open the MCP setup page. Choose the connection instructions for your AI client.' },
-  { n: '02', title: 'Connect and review access', text: 'Use account sign-in in an OAuth-compatible client, or an API key in a client that supports custom headers. Review the tools you expose and the access supported by your plan.' },
-  { n: '03', title: 'Ask with Alphractal context', text: 'Ask a market question and let your assistant find relevant metrics, charts or research. Review the sources, dates and limitations before using the answer.' },
+  {
+    n: '01',
+    title: 'Open the MCP connection page',
+    text: 'Sign in to Alphractal and open the MCP setup page. Choose the connection instructions for your AI client.',
+    visual: <ConnectDraw />,
+  },
+  {
+    n: '02',
+    title: 'Connect and review access',
+    text: 'Use account sign-in in an OAuth-compatible client, or an API key in a client that supports custom headers. Review the tools you expose and the access supported by your plan.',
+    wide: true,
+    visual: (
+      <Shot
+        src="/product/mcp-connect.webp"
+        ratio="1280 / 494"
+        alt="The MCP tab of the Alphractal app: pick a client, open Settings, Connectors, add a custom connector and paste the server URL"
+        name="MCP connection instructions in the Alphractal app"
+      />
+    ),
+  },
+  {
+    n: '03',
+    title: 'Ask with Alphractal context',
+    text: 'Ask a market question and let your assistant find relevant metrics, charts or research. Review the sources, dates and limitations before using the answer.',
+    visual: <GroundedChat />,
+  },
 ]
 
 const EXAMPLES = [
   {
+    Seq: ThesisSeq,
     title: 'Research a market thesis',
     text: 'Find relevant metrics and research, then ask your assistant to compare the evidence behind your idea.',
     prompt: 'Find Alphractal research on Bitcoin valuation and explain which metrics I can inspect to test the thesis.',
-    tools: ['search_reports', 'get_report_key_insights', 'search_metrics', 'get_metric_info'],
   },
   {
+    Seq: ConditionsSeq,
     title: 'Check market conditions',
     text: 'Bring positioning, liquidations and market context into the same conversation.',
     prompt: 'Summarize Bitcoin’s recent liquidation activity and distinguish the observed data from a directional forecast.',
-    tools: ['get_screener_data'],
-    toolNote: 'Asset: BTC · category: liquidations',
   },
   {
+    Seq: RecurringSeq,
     title: 'Build repeatable analysis',
     text: 'Use Alphractal tools inside your own reports and agent workflows, with the schedule and review process you define.',
     prompt: 'Prepare a daily review template covering funding, open interest and liquidation activity, with sources and missing-data notes.',
-    tools: [],
-    note: 'Scheduling depends on your client or orchestrator. MCP provides the tools; on its own it is not a service that sends reports automatically.',
   },
 ]
 
-const GROUPS = [
-  { title: 'Assets & market data', text: 'Asset discovery, summaries, price history and spot candles.' },
-  { title: 'Metrics & charts', text: 'Metric definitions, supported parameters, time series and chart discovery.' },
-  { title: 'Derivatives & screeners', text: 'Positioning, liquidation clusters and cross-asset screening views.' },
-  { title: 'Research', text: 'Find reports and inspect available key insights, subject to access.' },
-  { title: 'Account & monitoring', text: 'Usage, plan limits, favorites and alert tools where authorized.', note: 'Alert tools prepare a configuration for your confirmation. Usage and limits tools only read.' },
+const CATALOG = [
+  {
+    title: 'Explore assets & market data',
+    text: 'Find an asset, understand its market profile and examine its price history.',
+    tools: [
+      ['Find an asset', 'search_assets', 'Locate a cryptocurrency by name or identifier.'],
+      ['Inspect its market profile', 'get_summary_info', 'Read the asset’s available market summary and supporting indicators.'],
+      ['Explore price history', 'get_asset_price_history', 'Retrieve historical prices for the asset you are investigating.'],
+    ],
+  },
+  {
+    title: 'Investigate metrics',
+    text: 'Find the data behind a thesis and understand what each metric measures.',
+    tools: [
+      ['Discover relevant metrics', 'search_metrics', 'Search the metric library by name or market concept.'],
+      ['Understand a metric', 'get_metric_info', 'Read its definition and interpretation notes.'],
+      ['Read the data', 'get_metric_data', 'Retrieve the available time series for a metric and asset.'],
+    ],
+  },
+  {
+    title: 'Explore charts',
+    text: 'Find relevant charts and inspect the metrics behind each view.',
+    tools: [
+      ['Find a chart', 'suggest_charts', 'Discover charts by name, description or metric.'],
+      ['Inspect the chart', 'get_chart_details', 'Read its description, category and supporting context.'],
+      ['Identify its metrics', 'get_chart_metrics', 'See which metrics are used in the chart.'],
+    ],
+  },
+  {
+    title: 'Analyze leverage & liquidations',
+    text: 'Investigate derivatives positioning and the liquidation levels around an asset.',
+    tools: [
+      ['Read the market pulse', 'get_screener_overview', 'Review aggregate derivatives conditions and market rankings.'],
+      ['Inspect an asset’s positioning', 'get_screener_data', 'Retrieve available funding, open interest and liquidation data.'],
+      ['Map liquidation clusters', 'get_liquidation_clusters', 'Inspect cluster price levels, size, side and distance from the current price.'],
+    ],
+  },
+  {
+    title: 'Compare & test a thesis',
+    text: 'Compare evidence across assets and metrics, then investigate historical relationships.',
+    tools: [
+      ['Compare metrics', 'compare_metrics', 'Examine multiple metrics side by side.'],
+      ['Rank assets', 'rank_assets_by_metric', 'Find the highest and lowest values across supported assets and metrics.'],
+      ['Backtest a metric', 'backtest_metric', 'Explore threshold behavior and relationships with price over supported historical windows of up to 90 days.'],
+    ],
+  },
+  {
+    title: 'Bring research into the conversation',
+    text: 'Find Alphractal research and connect its conclusions to your own investigation.',
+    tools: [
+      ['Search research', 'search_reports', 'Find reports by topic, thesis or keyword.'],
+      ['Explore asset research', 'get_reports_by_asset', 'Retrieve reports related to a specific asset.'],
+      ['Read key findings', 'get_report_key_insights', 'Inspect the available conclusions and insights from a report.'],
+    ],
+  },
+  {
+    title: 'Monitor what matters',
+    text: 'Review existing alerts and prepare new monitoring conditions for confirmation.',
+    tools: [
+      ['Review your alerts', 'get_user_alerts', 'Inspect the alerts already configured in your account.'],
+      ['Prepare an alert', 'prepare_alert', 'Validate and stage a monitoring condition for review.'],
+      ['Confirm creation', 'confirm_alert_creation', 'Create the prepared alert after the user reviews and confirms its configuration.'],
+    ],
+  },
+  {
+    title: 'Organize your workspace',
+    text: 'Bring your watchlist and saved screening views into your connected workflow.',
+    tools: [
+      ['Read your watchlist', 'get_user_favorites', 'Retrieve your saved assets and charts.'],
+      ['Review saved screeners', 'list_screener_views', 'Find the screener views saved in your account.'],
+      ['Save a screener view', 'create_screener_view', 'Save a named selection of screener columns for future use.'],
+    ],
+  },
 ]
 
 const RELATED = [
@@ -71,65 +167,11 @@ const FAQ = [
         <ExtLink className="faq__link" href={`${DOCS}/connecting`}>
           setup guide
         </ExtLink>{' '}
-        for your client and keep credentials private.
+        for your client and keep credentials private. Scheduling is handled by your connected client or orchestrator. Alphractal MCP supplies the tools and data for that workflow.
       </>
     ),
   },
 ]
-
-/* Plain-typography client names: no brand marks, no claim of approval or partnership. */
-function Flow() {
-  const [copied, setCopied] = useState(false)
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(ENDPOINT)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
-    } catch {
-      /* clipboard blocked: the text stays selectable */
-    }
-  }
-  return (
-    <div className="mcpx-flow">
-      <ol className="mcpx-flow__row" aria-label="Alphractal to MCP to your AI assistant">
-        <li className="mcpx-node">
-          <span className="mcpx-node__tag">Source</span>
-          <strong>Alphractal</strong>
-          <span className="mcpx-node__sub">Metrics · charts · screeners · research</span>
-        </li>
-        <li className="mcpx-link" aria-hidden="true">
-          <i />
-        </li>
-        <li className="mcpx-node mcpx-node--core">
-          <span className="mcpx-node__tag">Protocol</span>
-          <strong>MCP</strong>
-          <span className="mcpx-node__sub">Streamable HTTP</span>
-        </li>
-        <li className="mcpx-link" aria-hidden="true">
-          <i />
-        </li>
-        <li className="mcpx-node">
-          <span className="mcpx-node__tag">Client</span>
-          <strong>Your AI assistant</strong>
-          <span className="mcpx-node__sub">
-            Examples: Claude, ChatGPT
-            <br />
-            Category: Agents
-          </span>
-        </li>
-      </ol>
-      <div className="mcpx-endpoint">
-        <span className="mcpx-endpoint__label" id="mcpx-ep-label">
-          MCP endpoint
-        </span>
-        <code aria-labelledby="mcpx-ep-label">{ENDPOINT}</code>
-        <button type="button" onClick={copy} aria-live="polite">
-          {copied ? 'Copied' : 'Copy'}
-        </button>
-      </div>
-    </div>
-  )
-}
 
 function Problem() {
   return (
@@ -138,51 +180,20 @@ function Problem() {
         <p data-reveal="up">An assistant can explain a market idea without having the metrics needed to test it. That leaves you copying charts, searching for numbers and rebuilding the context by hand.</p>
         <p data-reveal="up">Alphractal MCP connects that conversation to the platform’s data and research. Ask your assistant to investigate a thesis, compare metrics or check market conditions using Alphractal sources, without moving every question back into the platform.</p>
       </div>
-      <ol className="mcpx-chain" aria-label="Question, data query, answer with references">
-        <li className="mcpx-chain__item">
-          <span className="mcpx-chain__k">Question</span>
-          <p>“Which metrics can I use to test this thesis?”</p>
-        </li>
-        <li className="mcpx-chain__item">
-          <span className="mcpx-chain__k">Query to the data</span>
-          <p>Your assistant calls Alphractal tools through MCP.</p>
-        </li>
-        <li className="mcpx-chain__item">
-          <span className="mcpx-chain__k">Answer with references</span>
-          <p>Sources and dates the tools actually return, for you to review.</p>
-        </li>
-      </ol>
+      <ProblemChat />
     </div>
   )
 }
 
-function Examples() {
+function Example({ e }) {
+  const Seq = e.Seq
   return (
-    <div className="mcpx-ex" data-stagger>
-      {EXAMPLES.map((e, i) => (
-        <article className="mcpx-exc" data-item key={e.title}>
-          <p className="ptag">{String(i + 1).padStart(2, '0')}</p>
-          <h3>{e.title}</h3>
-          <p className="mcpx-exc__text">{e.text}</p>
-          <figure className="mcpx-chat">
-            <figcaption>Example prompt</figcaption>
-            <blockquote className="mcpx-chat__q">{e.prompt}</blockquote>
-            {e.tools.length > 0 && (
-              <>
-                <p className="mcpx-chat__lbl">Alphractal tools involved</p>
-                <ul className="mcpx-chips">
-                  {e.tools.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-                {e.toolNote && <p className="mcpx-chat__note">{e.toolNote}</p>}
-              </>
-            )}
-            {e.note && <p className="mcpx-chat__note">{e.note}</p>}
-          </figure>
-        </article>
-      ))}
-    </div>
+    <article className="mcpx-exc" data-item>
+      <Seq />
+      <h3>{e.title}</h3>
+      <p className="mcpx-exc__text">{e.text}</p>
+      <blockquote className="mcpx-prompt">{e.prompt}</blockquote>
+    </article>
   )
 }
 
@@ -197,19 +208,10 @@ export default function Mcp() {
     () => {
       const mm = gsap.matchMedia()
       mm.add(MQ.motion, () => {
-        const q = (s) => gsap.utils.toArray(s, root.current)
-        gsap
-          .timeline({ scrollTrigger: { trigger: '.mcpx-chain', start: 'top 80%', once: true }, defaults: { ease: 'power3.out' } })
-          .from(q('.mcpx-chain__item'), { autoAlpha: 0, y: 24, duration: 0.8, stagger: 0.22 })
-        q('.mcpx-exc').forEach((card) => {
-          const tl = gsap.timeline({ scrollTrigger: { trigger: card, start: 'top 75%', once: true }, defaults: { ease: 'power3.out' } })
-          tl.from(card.querySelector('.mcpx-chat__q'), { autoAlpha: 0, x: -18, duration: 0.7, delay: 0.25 })
-          const chips = card.querySelectorAll('.mcpx-chips li')
-          if (chips.length) tl.from(chips, { autoAlpha: 0, y: 10, duration: 0.5, stagger: 0.12 }, '-=0.1')
+        gsap.utils.toArray('.mcpx-step', root.current).forEach((st) => {
+          const tl = gsap.timeline({ scrollTrigger: { trigger: st, start: 'top 82%', once: true }, defaults: { ease: 'power3.out' } })
+          tl.from(st.querySelector('.mcpx-step__text'), { autoAlpha: 0, y: 24, duration: 0.8 })
         })
-        q('.mcpx-step').forEach((s) =>
-          gsap.from(s, { autoAlpha: 0, y: 28, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: s, start: 'top 85%', once: true } }),
-        )
       })
       return () => mm.revert()
     },
@@ -219,42 +221,39 @@ export default function Mcp() {
   return (
     <PageShell>
       <div ref={root}>
-        <ProductHero
-          current="mcp"
+        <PageHero
+          centered
           eyebrow="MODEL CONTEXT PROTOCOL"
           title="The crypto data layer your AI can actually read."
-          sub="Connect once, and your AI reads, trusts and works with the data behind Alphractal. Bring market metrics, charts, screeners and research into the AI conversations you already use, on desktop or mobile where your client supports MCP."
-          line="Your AI assistant. Alphractal data. One connected workflow."
-          primary={{ label: 'Connect your client', href: CONNECT }}
-          secondary={{ label: 'Explore the tools', href: '#tools' }}
-          visual={<Flow />}
+          sub="Bring Alphractal’s market intelligence into your AI assistant. Research assets, analyze positioning and build workflows with connected metrics, charts and research."
+          actions={
+            <>
+              <GlowButton href={CONNECT}>Connect your client</GlowButton>
+              <ExtLink className="link-arrow phero__more" href="#tools">
+                Explore the tools <span>→</span>
+              </ExtLink>
+            </>
+          }
+          visual={<McpLogos />}
         />
 
-        <PBlock id="problem" eyebrow="THE PROBLEM" title="Your AI needs the data behind the answer.">
+        <PBlock id="problem" eyebrow="THE PROBLEM" title="Your AI needs the data behind the answer." className="mcpx-sec">
           <Problem />
         </PBlock>
 
-        <PBlock id="how" dark eyebrow="HOW IT WORKS" title="Connect your assistant in three steps." className="mcpx-how">
-          <div className="mcpx-how__grid">
-            <ol className="mcpx-steps">
-              {STEPS.map((s) => (
-                <li className="mcpx-step" key={s.n}>
+        <PBlock id="how" eyebrow="HOW IT WORKS" title="Connect your assistant in three steps." className="mcpx-sec mcpx-how">
+          <ol className="mcpx-steps">
+            {STEPS.map((s) => (
+              <li className={`mcpx-step${s.wide ? ' mcpx-step--wide' : ''}`} key={s.n}>
+                <div className="mcpx-step__text">
                   <b>{s.n}</b>
-                  <div>
-                    <h3>{s.title}</h3>
-                    <p>{s.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <Shot
-              dark
-              ratio="1280 / 494"
-              src="/product/mcp-connect.webp"
-              alt="The MCP tab of the Alphractal app: pick a client, open Settings, Connectors, add a custom connector and paste the server URL"
-              name="MCP connection page in the Alphractal app"
-            />
-          </div>
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                </div>
+                <div className="mcpx-step__media">{s.visual}</div>
+              </li>
+            ))}
+          </ol>
           <p className="mcpx-how__more">
             <ExtLink className="link-arrow" href={`${DOCS}/connecting`}>
               Read the setup guide <span>→</span>
@@ -262,45 +261,40 @@ export default function Mcp() {
           </p>
         </PBlock>
 
-        <PBlock id="get" eyebrow="WHAT YOU GET" title="Put Alphractal data to work in your workflow.">
-          <Examples />
+        <PBlock id="get" eyebrow="WHAT YOU GET" title="Put Alphractal data to work in your workflow." className="mcpx-sec">
+          <div className="mcpx-ex" data-stagger>
+            {EXAMPLES.map((e) => (
+              <Example e={e} key={e.title} />
+            ))}
+          </div>
         </PBlock>
 
         <PBlock
           id="tools"
-          dark
           eyebrow="TOOL CATALOG"
           title="Explore the connected tools."
-          intro="Discover data, inspect charts and bring research into the conversation. Available tools and access depend on the connected client, account and plan."
-          className="mcpx-tools"
+          intro="Give your AI the tools to investigate assets, read market conditions and turn questions into deeper analysis."
+          className="mcpx-sec mcpx-tools"
         >
-          <ul className="mcpx-groups" data-stagger>
-            {GROUPS.map((g) => (
-              <li className="mcpx-group" data-item key={g.title}>
-                <h3>{g.title}</h3>
-                <p>{g.text}</p>
-                {g.note && <p className="mcpx-group__note">{g.note}</p>}
-              </li>
-            ))}
-          </ul>
+          <McpCatalog items={CATALOG} />
           <p className="mcpx-tools__more">
             <ExtLink className="link-arrow" href={`${DOCS}/tools`}>
-              See the full tool catalog in the docs <span>→</span>
+              See the full tool catalog <span>→</span>
             </ExtLink>
           </p>
         </PBlock>
 
         <ProductFaq title="MCP questions, answered." items={FAQ} />
 
-        <PBlock id="related" eyebrow="RELATED" title="Other ways to work with the data.">
-          <ul className="mcpx-rel" data-stagger>
+        <PBlock id="related" className="mcpx-sec mcpx-related">
+          <ul className="mcpx-rel">
             {RELATED.map((r) => (
-              <li data-item key={r.title}>
-                <ExtLink className="mcpx-rel__card" href={r.href}>
+              <li key={r.title}>
+                <ExtLink className="mcpx-rel__row" href={r.href} aria-label={r.label}>
                   <h3>{r.title}</h3>
                   <p>{r.text}</p>
-                  <span className="link-arrow">
-                    {r.label} <span>→</span>
+                  <span className="mcpx-rel__go" aria-hidden="true">
+                    →
                   </span>
                 </ExtLink>
               </li>

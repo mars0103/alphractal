@@ -112,7 +112,6 @@ export default function CitationChat({ start = 'top 72%' }) {
       <span className="ring ring--dark" aria-hidden="true" />
       <div className="chat__top mono">
         <span>Alpha AI</span>
-        <span>{chat.illustrative}</span>
       </div>
 
       <p className="chat__user">{chat.user}</p>
@@ -129,7 +128,6 @@ export default function CitationChat({ start = 'top 72%' }) {
         <div className="chat__chart-in">
           <div className="chart__head">
             <span className="mono">{chat.chartTitle}</span>
-            <span className="mono">{chat.illustrative}</span>
           </div>
           <svg viewBox={`0 0 ${W} ${H}`} className="chart">
             {[0.25, 0.5, 0.75].map((y) => (

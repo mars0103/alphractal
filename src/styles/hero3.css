@@ -1,0 +1,361 @@
+/* Home hero v3 — a pinned scroll story: title → chart climbs → Alpha AI answers → icon zoom.
+   Layers (back to front): stars < chart < gradient waves < copy / cards / icon. */
+.hero3 {
+  min-height: 0;
+  height: auto;
+}
+.h3__pin {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--ink);
+}
+.hero3 .hero__stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.h3__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.h3__chartwrap,
+.h3__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.h3__svg {
+  overflow: visible;
+}
+.h3__price {
+  fill: none;
+  stroke: #fff;
+  stroke-width: calc(3.6px * var(--sw, 1));
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 6px rgba(120, 150, 255, 0.75));
+}
+.h3__aux {
+  fill: none;
+  stroke-width: calc(2.2px * var(--sw, 1));
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+.h3__aux--a {
+  stroke: #8f6bff;
+}
+.h3__aux--b {
+  stroke: #38bdf8;
+}
+.h3__res,
+.h3__sup {
+  stroke-width: calc(2.2px * var(--sw, 1));
+}
+.h3__res {
+  stroke: #4ee05a;
+}
+.h3__sup {
+  stroke: #f59a2b;
+}
+.h3__bar {
+  opacity: 0.55;
+}
+/* The live point: neon blue (it turns red with the alert). `color` drives the dot, the rings and the glow together. */
+.h3__live {
+  color: #2f66ff;
+}
+.h3__dot {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 7px currentColor) drop-shadow(0 0 18px currentColor);
+  animation: h3-beat 1.3s ease-in-out infinite;
+}
+.h3__ring {
+  fill: none;
+  stroke: currentColor;
+  opacity: 0.9;
+}
+/* Two soft rings that leave the dot one after the other, so the page reads as alive while it waits */
+.h3__pulse {
+  fill: none;
+  stroke: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px currentColor);
+  animation: h3-pulse 2.2s ease-out infinite;
+}
+.h3__pulse--b {
+  animation-delay: 1.1s;
+}
+@keyframes h3-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(4.2);
+    opacity: 0;
+  }
+}
+@keyframes h3-beat {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+}
+
+/* Title + button, centred */
+.h3__copy {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  padding-bottom: 14vh;
+  text-align: center;
+  pointer-events: none;
+}
+.h3__copy > * {
+  pointer-events: auto;
+}
+.h3__title {
+  max-width: none;
+  font-size: clamp(30px, 4.4vw, 68px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--on-dark);
+  text-wrap: balance;
+}
+
+.h3__h1 {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+/* Legend of the full chart */
+.h3__legend {
+  position: absolute;
+  z-index: 5;
+  left: clamp(20px, 6vw, 110px);
+  top: clamp(96px, 14vh, 140px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: #c9cedb;
+  pointer-events: none;
+}
+.h3__legend li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.h3__legend i {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: #fff;
+}
+.h3__legend li:nth-child(2) i {
+  background: #34d37a;
+}
+.h3__legend li:nth-child(3) i {
+  background: #8f6bff;
+}
+.h3__legend li:nth-child(4) i {
+  background: #38bdf8;
+}
+
+/* Alpha AI + trader cards. On desktop they hang off the chart's tip (--ax/--ay set from the scroll). */
+.h3__cards {
+  position: absolute;
+  z-index: 6;
+  left: var(--ax, 50%);
+  top: var(--ay, 50%);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  font-family: var(--font-display);
+}
+.h3__fly {
+  position: absolute;
+  left: 46px;
+  top: -92px;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(100deg, #0b1fa8 0%, #050a40 100%);
+  box-shadow: 0 0 40px rgba(34, 40, 255, 0.45);
+}
+.h3__fly svg {
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 0 14px rgba(120, 140, 255, 0.9));
+}
+.h3__ai {
+  --w: 0;
+  --hot: 0;
+  position: absolute;
+  left: 46px;
+  top: -92px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  width: calc(56px + (min(400px, 74vw) - 56px) * var(--w));
+  padding: 0 18px 0 6px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, #0b1fa8 calc((1 - var(--hot)) * 100%), #5a0707) 0%,
+    color-mix(in srgb, #050a40 calc((1 - var(--hot)) * 100%), #2a0404) 100%
+  );
+  box-shadow: 0 0 40px color-mix(in srgb, rgba(34, 40, 255, 0.45) calc((1 - var(--hot)) * 100%), rgba(220, 20, 20, 0.5));
+}
+.h3__aistar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 0 14px rgba(120, 140, 255, 0.9));
+}
+.h3__aitext {
+  flex: none;
+  width: min(310px, 56vw);
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1.25;
+  color: var(--on-dark);
+}
+.h3__user {
+  position: absolute;
+  left: 100px;
+  top: -14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 22px 0 12px;
+  border-radius: 14px;
+  background: linear-gradient(100deg, #0a1fb3 0%, #040a52 100%);
+  box-shadow: 0 0 36px rgba(34, 40, 255, 0.4);
+  color: var(--on-dark);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.h3__user p {
+  margin: 0;
+}
+.h3__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dcdde3;
+}
+.h3__avatar svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* The app icon that ends the story */
+.h3__icon {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  top: 50%;
+  width: clamp(190px, 34vw, 320px);
+  height: clamp(190px, 34vw, 320px);
+  --tile: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+/* the dark app tile fades in behind the star while the chat star grows into the icon */
+.h3__icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 22%;
+  background: radial-gradient(70% 70% at 22% 40%, #0420d8 0%, #03073f 62%, #02012a 100%);
+  box-shadow: 0 0 120px rgba(23, 73, 255, 0.45);
+  opacity: var(--tile);
+}
+.h3__icon svg {
+  width: calc(62% + 38% * (1 - var(--tile)));
+  height: calc(62% + 38% * (1 - var(--tile)));
+  filter: drop-shadow(0 0 14px rgba(120, 140, 255, 0.9));
+}
+.h3__flash {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  background: var(--paper);
+  pointer-events: none;
+}
+
+@media (max-width: 991px) {
+  /* Phones: cards sit centred above the gradient instead of following the tip */
+  .h3__cards {
+    left: 50%;
+    top: 58%;
+  }
+  .h3__fly,
+  .h3__ai {
+    left: -150px;
+    top: -92px;
+  }
+  .h3__user {
+    left: -92px;
+    top: -14px;
+  }
+  .h3__ai {
+    width: calc(56px + (min(310px, 84vw) - 56px) * var(--w));
+  }
+  .h3__aitext {
+    width: min(230px, 56vw);
+    font-size: 12.5px;
+  }
+  .h3__copy {
+    padding-bottom: 18vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .h3__chart-sec,
+  .h3__cards,
+  .h3__icon,
+  .h3__flash,
+  .h3__legend,
+  .h3__live {
+    display: none;
+  }
+}

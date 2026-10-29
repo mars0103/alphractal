@@ -1,4 +1,10 @@
-/* /vs/* comparison pages. Albert Sans for text, Inter for UI. No monospace. Corners <= 6px. */
+/* /vs/* comparison pages. Albert Sans for text, Inter for UI. No monospace. White/paper ground, only text takes the blue.
+   No cards, shadows, lift or glow: line drawings and ruled lists straight on the page. */
+
+/* Tighter vertical rhythm than the default section padding: the page is a reference table, not a story */
+.vs-page .section {
+  padding-block: clamp(56px, 7vw, 104px);
+}
 
 /* ---------- hero ---------- */
 .vs__support {
@@ -11,109 +17,77 @@
   color: var(--on-dark);
 }
 
+/* Loose line drawing: Alphractal (blue) and the competitor (grey) either side of a large VS, joined by one fine line
+   that draws itself under them. No frame, no box. */
 .vsx {
-  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: clamp(14px, 2vw, 28px);
-  padding: clamp(28px, 3.4vw, 48px) clamp(20px, 2.6vw, 40px);
-  border: 1px solid rgba(251, 248, 248, 0.16);
-  border-radius: 4px;
-  background: linear-gradient(160deg, rgba(25, 29, 42, 0.78), rgba(11, 13, 20, 0.7));
-  backdrop-filter: blur(6px);
+  gap: clamp(20px, 2.4vw, 32px) clamp(10px, 1.4vw, 20px);
+  padding-block: clamp(20px, 3vw, 40px);
 }
-.vsx__tick {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 0 solid var(--blue);
-}
-.vsx__tick--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-top-left-radius: 4px; }
-.vsx__tick--tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; border-top-right-radius: 4px; }
-.vsx__tick--bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; border-bottom-left-radius: 4px; }
-.vsx__tick--br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-bottom-right-radius: 4px; }
-
 .vsx__side {
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
   text-align: center;
 }
 .vsx__mark {
-  width: clamp(44px, 5vw, 64px);
+  width: clamp(36px, 5vw, 64px);
   aspect-ratio: 149 / 136;
-  background: linear-gradient(135deg, #8fa5ff 0%, var(--blue) 45%, var(--blue-strong) 100%);
+  background: var(--blue);
   -webkit-mask: url(/brand/logo-icon.svg) center / contain no-repeat;
   mask: url(/brand/logo-icon.svg) center / contain no-repeat;
 }
 .vsx__name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(20px, 2.2vw, 28px);
+  font-size: clamp(15px, 2vw, 26px);
   letter-spacing: -0.02em;
-  background: linear-gradient(100deg, #a9b9ff 0%, var(--blue) 50%, #2f5bff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.vsx__name--grey {
-  background: none;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
-  color: #9097a6;
-}
-.vsx__ph {
-  padding: 10px;
-  gap: 4px;
-  border-radius: 3px;
-  overflow: hidden;
-}
-.vsx__ph strong {
-  font-size: 12px;
-  word-break: break-all;
-}
-.vsx__ph em {
-  font-size: 12px;
+  color: var(--blue);
 }
 .vsx__vs {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  align-self: stretch;
-  grid-template-rows: 1fr auto 1fr;
-}
-.vsx__vs i {
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, rgba(251, 248, 248, 0.3), transparent);
-}
-.vsx__vs span {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(20px, 2.2vw, 28px);
-  letter-spacing: 0.08em;
+  font-size: clamp(44px, 6.4vw, 96px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
   color: var(--on-dark);
-  padding: 6px 12px;
-  border: 1px solid rgba(251, 248, 248, 0.3);
-  border-radius: 4px;
-  background: rgba(11, 13, 20, 0.7);
 }
-@media (max-width: 560px) {
-  .vsx {
-    grid-template-columns: 1fr;
-    gap: 16px;
+.vsx__logo {
+  display: block;
+  width: clamp(100px, 13vw, 180px);
+  height: auto;
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+}
+.vsx__vs {
+  justify-self: center;
+}
+.vsx__ln {
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  height: 2px;
+  overflow: visible;
+}
+.vsx__ln line {
+  stroke: url(#vsx-g);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: vsx-draw 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.9s backwards;
+}
+@keyframes vsx-draw {
+  from {
+    stroke-dashoffset: 1;
   }
-  .vsx__vs {
-    grid-template-rows: none;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-  }
-  .vsx__vs i {
-    width: auto;
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(251, 248, 248, 0.3), transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vsx__ln line {
+    animation: none;
   }
 }
 
@@ -126,17 +100,28 @@
 }
 
 /* ---------- comparison table ---------- */
-.vst__scroll {
+.vst__wrap {
+  position: relative;
   margin-top: clamp(32px, 4vw, 56px);
+}
+.vst__scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--rule-soft);
-  border-radius: 6px;
-  background: #fff;
 }
 .vst__scroll:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
+}
+/* the rule under the header: grows from the left when the table enters */
+.vst__rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 58px;
+  height: 1px;
+  background: var(--ink);
+  transform-origin: 0 50%;
+  pointer-events: none;
 }
 .vst {
   width: 100%;
@@ -150,23 +135,26 @@
 }
 .vst th,
 .vst td {
-  padding: 18px 22px;
+  padding: 20px 22px;
   vertical-align: top;
   border-bottom: 1px solid var(--rule-soft);
   font-weight: 400;
+  background-color: var(--paper);
+  transition: background-color 0.25s;
 }
-.vst tbody tr:last-child th,
-.vst tbody tr:last-child td {
-  border-bottom: 0;
+.vst th:first-child,
+.vst td:first-child {
+  padding-left: 0;
 }
 .vst thead th {
-  background: var(--paper-2);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 17px;
   letter-spacing: -0.01em;
   vertical-align: middle;
-  border-bottom: 1px solid var(--rule);
+  height: 58px;
+  padding-block: 0;
+  border-bottom: 0;
 }
 .vst thead .vst__them {
   color: var(--slate);
@@ -175,17 +163,15 @@
   width: 20%;
   font-weight: 600;
   color: var(--ink);
-  background: #fff;
   position: sticky;
   left: 0;
   z-index: 1;
 }
 .vst thead .vst__topic {
-  background: var(--paper-2);
   z-index: 2;
   font-size: 13px;
   font-family: var(--font-ui);
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--slate);
 }
@@ -193,12 +179,18 @@
 .vst .vst__them {
   width: 40%;
 }
+/* the Alphractal column is a faint wash that "lights" last (--lit is driven by the entry timeline) */
 .vst tbody .vst__us {
-  background: linear-gradient(90deg, rgba(75, 107, 255, 0.06), rgba(75, 107, 255, 0.03));
+  --lit: 1;
+  background-image: linear-gradient(rgba(75, 107, 255, calc(var(--lit) * 0.055)), rgba(75, 107, 255, calc(var(--lit) * 0.055)));
   color: var(--ink);
 }
 .vst tbody .vst__them {
   color: #4a505c;
+}
+/* hover: only that row picks up a tint, nothing moves */
+.vst tbody tr:hover > * {
+  background-color: var(--paper-2);
 }
 .vst__brand {
   display: inline-flex;
@@ -208,15 +200,12 @@
 .vst__mark {
   width: 22px;
   aspect-ratio: 149 / 136;
-  background: linear-gradient(135deg, #7d95ff, var(--blue-strong));
+  background: var(--blue);
   -webkit-mask: url(/brand/logo-icon.svg) center / contain no-repeat;
   mask: url(/brand/logo-icon.svg) center / contain no-repeat;
 }
 .vst__brandname {
-  background: linear-gradient(100deg, #5a78ff, var(--blue-strong));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--blue);
 }
 .vst__link {
   color: var(--blue-strong);
@@ -243,7 +232,7 @@
   font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
 .vst__sources ul {
@@ -270,16 +259,15 @@
 .vs__guide {
   margin-top: clamp(36px, 4vw, 56px);
   max-width: 820px;
-  padding: 24px 28px;
-  border-left: 3px solid var(--blue);
-  background: var(--paper-2);
-  border-radius: 0 6px 6px 0;
+  padding: 4px 0 4px 24px;
+  border-left: 1px solid var(--rule);
 }
 .vs__guide h3 {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 18px;
   margin-bottom: 8px;
+  color: var(--blue-strong);
 }
 .vs__guide p {
   font-size: 17px;
@@ -287,29 +275,43 @@
   color: var(--ink);
 }
 
-/* ---------- steps ---------- */
+/* ---------- steps: hang from one line that draws on scroll ---------- */
 .vss {
+  position: relative;
   list-style: none;
-  padding: 0;
+  padding: 36px 0 0;
   margin: clamp(36px, 4vw, 64px) 0 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(16px, 2vw, 28px);
+  gap: clamp(20px, 3vw, 48px);
+}
+.vss::before,
+.vss__draw {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 1px;
+}
+.vss::before {
+  background: var(--rule-soft);
+}
+.vss__draw {
+  background: var(--ink);
+  transform-origin: 0 50%;
 }
 .vss__item {
-  padding: 28px 26px 30px;
-  border: 1px solid var(--rule-soft);
-  border-radius: 6px;
-  background: #fff;
+  position: relative;
 }
-.vss__n {
-  display: block;
-  margin-bottom: 22px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.08em;
-  color: var(--blue-strong);
+.vss__dot {
+  position: absolute;
+  left: 0;
+  top: -36px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ink);
 }
 .vss__item h3 {
   font-family: var(--font-display);
@@ -317,6 +319,7 @@
   font-size: clamp(20px, 1.8vw, 24px);
   letter-spacing: -0.015em;
   margin-bottom: 10px;
+  color: var(--blue-strong);
 }
 .vss__item p {
   font-size: 16px;
@@ -326,51 +329,73 @@
 @media (max-width: 860px) {
   .vss {
     grid-template-columns: 1fr;
+    padding: 0 0 0 32px;
+    gap: 32px;
+  }
+  .vss::before,
+  .vss__draw {
+    left: 4px;
+    right: auto;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    height: auto;
+  }
+  .vss__draw {
+    transform-origin: 50% 0;
+  }
+  .vss__dot {
+    left: -32px;
+    top: 7px;
   }
 }
 
-/* ---------- other comparisons ---------- */
+/* ---------- other comparisons: a ruled text list ---------- */
 .vso {
   list-style: none;
   padding: 0;
   margin: 24px 0 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  max-width: 720px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.vso li {
+  border-top: 1px solid var(--rule-soft);
 }
 .vso__link {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  padding: 20px 22px;
-  border: 1px solid var(--rule-soft);
-  border-radius: 6px;
-  background: #fff;
+  padding: 20px 0;
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: clamp(18px, 2vw, 22px);
   color: var(--slate);
-  transition: border-color 0.25s, transform 0.25s;
 }
 .vso__link b {
   font-weight: 700;
   color: var(--ink);
+  transition: color 0.25s;
 }
-.vso__link span:last-child {
-  margin-left: auto;
+.vso__arrow {
+  transition: transform 0.3s, color 0.25s;
 }
-.vso__link:hover,
-.vso__link:focus-visible {
-  border-color: var(--blue);
-  transform: translateY(-2px);
+.vso__link:hover b,
+.vso__link:focus-visible b,
+.vso__link:hover .vso__arrow,
+.vso__link:focus-visible .vso__arrow {
+  color: var(--blue-strong);
+}
+.vso__link:hover .vso__arrow,
+.vso__link:focus-visible .vso__arrow {
+  transform: translateX(4px);
+}
+/* last block before the closing CTA: no empty band between them */
+.vs-page #others {
+  padding-block: clamp(36px, 4vw, 56px) clamp(8px, 2vw, 24px);
 }
 @media (max-width: 720px) {
-  .vso {
-    grid-template-columns: 1fr;
-  }
   .vst th,
   .vst td {
     padding: 14px 16px;
   }
 }
-
-.vsx__logo { display: block; width: min(100%, 230px); height: auto; filter: brightness(0) invert(1); opacity: 0.55; }

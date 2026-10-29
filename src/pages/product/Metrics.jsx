@@ -1,12 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { gsap, ScrollTrigger, useGSAP, MQ } from '../../lib/gsap.js'
+import GlowButton from '../../components/GlowButton.jsx'
+import '../../styles/p-metrics.css'
 import { useMeta } from '../../hooks/useMeta.js'
 import { LINKS } from '../../lib/facts.js'
 import PageShell from '../../components/PageShell.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
-import { Cards, ExtLink, PBlock, ProductFaq, ProductHero, Shot } from '../../components/ProductBlocks.jsx'
+import { ExtLink, PBlock, ProductFaq } from '../../components/ProductBlocks.jsx'
+import { MetricChart } from '../../components/visuals/MetricsCharts.jsx'
+import LiquidationField from '../../components/visuals/MetricsLiquidity.jsx'
 
 /* /platform/metrics — five sections: opening, ten families, six models, coverage, FAQ + closing CTA.
-   Copy: Textos/Metrics.md. Captures: real ones where the project already has them, named placeholders elsewhere. */
+   Copy: Textos/06 - Metrics e Models.md. Charts are drawn (SVG), live and zoomable: see components/visuals/MetricsCharts.jsx. */
 
 const ACADEMY = 'https://app.alphractal.com/academy'
 
@@ -22,7 +27,7 @@ const FAMILIES = [
     ],
     use: 'Compare a price move with changes in network participation and transaction activity.',
     note: 'Mining on proof-of-work networks: Mean Hash Rate tracks computational work, while Puell Multiple compares daily issuance value with its 365-day average.',
-    shot: { name: 'Active Addresses chart', src: '/metrics/active-addresses.webp', alt: 'Bitcoin Active Addresses chart from the Alphractal platform' },
+    chart: ['active', 'Illustrative Active Addresses line chart'],
   },
   {
     key: 'valuation',
@@ -34,7 +39,7 @@ const FAMILIES = [
       ['MVRV Z-score', 'The difference between market and realized capitalization, divided by the standard deviation of market capitalization.'],
     ],
     use: 'Compare current valuation with cost basis and previous valuation regimes.',
-    shot: { name: 'MVRV chart', src: '/metrics/mvrv.webp', alt: 'Bitcoin MVRV chart from the Alphractal platform' },
+    chart: ['mvrv', 'Illustrative MVRV chart with the realized price line'],
   },
   {
     key: 'holders',
@@ -46,7 +51,7 @@ const FAMILIES = [
       ['Supply in Loss', 'Supply whose last-moved price is above the current price.'],
     ],
     use: 'Track changes in holder composition and the amount of supply under unrealized profit or loss.',
-    shot: { name: 'Supply in Profit chart', src: '/metrics/supply-in-profit.webp', alt: 'Bitcoin Supply in Profit chart from the Alphractal platform' },
+    chart: ['supply', 'Illustrative Supply in Profit and Supply in Loss areas'],
   },
   {
     key: 'realized',
@@ -58,7 +63,7 @@ const FAMILIES = [
       ['Long-Term Holder SOPR', 'The same framework applied to long-term holders.'],
     ],
     use: 'Compare whether recent entrants and longer-term holders are realizing profits or losses during the same market move.',
-    shot: { name: 'SOPR chart', src: '/metrics/sopr.webp', alt: 'Bitcoin Spent Output Profit Ratio (SOPR) chart from the Alphractal platform' },
+    chart: ['sopr', 'Illustrative SOPR oscillating around the parity line at 1'],
   },
   {
     key: 'exchanges',
@@ -70,7 +75,7 @@ const FAMILIES = [
       ['Exchange Netflow', 'Inflows minus outflows. Positive values indicate net deposits; negative values indicate net withdrawals.'],
     ],
     use: 'Compare changes in exchange-bound supply with price, holder behavior and derivatives activity.',
-    shot: { name: 'Exchange Netflow chart', src: '/metrics/exchange-netflow.webp', alt: 'Bitcoin Exchange Netflow chart from the Alphractal platform' },
+    chart: ['netflow', 'Illustrative Exchange Netflow bars'],
   },
   {
     key: 'derivatives',
@@ -83,7 +88,7 @@ const FAMILIES = [
       ['Whale vs Retail Ratio', 'A relative positioning ratio with parity at 1, rather than 0.'],
     ],
     use: 'Compare price and open interest with funding and trader positioning to examine leverage conditions.',
-    shot: { name: 'Open Interest chart', src: '/metrics/open-interest.webp', alt: 'Bitcoin Open Interest chart from the Alphractal platform' },
+    chart: ['deriv', 'Illustrative Open Interest and Funding Rate panels'],
   },
   {
     key: 'liquidations',
@@ -95,7 +100,7 @@ const FAMILIES = [
       ['Liquidation Zones', 'Grouped price zones of estimated liquidation exposure.'],
     ],
     use: 'Compare where liquidations have occurred with the concentrations shown in the level map.',
-    shot: { name: 'Liquidation Heatmap', src: '/metrics/liquidation.webp', alt: 'Liquidation Levels heatmap from the Alphractal platform' },
+    chart: ['heat', 'Illustrative liquidation heatmap with a price line'],
   },
   {
     key: 'cycle',
@@ -107,7 +112,7 @@ const FAMILIES = [
       ['Structural Market Bands', 'Support and resistance zones derived from on-chain valuation anchors.'],
     ],
     use: 'Compare the broader cycle backdrop with tactical sentiment and structural price zones.',
-    shot: { name: 'ADCI chart', src: '/metrics/adci.webp', alt: 'Bitcoin Accumulation-Distribution Cycle Index chart from the Alphractal platform' },
+    chart: ['osc', 'Illustrative ADCI and TBBI on a 0 to 100 scale'],
   },
   {
     key: 'sentiment',
@@ -119,7 +124,7 @@ const FAMILIES = [
       ['Social Interactions Total', 'The catalog’s measure of new posts created about an asset.'],
     ],
     use: 'Compare changes in attention with crypto sentiment and the wider risk backdrop.',
-    shot: { name: 'Crypto Fear and Greed chart', src: '/metrics/fear-greed.webp', alt: 'Crypto Fear and Greed chart from the Alphractal platform' },
+    chart: ['gauge', 'Illustrative Fear and Greed gauge'],
   },
   {
     key: 'macro',
@@ -132,7 +137,7 @@ const FAMILIES = [
       ['High-Yield Credit Spread', 'The additional yield demanded on below-investment-grade U.S. corporate bonds relative to comparable Treasuries.'],
     ],
     use: 'Compare crypto-market conditions with changes in liquidity, rates and credit risk.',
-    shot: { name: 'U.S. Dollar Index chart', src: '/metrics/dxy.webp', alt: 'U.S. Dollar Index versus Bitcoin price chart from the Alphractal platform' },
+    chart: ['macro', 'Illustrative U.S. Dollar Index and 10-Year Treasury Yield lines'],
   },
 ]
 
@@ -144,7 +149,7 @@ const MODELS = [
     tech: 'Inputs: Price USD · CVDD · CVDD Model 2.',
     href: `${ACADEMY}/metric/on-chain/cvdd`,
     linkLabel: 'Understand CVDD',
-    shot: { name: 'CVDD Channel chart', src: '/metrics/cvdd-channel.webp', alt: 'CVDD Channel chart from the Alphractal platform' },
+    chart: ['cvdd', 'Illustrative CVDD Channel: price, CVDD and CVDD Model 2'],
   },
   {
     tag: 'ALPHRACTAL PROPRIETARY',
@@ -153,7 +158,7 @@ const MODELS = [
     tech: 'Focus: Bitcoin cycle timing and recurring market structure.',
     href: `${ACADEMY}/metric/on-chain/repetition-fractal-cycle`,
     linkLabel: 'Understand the model',
-    shot: { name: 'Repetition Fractal Cycle chart', src: '/metrics/fractal-cycle.webp', alt: 'Repetition Fractal Cycle chart from the Alphractal platform' },
+    chart: ['fractal', 'Illustrative Repetition Fractal Cycle: earlier cycles under the current one'],
   },
   {
     title: 'Accumulation-Distribution Cycle Index',
@@ -162,7 +167,7 @@ const MODELS = [
     tech: 'Scale: 0–100 · Focus: longer-term cycle context.',
     href: `${ACADEMY}/metric/on-chain/adci`,
     linkLabel: 'Understand ADCI',
-    shot: { name: 'ADCI chart', src: '/metrics/adci.webp', alt: 'Bitcoin Accumulation-Distribution Cycle Index chart from the Alphractal platform' },
+    chart: ['adci', 'Illustrative ADCI line on a 0 to 100 scale'],
   },
   {
     title: 'Tactical Bull-Bear Sentiment Index',
@@ -171,7 +176,7 @@ const MODELS = [
     tech: 'Examples: 90-day and 116-day lookbacks · Scale: 0–100.',
     href: `${ACADEMY}/metric/on-chain/tbbi`,
     linkLabel: 'Understand TBBI',
-    shot: { name: 'TBBI chart', src: '/metrics/tbbi.webp', alt: 'Bitcoin Tactical Bull-Bear Sentiment Index chart, 116-day window, from the Alphractal platform' },
+    chart: ['tbbi', 'Illustrative TBBI in 90-day and 116-day lookback windows'],
   },
   {
     title: 'Structural Market Bands',
@@ -179,7 +184,7 @@ const MODELS = [
     tech: 'Outputs: upper and lower support bands · upper and lower resistance bands.',
     href: 'https://app.alphractal.com/cryptos/chart?category=Valuation+Models&subCategory=Valuation+Models&chart=Structural+Market+Bands&asset=btc&chartType=C024',
     linkLabel: 'Explore the chart',
-    shot: { name: 'Structural Market Bands chart', src: '/metrics/structural-market-bands.webp', alt: 'Bitcoin Structural Market Bands chart from the Alphractal platform' },
+    chart: ['bands', 'Illustrative Structural Market Bands: four bands with price between them'],
   },
   {
     title: 'Liquidation Levels',
@@ -187,7 +192,7 @@ const MODELS = [
     tech: 'Views: heatmap · price zones. Levels are statistical estimates, not a complete record of exchange positions.',
     href: `${ACADEMY}/metric/derivatives/liquidation-levels`,
     linkLabel: 'Understand liquidation levels',
-    shot: { name: 'Liquidation Levels heatmap', src: '/metrics/liquidation.webp', alt: 'Liquidation Levels heatmap from the Alphractal platform' },
+    chart: ['heat', 'Illustrative liquidation levels heatmap with a price line'],
   },
 ]
 
@@ -196,8 +201,8 @@ const CHAINS = [
   ['Ethereum', '/coins/eth.svg'],
   ['Cardano', '/coins/ada.svg'],
   ['Dogecoin', '/coins/doge.svg'],
-  ['Litecoin', null],
-  ['Zcash', null],
+  ['Litecoin', '/coins/ltc.svg'],
+  ['Zcash', '/coins/zec.svg'],
 ]
 
 const EXCHANGES = [
@@ -224,21 +229,123 @@ const FAQ = [
   },
 ]
 
-/* The ten families: index on the left, the open family on the right (desktop); the same markup folds into an accordion on phones.
-   Every panel is in the HTML; only the active one is shown. */
+
+/* Opening: a dark field that reads as a liquidation-levels map (price levels by time, cluster rows in purple, yellow and
+   red, a price line walking through, cursor light, parallax). Text and buttons sit directly on it. */
+function Opening() {
+  return (
+    <section className="mx-hero" data-nav-theme="dark">
+      <div className="mx-hero__bg" aria-hidden="true">
+        <LiquidationField />
+        <div className="mx-hero__veil" />
+        <div className="mx-hero__fade" />
+      </div>
+      <div className="container mx-hero__inner">
+        <p className="eyebrow mx-hero__eyebrow">METRICS &amp; MODELS</p>
+        <h1 className="display mx-hero__title">Metrics designed to reveal market structure.</h1>
+        <p className="mx-hero__sub">
+          Explore 1,500+ metrics across on-chain, derivatives, sentiment and macro. Analyze cost basis, holder behavior, leverage and liquidity with established indicators and Alphractal-developed models.
+        </p>
+        <div className="mx-hero__actions">
+          <GlowButton href={LINKS.start}>Start free</GlowButton>
+          <a className="link-arrow mx-hero__more" href="#models">
+            Browse the models <span>→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* Ten families: compact tab index above one full-width panel. Every panel's text is in the HTML (inactive ones are `hidden`).
+   The indicator slides; the panel fades in, its height is tweened, and its chart is drawn again (~0.6s) on every change. */
 function Families() {
   const [open, setOpen] = useState(0)
+  const list = useRef(null)
+  const stage = useRef(null)
+  const ind = useRef(null)
+  const prevH = useRef(null)
+  const tabs = useRef([])
+
+  const place = () => {
+    const t = tabs.current[open]
+    const i = ind.current
+    if (!t || !i) return
+    i.style.transform = `translate(${t.offsetLeft}px, ${t.offsetTop}px)`
+    i.style.width = `${t.offsetWidth}px`
+    i.style.height = `${t.offsetHeight}px`
+  }
+
+  useLayoutEffect(() => {
+    place()
+    const st = stage.current
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prevH.current != null && st && !reduce) {
+      const from = prevH.current
+      const panel = st.querySelector('.mx-fam__panel:not([hidden])')
+      gsap.killTweensOf([st, panel])
+      gsap.fromTo(st, { height: from }, { height: 'auto', duration: 0.55, ease: 'power3.inOut', clearProps: 'height' })
+      if (panel) gsap.fromTo(panel, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power3.out', clearProps: 'all' })
+    }
+    prevH.current = null
+  }, [open])
+
+  useEffect(() => {
+    const onResize = () => place()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  })
+
+  const select = (i, focus) => {
+    if (i === open) return
+    prevH.current = stage.current ? stage.current.offsetHeight : null
+    setOpen(i)
+    if (focus) tabs.current[i]?.focus()
+  }
+
+  const onKey = (e, i) => {
+    const n = FAMILIES.length
+    let j = null
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % n
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + n) % n
+    else if (e.key === 'Home') j = 0
+    else if (e.key === 'End') j = n - 1
+    if (j != null) {
+      e.preventDefault()
+      select(j, true)
+    }
+  }
+
   return (
-    <ul className="fam">
-      {FAMILIES.map((f, i) => (
-        <li className="fam__item" key={f.key}>
-          <button type="button" className="fam__tab" aria-expanded={open === i} aria-controls={`fam-${f.key}`} id={`fam-tab-${f.key}`} onClick={() => setOpen(i)}>
-            <b>{String(i + 1).padStart(2, '0')}</b>
+    <div className="mx-fam">
+      <div className="mx-fam__tabs" role="tablist" aria-label="Metric families" ref={list}>
+        <span className="mx-fam__ind" ref={ind} aria-hidden="true" />
+        {FAMILIES.map((f, i) => (
+          <button
+            key={f.key}
+            ref={(el) => (tabs.current[i] = el)}
+            type="button"
+            role="tab"
+            id={`mx-tab-${f.key}`}
+            aria-selected={open === i}
+            aria-controls={`mx-panel-${f.key}`}
+            tabIndex={open === i ? 0 : -1}
+            className="mx-fam__tab"
+            onClick={() => select(i)}
+            onKeyDown={(e) => onKey(e, i)}
+          >
             {f.title}
           </button>
-          <div className="fam__panel" id={`fam-${f.key}`} role="region" aria-labelledby={`fam-tab-${f.key}`} hidden={open !== i}>
-            <p className="fam__lead">{f.lead}</p>
-            <dl className="fam__defs">
+        ))}
+      </div>
+
+      <div className="mx-fam__stage" ref={stage}>
+        {FAMILIES.map((f, i) => (
+          <div className="mx-fam__panel" key={f.key} id={`mx-panel-${f.key}`} role="tabpanel" aria-labelledby={`mx-tab-${f.key}`} hidden={open !== i}>
+            <h3 className="mx-fam__title">{f.title}</h3>
+            <p className="mx-fam__lead">{f.lead}</p>
+            {open === i && <MetricChart kind={f.chart[0]} label={f.chart[1]} W={960} H={330} dur={0.9} zoom={2.2} />}
+            <dl className="mx-fam__defs">
               {f.defs.map(([name, def]) => (
                 <div key={name}>
                   <dt>{name}</dt>
@@ -246,15 +353,53 @@ function Families() {
                 </div>
               ))}
             </dl>
-            {f.note && <p className="fam__note">{f.note}</p>}
-            <p className="fam__use">
+            {f.note && <p className="mx-fam__note">{f.note}</p>}
+            <p className="mx-fam__use">
               <b>Use case</b> {f.use}
             </p>
-            <Shot {...f.shot} ratio="16 / 7" />
           </div>
-        </li>
-      ))}
-    </ul>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* Exchange table as thin ruled rows. Under motion, the rows start dim and light up one by one as they scroll into view. */
+function ExchangeRows() {
+  const root = useRef(null)
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add(MQ.motion, () => {
+        const el = root.current
+        el.classList.add('is-armed')
+        const sts = [...el.querySelectorAll('tbody tr')].map((tr) => ScrollTrigger.create({ trigger: tr, start: 'top 86%', onEnter: () => tr.classList.add('is-lit') }))
+        return () => {
+          sts.forEach((s) => s.kill())
+          el.classList.remove('is-armed')
+        }
+      })
+      return () => mm.revert()
+    },
+    { scope: root },
+  )
+  return (
+    <table className="mx-ex" ref={root}>
+      <thead>
+        <tr>
+          <th scope="col">Data family</th>
+          <th scope="col">Exchange examples</th>
+        </tr>
+      </thead>
+      <tbody>
+        {EXCHANGES.map(([family, ex]) => (
+          <tr key={family}>
+            <th scope="row">{family}</th>
+            <td>{ex}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }
 
@@ -264,30 +409,13 @@ export default function Metrics() {
     description: 'Explore on-chain, derivatives, sentiment and macro data, Alphractal models, and blockchain and exchange coverage in one analytics platform.',
   })
 
-  const visual = (
-    <div className="quad">
-      <Shot name="ON-CHAIN" src="/metrics/cvdd-channel.webp" alt="On-chain chart from the Alphractal platform" ratio="16 / 10" caption="On-chain" />
-      <Shot name="DERIVATIVES" src="/metrics/liquidation.webp" alt="Derivatives chart from the Alphractal platform" ratio="16 / 10" caption="Derivatives" />
-      <Shot name="SENTIMENT" src="/metrics/fear-greed.webp" alt="Sentiment chart from the Alphractal platform" ratio="16 / 10" caption="Sentiment" />
-      <Shot name="MACROECONOMY" src="/metrics/dxy.webp" alt="Macro chart from the Alphractal platform" ratio="16 / 10" caption="Macroeconomy" />
-    </div>
-  )
-
   return (
     <PageShell>
-      <ProductHero
-        current="metrics"
-        eyebrow="METRICS & MODELS"
-        title="Metrics designed to reveal market structure."
-        sub="Explore 1,500+ metrics across on-chain, derivatives, sentiment and macro. Analyze cost basis, holder behavior, leverage and liquidity with established indicators and Alphractal-developed models."
-        primary={{ label: 'Start free', href: LINKS.start }}
-        secondary={{ label: 'Browse the models', href: '#models' }}
-        visual={visual}
-      />
+      <Opening />
 
       <PBlock
         id="families"
-        eyebrow="THE FAMILIES"
+        className="mx-block"
         title="Explore the structure behind the market."
         intro="Follow the question from network activity to valuation, holder behavior, derivatives positioning and macro conditions. Each family brings a different part of the market into view."
       >
@@ -296,15 +424,33 @@ export default function Metrics() {
 
       <PBlock
         id="models"
+        className="mx-block"
         eyebrow="ALPHRACTAL MODELS"
         title="From market data to analytical models."
         intro="Explore models for valuation, cycle structure and leveraged positioning. Understand what each chart measures and how it fits into a broader market analysis."
       >
-        <Cards
-          cols={2}
-          items={MODELS.map((m) => ({ ...m, media: <Shot {...m.shot} ratio="16 / 8" /> }))}
-        />
-        <div className="cov__links">
+        <div className="mx-models">
+          {MODELS.map((m) => (
+            <article className="mx-model" key={m.title}>
+              <div className="mx-model__media">
+                <MetricChart kind={m.chart[0]} label={m.chart[1]} W={640} H={330} dur={2.6} zoom={2.4} />
+              </div>
+              <div className="mx-model__body">
+                {m.tag && <p className="ptag">{m.tag}</p>}
+                <h3>
+                  {m.title}
+                  {m.short && <span className="mx-model__short"> · {m.short}</span>}
+                </h3>
+                <p>{m.text}</p>
+                <p className="mx-model__tech">{m.tech}</p>
+                <ExtLink className="link-arrow mx-model__link" href={m.href}>
+                  {m.linkLabel} <span>→</span>
+                </ExtLink>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="mx-links">
           <ExtLink className="btn btn--ink" href={LINKS.start}>
             Explore the models
           </ExtLink>
@@ -316,47 +462,30 @@ export default function Metrics() {
 
       <PBlock
         id="coverage"
-        eyebrow="COVERAGE"
+        className="mx-block"
         title="Go beyond Bitcoin. Explore the coverage behind each metric."
         intro="Explore blockchain data alongside exchange activity and macro context. Available metrics, history and resolution vary by asset and data family."
       >
-        <div className="cov">
-          <div>
+        <div className="mx-cov">
+          <div className="mx-cov__block">
             <h3>Blockchain data</h3>
             <p>Explore on-chain data for Bitcoin, Ethereum, Cardano, Dogecoin, Litecoin and Zcash, among other supported networks.</p>
-            <ul className="chains">
+            <ul className="mx-chains">
               {CHAINS.map(([name, logo]) => (
                 <li key={name}>
-                  {logo ? <img src={logo} alt="" width="20" height="20" /> : <i aria-hidden="true" />}
+                  <img src={logo} alt="" width="22" height="22" />
                   {name}
                 </li>
               ))}
             </ul>
           </div>
-          <div className="ptable-wrap">
-            <table className="ptable">
-              <caption>Exchange data</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Data family</th>
-                  <th scope="col">Exchange examples</th>
-                </tr>
-              </thead>
-              <tbody>
-                {EXCHANGES.map(([family, ex]) => (
-                  <tr key={family}>
-                    <th scope="row">{family}</th>
-                    <td>{ex}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="fam__note" style={{ marginTop: 12 }}>
-              Coverage depends on the data family. Examples include the exchanges above.
-            </p>
+          <div className="mx-cov__block">
+            <h3>Exchange data</h3>
+            <p>Coverage depends on the data family. Examples include:</p>
+            <ExchangeRows />
           </div>
         </div>
-        <div className="cov__links">
+        <div className="mx-links">
           <ExtLink className="link-arrow" href="https://docs.alphractal.com/data/assets">
             View asset coverage <span>→</span>
           </ExtLink>

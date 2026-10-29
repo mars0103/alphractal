@@ -1,0 +1,308 @@
+/* The Solution: isometric board of frosted-glass buttons, the lit Alphractal symbol on the blue one near the middle.
+   The board is a full-bleed background of the section (clipped only by the two column rules); the copy sits on it, top-left.
+   Everything is sized from the stage width (cqw) so the whole picture scales as one object. */
+
+.cons .cons__pin {
+  min-height: 0;
+  display: block;
+  padding: 0;
+}
+.cons .cons__grid {
+  position: relative;
+  display: block;
+  min-height: clamp(640px, 57vw, 840px);
+  padding: clamp(56px, 6vw, 96px) clamp(24px, 3.5vw, 56px) 0;
+}
+.cons .cons__copy {
+  position: relative;
+  z-index: 5; /* above the board and its fade (z 4) */
+  display: grid;
+  gap: 18px;
+  max-width: min(500px, 41%);
+}
+.cons .cons__copy .h2 {
+  font-size: clamp(30px, 3.6vw, 52px);
+  line-height: 1.05;
+}
+.cons .cons__body .lede {
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.55;
+}
+
+.gl {
+  --s: 14.5cqw; /* tile edge */
+  --g: 1.2cqw; /* gap */
+  --board: calc(var(--s) * 9 + var(--g) * 8);
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  /* above the two column rules (z 3): they run under the glass. Sideways the board is free to reach the edge of the screen;
+     only top and bottom are clipped, so it never spills into the sections around it */
+  z-index: 4;
+  clip-path: inset(0 -100vw 0 -100vw);
+  perspective: 2200px;
+  perspective-origin: 66% 40%;
+}
+/* the grid fades toward the corners and behind the copy, like the reference, and the column rules fade out with it, as if
+   they ended there. A plain paper-coloured gradient laid over the board, not a mask: a mask forces the whole 3D scene
+   through an extra render pass on every frame it changes */
+.gl::after {
+  content: '';
+  position: absolute;
+  inset: 0 -100vw;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, var(--paper), color-mix(in srgb, var(--paper) 0%, transparent) 22%),
+    radial-gradient(ellipse calc(var(--col) * 0.78) 90% at calc(100vw + var(--col) * 0.66) 58%, transparent 38%, color-mix(in srgb, var(--paper) 86%, transparent) 100%);
+}
+
+/* the 3D board's canvas: as wide as the screen so the tiles reach both edges, the column rules run under it (see .gl) */
+.gl__3d {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  translate: -50% 0;
+  z-index: 1;
+}
+
+.gl__board {
+  position: absolute;
+  left: 66%;
+  top: 58%;
+  width: var(--board);
+  height: var(--board);
+  margin: calc(var(--board) / -2) 0 0 calc(var(--board) / -2);
+  transform-style: preserve-3d;
+  transform: rotateX(58deg) rotateZ(-45deg);
+}
+/* the blue light the centre button throws onto the board */
+.gl__board::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--s) * 3.4);
+  height: calc(var(--s) * 3.4);
+  margin: calc(var(--s) * -1.7) 0 0 calc(var(--s) * -1.7);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(60, 110, 255, 0.34), rgba(60, 110, 255, 0.1) 55%, transparent 100%);
+  transform: translateZ(-2px);
+}
+
+.gl__cell {
+  position: absolute;
+  left: calc(var(--c) * (var(--s) + var(--g)));
+  top: calc(var(--r) * (var(--s) + var(--g)));
+  width: var(--s);
+  height: var(--s);
+  transform-style: preserve-3d;
+}
+
+.gl__tile {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+.gl__tile {
+  pointer-events: none;
+}
+/* Hover targets: a flat layer with the board's exact geometry, laid over it and outside its 3D scene (see Consolidation.jsx).
+   Each target is the middle of its tile, so the edges don't react; they never move, so a lifted tile can't slide out from
+   under the cursor. The tile they point at gets .is-hot. */
+.gl__hits {
+  position: absolute;
+  left: 66%;
+  top: 58%;
+  width: var(--board);
+  height: var(--board);
+  margin: calc(var(--board) / -2) 0 0 calc(var(--board) / -2);
+  transform: rotateX(58deg) rotateZ(-45deg);
+  z-index: 3;
+}
+.gl__hit {
+  position: absolute;
+  left: calc(var(--c) * (var(--s) + var(--g)) + var(--s) * 0.24);
+  top: calc(var(--r) * (var(--s) + var(--g)) + var(--s) * 0.24);
+  width: calc(var(--s) * 0.52);
+  height: calc(var(--s) * 0.52);
+}
+.gl__tile.is-hot {
+  transform: translateZ(7cqw);
+}
+.gl__tile--core {
+  transform: translateZ(1.6cqw);
+}
+.gl__tile--core.is-hot {
+  transform: translateZ(5cqw);
+}
+
+/* the thickness: a darker slab under the glass, tinted blue on the side that faces the centre */
+.gl__slab {
+  position: absolute;
+  inset: 0;
+  border-radius: 22%;
+  transform: translateZ(-1.5cqw);
+  background:
+    radial-gradient(75% 75% at var(--gx) var(--gy), rgba(95, 135, 255, calc(var(--glow) * 0.42)), transparent 58%),
+    rgba(168, 178, 208, 0.62);
+  box-shadow: 0 1.6cqw 3cqw rgba(50, 62, 110, 0.28);
+}
+
+/* the glass: frosted, bright rim, and the blue of the centre reflected on the side that faces it */
+.gl__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 22%;
+  background:
+    radial-gradient(60% 60% at var(--gx) var(--gy), rgba(110, 150, 255, calc(var(--glow) * 0.26)), transparent 62%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 1px 1px #fff,
+    inset 0 0 calc(var(--glow) * 1.3cqw) rgba(110, 150, 255, calc(var(--glow) * 0.22));
+}
+/* hover brightening is an overlay fading in (opacity only, composited), not a repaint of the glass itself.
+   No backdrop-filter anywhere: the board sits on a flat page, so it blurred nothing but cost a re-blur every frame a tile moved. */
+.gl__face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(70% 70% at var(--gx) var(--gy), rgba(95, 135, 255, 0.3), transparent 65%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1));
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.gl__tile.is-hot .gl__face::after {
+  opacity: 1;
+}
+
+/* the centre: a blue glass button with the symbol lit on it */
+.gl__tile--core .gl__slab {
+  background: linear-gradient(160deg, #2c4fe6, #14258f);
+  box-shadow: 0 0 5cqw rgba(40, 90, 255, 0.7), 0 1.6cqw 3cqw rgba(20, 35, 130, 0.5);
+}
+.gl__tile--core .gl__face {
+  background:
+    radial-gradient(80% 70% at 30% 20%, rgba(255, 255, 255, 0.5), transparent 60%),
+    linear-gradient(150deg, #6f8dff 0%, #3b5cf0 55%, #2742d6 100%);
+  border-color: rgba(190, 205, 255, 0.9);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.9),
+    inset 0 -1cqw 2cqw rgba(15, 30, 150, 0.4),
+    0 0 4cqw rgba(60, 110, 255, 0.55);
+}
+.gl__tile--core .gl__face::after {
+  display: none;
+}
+/* the symbol's glow breathes by fading a halo (opacity), not by animating a filter on the symbol */
+.gl__tile--core::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 78%;
+  height: 78%;
+  margin: -39% 0 0 -39%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(190, 215, 255, 0.75), rgba(90, 140, 255, 0.35) 55%, transparent 100%);
+  transform: translateZ(0.1cqw);
+  pointer-events: none;
+  animation: gl-breathe 3.6s ease-in-out infinite;
+}
+.gl__logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54%;
+  height: 54%;
+  margin: -27% 0 0 -27%;
+  transform: translateZ(0.2cqw);
+  filter: drop-shadow(0 0 1.2cqw rgba(190, 215, 255, 0.95));
+}
+@keyframes gl-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* tool labels are printed on the top of their button, like the symbol on the blue one: they lie in the same plane as the
+   glass (turned back by the board's 45° so the baseline stays level), no floating above it */
+.gl__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 0.9cqw;
+  transform: translate(-50%, -50%) translateZ(0.2cqw);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+.gl__name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: clamp(12px, 2.1cqw, 28px);
+  letter-spacing: 0;
+  color: rgba(20, 32, 120, 0.86);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.gl__micro {
+  width: 8.4cqw;
+  opacity: 0.92;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.7));
+}
+.gl__micro svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 991px) {
+  .cons .cons__grid {
+    min-height: 0;
+    padding-inline: 0;
+  }
+  .cons .cons__copy {
+    max-width: none;
+  }
+  /* phones: the copy first, then the board in its own box under it */
+  .gl::after {
+    inset: 0;
+    background:
+      linear-gradient(to bottom, var(--paper), color-mix(in srgb, var(--paper) 0%, transparent) 22%),
+      radial-gradient(75% 90% at 50% 52%, transparent 38%, color-mix(in srgb, var(--paper) 86%, transparent) 100%);
+  }
+  .gl {
+    position: relative;
+    inset: auto;
+    height: 92vw;
+    margin-top: 16px;
+    --s: 26cqw;
+    --g: 2cqw;
+  }
+  .gl__board,
+  .gl__hits {
+    left: 50%;
+    top: 50%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl__tile--core::after {
+    animation: none;
+  }
+  .gl__tile {
+    transition: none;
+  }
+}

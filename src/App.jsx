@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
+import PageBoundary from './components/PageBoundary.jsx'
 import Home from './pages/Home.jsx'
 import { ScrollTrigger } from './lib/gsap.js'
 
@@ -16,6 +17,7 @@ const loaders = {
   vs: () => import('./pages/Vs.jsx'),
   legal: () => import('./pages/Legal.jsx'),
   soon: () => import('./pages/Soon.jsx'),
+  homeb: () => import('./pages/HomeB.jsx'),
 }
 const Feature = lazy(loaders.feature)
 const Terminal = lazy(loaders.terminal)
@@ -24,6 +26,7 @@ const About = lazy(loaders.about)
 const Vs = lazy(loaders.vs)
 const Legal = lazy(loaders.legal)
 const Soon = lazy(loaders.soon)
+const HomeB = lazy(loaders.homeb)
 
 /* Fetches the chunk behind a URL. entry-client awaits this before hydrating, so a prerendered
    page hydrates against loaded code instead of a suspended boundary (which React reports as a
@@ -33,6 +36,7 @@ export function preloadRoute(pathname) {
   if (p === '/') return Promise.resolve()
   if (p.startsWith('/platform/')) return loaders.feature()
   if (p.startsWith('/vs/')) return loaders.vs()
+  if (p === '/home-b') return loaders.homeb()
   if (p === '/privacy' || p === '/terms') return loaders.legal()
   if (loaders[p.slice(1)]) return loaders[p.slice(1)]()
   return loaders.soon()
@@ -63,9 +67,11 @@ export default function App() {
       </a>
       <Header />
       <main id="main" key={pathname} className="page">
+        <PageBoundary key={pathname}>
         <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/home-b" element={<HomeB />} />
             <Route path="/platform/:slug" element={<Feature />} />
             <Route path="/terminal" element={<Terminal />} />
             <Route path="/institutional" element={<Institutional />} />
@@ -76,6 +82,7 @@ export default function App() {
             <Route path="*" element={<Soon />} />
           </Routes>
         </Suspense>
+        </PageBoundary>
       </main>
       <Footer />
     </>

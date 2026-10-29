@@ -363,3 +363,53 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Rows: the editorial list that replaces boxed cards on the product pages */
+.prows {
+  display: grid;
+  margin: clamp(32px, 4vw, 56px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+.prow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px clamp(24px, 4vw, 72px);
+  align-items: center;
+  padding: clamp(22px, 2.6vw, 36px) 0;
+  border-bottom: 1px solid var(--rule);
+}
+.prow:has(.prow__media) {
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+}
+.prow__main {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.prow h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(20px, 1.9vw, 28px);
+  letter-spacing: -0.02em;
+}
+.prow p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--slate);
+}
+.prow__tech {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.prow__link {
+  margin-top: 4px;
+  color: var(--ink);
+}
+@media (max-width: 760px) {
+  .prow:has(.prow__media) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

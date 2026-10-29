@@ -237,9 +237,6 @@ export default function AppPreview() {
           </div>
         </div>
 
-      <p className="pv-note mono container">
-        <span>{p.caption}</span>
-      </p>
     </section>
   )
 }

@@ -12,6 +12,11 @@
   ],
   "redirects": [
     {
+      "source": "/platform",
+      "destination": "https://app.alphractal.com",
+      "permanent": false
+    },
+    {
       "source": "/pricing",
       "destination": "https://app.alphractal.com/plans?site_referrer=direct",
       "permanent": false

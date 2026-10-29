@@ -69,36 +69,45 @@ const ROUTES = {
   '/vs/glassnode': {
     og: '/og/vs-glassnode.png',
     title: 'Alphractal vs Glassnode | Crypto Analytics Comparison',
-    description: 'Compare Alphractal and Glassnode by data coverage, research, analytics, AI workflows and access.',
+    description: 'Compare Alphractal and Glassnode by data coverage, research, analytics, AI workflows and access. Find the fit for your crypto market research.',
     type: 'WebPage',
     crumb: 'Alphractal vs Glassnode',
   },
   '/vs/nansen': {
     og: '/og/vs-nansen.png',
     title: 'Alphractal vs Nansen | Crypto Analytics Comparison',
-    description: 'Compare Alphractal and Nansen by data coverage, research, analytics, AI workflows and access.',
+    description: 'Compare Alphractal and Nansen by data coverage, research, analytics, AI workflows and access. Find the fit for your crypto market research.',
     type: 'WebPage',
     crumb: 'Alphractal vs Nansen',
   },
   '/vs/coinglass': {
     og: '/og/vs-coinglass.png',
     title: 'Alphractal vs CoinGlass | Crypto Analytics Comparison',
-    description: 'Compare Alphractal and CoinGlass by data coverage, research, analytics, AI workflows and access.',
+    description: 'Compare Alphractal and CoinGlass by data coverage, research, analytics, AI workflows and access. Find the fit for your crypto market research.',
     type: 'WebPage',
     crumb: 'Alphractal vs CoinGlass',
   },
   '/vs/messari': {
     og: '/og/vs-messari.png',
     title: 'Alphractal vs Messari | Crypto Analytics Comparison',
-    description: 'Compare Alphractal and Messari by data coverage, research, analytics, AI workflows and access.',
+    description: 'Compare Alphractal and Messari by data coverage, research, analytics, AI workflows and access. Find the fit for your crypto market research.',
     type: 'WebPage',
     crumb: 'Alphractal vs Messari',
   },
 }
 
-// Routes in the sitemap: only the indexable pages of the final inventory. /terminal and /institutional are
-// deferred ("a fechar na revisão da página") and join when their pages are closed.
-export const SITEMAP_PATHS = Object.keys(ROUTES)
+/* Public pages that keep the title/description their own page file sets (metadata.csv: "preservar metadata já correta"),
+   but still get the shared graph (Organization + WebSite + WebPage + BreadcrumbList). */
+const OWN_META = {
+  '/institutional': { crumb: 'Institutional' },
+  '/terminal': { crumb: 'Alpha Terminal' },
+  '/privacy': { crumb: 'Privacy' },
+  '/terms': { crumb: 'Terms' },
+}
+
+// Routes in the sitemap: the indexable pages of the final inventory, Institutional included. /terminal joins only
+// when its page is closed ("a fechar na revisão da página"); legal pages stay out; /platform and /pricing do not exist.
+export const SITEMAP_PATHS = [...Object.keys(ROUTES), '/institutional']
 
 const norm = (p) => (p.length > 1 ? p.replace(/\/+$/, '') : p)
 
@@ -112,9 +121,9 @@ export const ogImageFor = (pathname) => {
 
 /* One graph per route: the shared Organization + WebSite, the page itself, a SoftwareApplication on product pages
    and a BreadcrumbList (no removed hub). Only facts already on the page; no ratings, offers or prices. */
-export function graphFor(pathname) {
+export function graphFor(pathname, own) {
   const path = norm(pathname)
-  const r = ROUTES[path]
+  const r = ROUTES[path] || (OWN_META[path] && own ? { type: 'WebPage', title: own.title, description: own.description, ...OWN_META[path] } : null)
   if (!r) return null
   const url = `${ORIGIN}${path === '/' ? '/' : path}`
   const pageId = `${url}#webpage`
@@ -133,7 +142,7 @@ export function graphFor(pathname) {
       '@id': pageId,
       url,
       name: r.title,
-      description: r.description,
+      ...(r.description ? { description: r.description } : {}),
       inLanguage: 'en',
       isPartOf: { '@id': `${ORIGIN}/#website` },
       about: { '@id': ORG_ID },

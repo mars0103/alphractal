@@ -30,11 +30,11 @@ export default {
     terminalText: 'The execution surface. Not open yet: join the waitlist.',
     rows: [
       { key: 'metrics', to: '/platform/metrics', title: 'Metrics & Models', text: '1,500+ metrics across four domains. 23 of them are ours.' },
-      { key: 'alpha-ai', to: '/platform/alpha-ai', title: 'Alpha AI', text: 'An analyst that cites every number it uses.' },
-      { key: 'mcp', to: '/platform/mcp', title: 'MCP', text: '47 tools your own agent can call.' },
-      { key: 'api', to: '/platform/api', title: 'API', text: '1,000+ endpoints, including on the free tier.' },
+      { key: 'alpha-ai', to: '/platform/alpha-ai', title: 'Alpha AI', text: 'Every insight traces back to a metric.' },
+      { key: 'mcp', to: '/platform/mcp', title: 'MCP', text: 'Bring Alphractal data into your AI assistant or agent.' },
+      { key: 'api', to: '/platform/api', title: 'API', text: 'Crypto market intelligence for your applications.' },
       { key: 'dashboards', to: '/platform/dashboards', title: 'Dashboards, Alerts & Screeners', text: 'Your layouts, your rules, one composed alert.' },
-      { key: 'macro', to: '/platform/metrics#macro', title: 'Macro Terminal', text: '46 panels beside your on-chain charts.' },
+      { key: 'macro', to: '/platform/metrics#macro', title: 'Macroeconomic Panels', text: 'Explore global liquidity, interest rates, recession signals and policy uncertainty.' },
       { key: 'research', to: '/platform/research', title: 'Research & Academy', text: 'Reports that update while you read them.' },
     ],
   },
@@ -54,7 +54,7 @@ export default {
         title: 'Fine for a summary. Dangerous for a position.',
         text: [
           'A general model will answer anything you ask about Bitcoin. It will also answer confidently when it has no data.',
-          'Alpha AI can only cite from a whitelist of platform metrics. No citation, no claim. When the data isn’t there, it says so.',
+          'Every Alpha AI insight traces back to a platform metric. When the data isn’t there, it says so.',
         ],
       },
       how: {
@@ -181,9 +181,9 @@ export default {
       hero: {
         eyebrow: 'MODEL CONTEXT PROTOCOL',
         title: 'The crypto data layer your AI can actually read.',
-        sub: '47 tools over MCP. Connect Claude, Cursor or your own agent, and Alphractal’s metrics, charts, screeners and research become callable inside that conversation.',
+        sub: 'Connect Claude, Cursor or your own agent, and Alphractal’s metrics, charts, screeners and research become callable inside that conversation.',
         primary: 'Connect your client',
-        secondary: 'Browse the 47 tools',
+        secondary: 'Browse the tools',
         secondaryHref: '#tools',
       },
       endpointLabel: 'Endpoint',
@@ -206,16 +206,16 @@ export default {
       gains: {
         title: 'What you get',
         items: [
-          { title: '47 tools', text: '39 for reading, 8 for writing.' },
+          { title: 'Read and write tools', text: 'Read market data and research; write alerts and favorites.' },
           { title: '7 categories', text: 'Market data, Metrics, Charts, Alerts, Account, Research & Academy, Screener.' },
           { title: 'Read-only by default', text: 'Nothing changes on your account until you allow it.' },
           { title: '10,000 starter credits', text: 'Once, free, no card.' },
         ],
       },
-      proof: { big: '47', label: 'tools · 39 read + 8 write', text: 'Almost no one in crypto analytics has shipped an MCP server. This one answers at the URL above.' },
+      proof: { big: 'MCP', label: 'read and write tools', text: 'Connect your AI client to Alphractal at the endpoint above.' },
       tools: {
         eyebrow: 'THE CATALOG',
-        title: 'All 47 tools.',
+        title: 'The tool catalog.',
         read: 'Read',
         write: 'Write',
         readNote: 'Never touch your account',
@@ -256,8 +256,8 @@ export default {
     api: {
       hero: {
         eyebrow: 'API',
-        title: '1,000+ endpoints. Including on the free tier.',
-        sub: 'REST access to the full metric library, with pay-per-call credits on every plan — no paid tier required to make your first call.',
+        title: 'The most powerful crypto data API.',
+        sub: 'On-chain, derivatives, sentiment and macro—built for your applications, trading models and automated workflows.',
         primary: 'Read the docs',
         secondary: 'See API tiers',
         secondaryHref: '#tiers',
@@ -280,7 +280,7 @@ export default {
       gains: {
         title: 'What you get',
         items: [
-          { title: '1,000+ endpoints', text: 'The full metric library over REST.' },
+          { title: 'The full metric library', text: 'Available over REST.' },
           { title: '30 → 800 requests per minute', text: '30 on Starter, 200 on Pro, 500 on Max, up to 800 on Institutional.' },
           { title: 'History that grows with the plan', text: '7 days on Starter, 12 months on Pro, complete on Max and Institutional.' },
           { title: 'CSV and JSON export', text: 'From the Pro plan.' },
@@ -333,7 +333,7 @@ export default {
         title: 'Build it once, keep it.',
         steps: [
           { title: 'Start from a template', text: 'Six ready-made layouts, or an empty canvas.' },
-          { title: 'Compose your own chart', text: 'A no-code builder for the metric that doesn’t exist yet. The Macro Terminal can be added too.' },
+          { title: 'Compose your own chart', text: 'A no-code builder for the metric that doesn’t exist yet. Macroeconomic panels can be added too.' },
           { title: 'Share it with a URL', text: 'A public link sends the read to your team or a client without asking them for an account.' },
         ],
       },
@@ -542,7 +542,7 @@ export default {
           name: 'Alpha Intelligence',
           title: 'The decision layer for crypto trading.',
           text: 'Systematic long and short models built by our research team on 1,500+ metrics across on-chain, derivatives, macroeconomics and market sentiment. It tells you when the data supports being long, short or out of the market.',
-          to: '/platform',
+          soon: 'Coming soon',
         },
         {
           key: 'terminal-intelligence',
@@ -551,7 +551,6 @@ export default {
           title: 'The terminal that talks back, inside yours.',
           text: 'The assisted-trading intelligence behind the Alpha Terminal, available to other trading platforms. Your users keep trading on your terminal — our intelligence helps them place every trade better.',
           support: 'Our proprietary research inside the trading chart, guidance on where to enter, protect and take profit, and a check on every position while it is open.',
-          to: '/terminal',
         },
         {
           key: 'research',
@@ -560,50 +559,6 @@ export default {
           text: 'Weekly, monthly, quarterly and annual market reports from our research team, under our brand or yours.',
           badge: 'Trusted by OranjeBTC',
           badgeNote: "Latin America's largest Bitcoin treasury company.",
-          to: '/platform/research',
-        },
-      ],
-    },
-    areas: {
-      eyebrow: 'EVERYTHING YOU NEED',
-      title: 'Everything you need to decide with conviction.',
-      items: [
-        {
-          q: 'Crypto Data & APIs',
-          lede: 'On-chain, derivatives, macroeconomic and market sentiment data, transformed into clear signals and delivered on our platform or straight into your systems.',
-          viz: 'domains',
-          rows: [
-            ['Proprietary Metrics & Indicators', 'Metrics built by our researchers and published only on Alphractal, from leverage and positioning to market cycles. Behind them, years of research on which signal matters in which market regime.'],
-            ['Analytics Platform & Workbench', 'Dashboards, screeners and the Workbench to build your own view of the market.'],
-            ['Data APIs & MCP', 'Programmatic access to the full catalogue, plus an MCP server that plugs Alphractal data into AI agents.'],
-          ],
-          note: '23 of these indicators are built and maintained only by us. The rest comes from outside sources, brought together in one place.',
-        },
-        {
-          q: 'Advanced Analytics & AI',
-          lede: 'From live alerts to signals and an AI analyst that cites every number it uses.',
-          viz: 'ai',
-          rows: [
-            ['Alpha Intelligence Signals', 'Long, short or out of the market, from systematic models validated by our research team.'],
-            ['Alpha AI', 'Ask questions in plain language. Answers come grounded in Alphractal data, with the metrics behind them.'],
-            ['Alerts & Screeners', 'Alerts on the conditions your team cares about, and screeners to find them across the market.'],
-            ['Macro Intelligence', 'Liquidity, rates, dollar and risk regime alongside crypto data.'],
-          ],
-          note: 'Every model goes through rigorous statistical validation before it reaches the platform.',
-        },
-        {
-          q: 'Research & Reporting',
-          lede: 'Expert-led research, recurring market reports and white-label solutions, built on Alphractal data.',
-          viz: 'report',
-          rows: [
-            ['Weekly', 'Market brief: what moved, where leverage sits, what to watch.'],
-            ['Monthly', 'Market structure, cycle position and sentiment, with outlook context.'],
-            ['Quarterly', 'Deep review for boards, investors and LP letters.'],
-            ['Annual', 'The year in data: cycles, flows, derivatives, macro.'],
-            ['White-label Reporting', 'Reports under your brand, ready for your clients, members or readers.'],
-            ['Custom & Applied Research', 'Research on a specific asset, ecosystem, exchange or thesis.'],
-            ['Treasury & Board Reporting', 'Market context written for executives and non-technical readers.'],
-          ],
         },
       ],
     },
@@ -662,10 +617,7 @@ export default {
     body: [
       'Alphractal began inside an on-chain research community, building the charts its members kept asking for. Questions became ideas, and those ideas became tools for exploring the markets in greater depth.',
       'Today, our team brings research, engineering and product together to turn complex market data into tools people can explore and use. We build between Brazil and Australia, with perspectives that cross disciplines and borders.',
-      'The community remains part of that process. Its questions, feedback and shared analyses help us understand what people need and shape what we build next.',
     ],
-    flags: { br: 'Brazil', au: 'Australia' },
-    timelineEyebrow: 'TIMELINE',
     timelineTitle: 'From our first charts to what comes next.',
     timeline: [
       { when: '2023', title: 'Foundation', text: 'Alphractal begins inside an on-chain research community.' },
@@ -678,14 +630,14 @@ export default {
     teamTitle: 'The people behind Alphractal.',
     teamSub: 'A small team of researchers, engineers and traders, building between Brazil and Australia.',
     team: [
-      { name: 'João Wedson', role: 'Founder & CEO', photo: '/team/joao.jpg', bio: 'Sets Alphractal\u2019s vision at the intersection of on-chain research, market intelligence and product innovation. As Founder and CEO, he leads the company\u2019s strategy and the development of its analytical approach.' },
-      { name: 'Pablo Mani', role: 'Co-Founder & COO', photo: '/team/pablo.jpg', bio: 'Turns Alphractal\u2019s vision into business strategy, product priorities and execution. As Co-Founder and COO, he leads operations and aligns the team around the company\u2019s development and growth.' },
-      { name: 'Eduardo de Abreu', role: 'Co-Founder & Board Member', photo: '/team/eduardo.jpg', bio: 'Brings a strategic perspective to business development and long-term planning. At Alphractal, he supports company direction and decisions that shape its growth.' },
-      { name: 'Rafael Teles', role: 'Research Lead', photo: '/team/rafael.jpg', bio: 'Explores market behavior through quantitative research and analytical models. At Alphractal, he helps develop the research behind its metrics and turn complex findings into useful insights.' },
-      { name: 'Luan Silveira', role: 'CTO', photo: '/team/luan.jpg', bio: 'Connects software architecture, data infrastructure and product engineering. At Alphractal, he leads technical development and the systems that support the platform.' },
-      { name: 'Gustavo', role: 'Marketing & Growth', photo: '/team/gustavo.jpg', bio: 'Connects strategic planning, brand positioning and data-driven growth. At Alphractal, he leads marketing, partnerships and initiatives that bring the platform closer to its users.' },
-      { name: 'Felipe', role: 'Software Developer', photo: '/team/felipe.jpg', bio: 'Builds software with a focus on clarity, reliability and continuous improvement. At Alphractal, he helps develop and refine the platform\u2019s functionality.' },
-      { name: 'Victoria', role: 'Head of Product', photo: '/team/victoria.jpg', bio: 'Turns product strategy and user needs into a clearer platform experience. At Alphractal, she leads product direction and helps connect research, design and development.' },
+      { name: 'João Wedson', linkedin: 'https://www.linkedin.com/in/joao-wedson-b3032759/', x: 'https://x.com/joao_wedson', role: 'Founder & CEO', photo: '/team/joao.jpg', bio: 'Sets Alphractal\u2019s vision at the intersection of on-chain research, market intelligence and product innovation. As Founder and CEO, he leads the company\u2019s strategy and the development of its analytical approach.' },
+      { name: 'Pablo Mani', linkedin: 'https://www.linkedin.com/in/pablomani/', x: 'https://x.com/pablo_mani', role: 'Co-Founder & COO', photo: '/team/pablo.jpg', bio: 'Turns Alphractal\u2019s vision into business strategy, product priorities and execution. As Co-Founder and COO, he leads operations and aligns the team around the company\u2019s development and growth.' },
+      { name: 'Eduardo de Abreu', linkedin: 'https://www.linkedin.com/in/eduardo-abreu-/', x: 'https://x.com/eduDabreu', role: 'Co-Founder & Board Member', photo: '/team/eduardo.jpg', bio: 'Brings a strategic perspective to business development and long-term planning. At Alphractal, he supports company direction and decisions that shape its growth.' },
+      { name: 'Rafael Teles', linkedin: 'https://www.linkedin.com/in/rafael-poliseli-teles-59210b197/', x: 'https://x.com/arch_physicist', role: 'Research Lead', photo: '/team/rafael.jpg', bio: 'Explores market behavior through quantitative research and analytical models. At Alphractal, he helps develop the research behind its metrics and turn complex findings into useful insights.' },
+      { name: 'Luan Silveira', linkedin: 'https://www.linkedin.com/in/luan-alexandre-silveira/', role: 'CTO', photo: '/team/luan.jpg', bio: 'Connects software architecture, data infrastructure and product engineering. At Alphractal, he leads technical development and the systems that support the platform.' },
+      { name: 'Gustavo', linkedin: 'https://www.linkedin.com/in/gustavo-fran%C3%A7a-29835a385/', role: 'Marketing & Growth', photo: '/team/gustavo.jpg', bio: 'Connects strategic planning, brand positioning and data-driven growth. At Alphractal, he leads marketing, partnerships and initiatives that bring the platform closer to its users.' },
+      { name: 'Felipe', linkedin: 'https://www.linkedin.com/in/felipepsh/', role: 'Software Developer', photo: '/team/felipe.jpg', bio: 'Builds software with a focus on clarity, reliability and continuous improvement. At Alphractal, he helps develop and refine the platform\u2019s functionality.' },
+      { name: 'Victoria', linkedin: 'https://www.linkedin.com/in/victoriagcs/', role: 'Head of Product', photo: '/team/victoria.jpg', bio: 'Turns product strategy and user needs into a clearer platform experience. At Alphractal, she leads product direction and helps connect research, design and development.' },
     ],
     researchTitle: 'Research',
     research:
@@ -711,7 +663,6 @@ export default {
     inviteText: 'Create content or share market insights? Get in touch with our team and discover the benefits of becoming an Alphractal ambassador.',
     inviteCta: 'Become an ambassador',
     stats: [
-      { value: 8, suffix: '', label: 'people' },
       { value: 30000, suffix: '+', label: 'traders' },
       { value: 130, suffix: '+', label: 'countries' },
     ],
@@ -802,7 +753,7 @@ export default {
         sub: 'Glassnode is the deepest on-chain catalogue in the market. Alphractal puts on-chain, derivatives, sentiment and macro on one screen.',
         rows: [
           { topic: 'Depth of on-chain metrics', winner: 'them', note: 'Glassnode’s on-chain catalogue is the deepest in the market.' },
-          { topic: 'Macro next to on-chain', winner: 'us', note: 'Glassnode has no macro. Alphractal has a 46-panel macro terminal on the same timeline.' },
+          { topic: 'Macro next to on-chain', winner: 'us', note: 'Glassnode has no macro. Alphractal has macroeconomic panels on the same timeline.' },
           { topic: 'API on the free tier', winner: 'us', note: 'Alphractal API access exists on every plan through pay-per-call credits. Glassnode’s API needs a paid plan.' },
           { topic: 'Proprietary models', winner: 'us', note: '23 models computed in-house, the ones users ask for by name.' },
         ],
@@ -817,7 +768,7 @@ export default {
         rows: [
           { topic: 'Depth of the wallet label graph', winner: 'them', note: 'Nansen’s label graph is deeper.' },
           { topic: 'Trading from the same product', winner: 'them', note: 'Nansen positions signal-to-trade today. Alphractal’s Alpha Terminal is in testnet and not open yet.' },
-          { topic: 'Macro next to on-chain', winner: 'us', note: 'Nansen has no macro. Alphractal has a 46-panel macro terminal.' },
+          { topic: 'Macro next to on-chain', winner: 'us', note: 'Nansen has no macro. Alphractal has macroeconomic panels.' },
           { topic: 'Proprietary models', winner: 'us', note: '23 models computed in-house.' },
         ],
         faq: [
@@ -831,7 +782,7 @@ export default {
         rows: [
           { topic: 'Derivatives-focused data', winner: 'tie', note: 'Coinglass is built around derivatives. Alphractal covers derivatives alongside the other domains.' },
           { topic: 'Deep on-chain', winner: 'us', note: 'Coinglass does not have deep on-chain. Alphractal has 14 years of on-chain history.' },
-          { topic: 'Macro', winner: 'us', note: 'Coinglass has no macro. Alphractal has 46 macro panels.' },
+          { topic: 'Macro', winner: 'us', note: 'Coinglass has no macro. Alphractal has macroeconomic panels.' },
           { topic: 'Composed alerts in one rule', winner: 'us', note: 'A single rule combining domains with AND/OR, such as funding above the 99th percentile and DXY rising.' },
         ],
         faq: [
@@ -845,7 +796,7 @@ export default {
         rows: [
           { topic: 'Long-form research coverage', winner: 'tie', note: 'Messari is known for research. Alphractal publishes in-house reports with live charts embedded.' },
           { topic: 'Live charts inside reports', winner: 'us', note: 'Our reports carry the chart, not a picture of it, so the number is the number right now.' },
-          { topic: 'Macro next to on-chain', winner: 'us', note: 'A 46-panel macro terminal on the same timeline.' },
+          { topic: 'Macro next to on-chain', winner: 'us', note: 'Macroeconomic panels on the same timeline.' },
           { topic: 'Proprietary models', winner: 'us', note: '23 models computed in-house.' },
         ],
         faq: [

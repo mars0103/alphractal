@@ -1,51 +1,33 @@
 import { useRef, useState } from 'react'
 import '../../styles/p-api.css'
 import { useMeta } from '../../hooks/useMeta.js'
-import { gsap, useGSAP, MQ } from '../../lib/gsap.js'
+import { gsap, ScrollTrigger, useGSAP, MQ } from '../../lib/gsap.js'
+import { useLive } from '../../lib/live.js'
 import PageShell from '../../components/PageShell.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
-import { ExtLink, PBlock, ProductFaq, ProductHero } from '../../components/ProductBlocks.jsx'
+import PageHero from '../../components/PageHero.jsx'
+import GlowButton from '../../components/GlowButton.jsx'
+import { ExtLink, PBlock, ProductFaq } from '../../components/ProductBlocks.jsx'
+import { HeroFlow, FamilyDraw } from '../../components/visuals/ApiVisuals.jsx'
 
-/* /platform/api — hero + flow diagram, data coverage, first integration, operational details, plans, API vs MCP, FAQ, closing CTA.
-   Copy: Textos/API.md. No captures are needed on this page; the hero diagram is HTML/CSS (selectable text). */
+/* /platform/api — hero + request/response flow, data coverage, first integration, operational details, plans, API vs MCP, FAQ, closing CTA.
+   Copy: Textos/07 - API.md. The page has no captures: the visuals are loose line drawings (components/visuals/ApiVisuals.jsx) and the
+   code is real text. Numbers: 100K+ (hero) comes from the doc, not from lib/facts.js; the 30/200/500 limits and 10 credits are doc facts too. */
 
 const DOCS = 'https://docs.alphractal.com/'
 const DASH = 'https://app.alphractal.com/api-dashboard'
 const PLANS = 'https://app.alphractal.com/plans'
 const ENDPOINT_DOC = 'https://docs.alphractal.com/api-reference/market/priceusd'
 
-const DESTINATIONS = ['Research pipeline', 'Analytics dashboard', 'Automated workflow']
-
-const ICONS = {
-  market: <path d="M3 17l5-6 4 4 8-9M3 21h18" />,
-  chain: <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />,
-  deriv: <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" />,
-  liq: <path d="M3 5h18M3 10h12M3 15h16M3 20h8" />,
-  flows: <path d="M4 8h13l-3-3M20 16H7l3 3" />,
-  cycle: <path d="M3 12c3-8 6-8 9 0s6 8 9 0" />,
-  macro: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" />
-    </>
-  ),
-  search: (
-    <>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-5-5" />
-    </>
-  ),
-}
-
 const FAMILIES = [
-  { icon: 'market', title: 'Market data', text: 'Price, market capitalization, returns and volatility for asset analysis and monitoring.', ex: 'Price USD · Market Cap · OHLCV' },
-  { icon: 'chain', title: 'On-chain & valuation', text: 'Network activity, supply distribution, holder behavior and cost-basis measures.', ex: 'Active Addresses · SOPR · Realized Price · MVRV' },
-  { icon: 'deriv', title: 'Derivatives & positioning', text: 'Leverage conditions and trader positioning across supported derivatives markets.', ex: 'Funding Rate · Open Interest · Whale vs Retail Delta' },
-  { icon: 'liq', title: 'Liquidation levels', text: 'Query liquidation heatmaps, snapshots and price zones for supported markets.', ex: 'Heatmap · Snapshot · Zones' },
-  { icon: 'flows', title: 'Exchange flows', text: 'On-chain inflows, outflows and reserves associated with tracked exchange entities.', ex: 'Exchange Netflow · Inflows · Outflows · Exchange Reserves' },
-  { icon: 'cycle', title: 'Cycle indicators & Alphractal models', text: 'Access documented cycle indicators and model series for deeper market analysis.', ex: 'ADCI · TBBI · CVDD Model 2' },
-  { icon: 'macro', title: 'Sentiment & macro', text: 'Add market sentiment, economic series and liquidity context to your workflow.', ex: 'Fear and Greed · Interest rates · Dollar indices · Money supply' },
-  { icon: 'search', title: 'Discovery & screening', text: 'Find supported assets, inspect endpoint parameters and retrieve cross-asset screening views.', ex: 'Asset catalog · Endpoint metadata · Screener' },
+  { kind: 'market', title: 'Market data', text: 'Price, market capitalization, returns and volatility for asset analysis and monitoring.', ex: 'Price USD · Market Cap · OHLCV' },
+  { kind: 'chain', title: 'On-chain & valuation', text: 'Network activity, supply distribution, holder behavior and cost-basis measures.', ex: 'Active Addresses · SOPR · Realized Price · MVRV' },
+  { kind: 'deriv', title: 'Derivatives & positioning', text: 'Leverage conditions and trader positioning across supported derivatives markets.', ex: 'Funding Rate · Open Interest · Whale vs Retail Delta' },
+  { kind: 'liq', title: 'Liquidation levels', text: 'Query liquidation heatmaps, snapshots and price zones for supported markets.', ex: 'Heatmap · Snapshot · Zones' },
+  { kind: 'flows', title: 'Exchange flows', text: 'On-chain inflows, outflows and reserves associated with tracked exchange entities.', ex: 'Exchange Netflow · Inflows · Outflows · Exchange Reserves' },
+  { kind: 'cycle', title: 'Cycle indicators & Alphractal models', text: 'Access documented cycle indicators and model series for deeper market analysis.', ex: 'ADCI · TBBI · CVDD Model 2' },
+  { kind: 'macro', title: 'Sentiment & macro', text: 'Add market sentiment, economic series and liquidity context to your workflow.', ex: 'Fear and Greed · Interest rates · Dollar indices · Money supply' },
+  { kind: 'search', title: 'Discovery & screening', text: 'Find supported assets, inspect endpoint parameters and retrieve cross-asset screening views.', ex: 'Asset catalog · Endpoint metadata · Screener' },
 ]
 
 const EXCHANGES = [
@@ -88,8 +70,8 @@ const RESPONSE = `[
 ]`
 
 const TABS = [
-  { id: 'curl', label: 'cURL', code: CURL },
-  { id: 'python', label: 'Python', code: PYTHON },
+  { id: 'curl', label: 'cURL', code: CURL, lang: 'bash' },
+  { id: 'python', label: 'Python', code: PYTHON, lang: 'python' },
 ]
 
 const OPS = [
@@ -118,11 +100,12 @@ const STATUS = [
   ['503', 'The API may reject the request when credit accounting is temporarily unavailable.'],
 ]
 
+/* reach = how far back the plan sees, drawn as a bar (illustrative scale: 7 days < 12 months < full history; a contract is open-ended) */
 const PLAN_ROWS = [
-  ['Starter (Free)', '30', 'Up to 7 days, where available', 'Supported endpoints and plan limits apply'],
-  ['Pro', '200', 'Up to 12 months, where available', '1 hour and above, where supported'],
-  ['Max', '500', 'Full available history for the metric', 'All supported resolutions for the metric'],
-  ['Institutional', 'Custom', 'Contract-specific', 'Contract-specific'],
+  ['Starter (Free)', '30', 'Up to 7 days, where available', 'Supported endpoints and plan limits apply', 0.1],
+  ['Pro', '200', 'Up to 12 months, where available', '1 hour and above, where supported', 0.42],
+  ['Max', '500', 'Full available history for the metric', 'All supported resolutions for the metric', 1],
+  ['Institutional', 'Custom', 'Contract-specific', 'Contract-specific', 0],
 ]
 
 const FAQ = [
@@ -136,66 +119,77 @@ const FAQ = [
   { q: 'Should an AI agent use the API or MCP?', a: <>Use the API for direct HTTP integration. Use <ExtLink className="faq__link" href="/platform/mcp">MCP</ExtLink> when a compatible client or agent connects through Alphractal’s tool interface. Review the documentation for the interface you choose.</> },
 ]
 
-/* Hero diagram: application -> request -> API -> JSON response -> back to the application and its three destinations.
-   Everything is real text; the travelling dots are decoration and sit still when motion is reduced. */
-function FlowDiagram() {
-  const root = useRef(null)
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia()
-      mm.add(MQ.motion, () => {
-        const q = (s) => root.current.querySelector(s)
-        const qa = (s) => gsap.utils.toArray(s, root.current)
-        const lit = [q('.api-flow__lane--req'), q('.api-flow__lane--res'), q('.api-flow__node--api'), ...qa('.api-flow__dest li')]
-        const tl = gsap.timeline({ repeat: -1, delay: 1.6, defaults: { ease: 'power2.inOut' } })
-        tl.set('.api-flow__dot--req', { top: '0%', autoAlpha: 0 })
-          .set('.api-flow__dot--res', { top: '100%', autoAlpha: 0 })
-          .to('.api-flow__dot--req', { autoAlpha: 1, duration: 0.25 })
-          .to('.api-flow__dot--req', { top: '100%', duration: 1.3 }, '<')
-          .to(q('.api-flow__lane--req'), { '--lit': 1, duration: 0.4 }, '<')
-          .to('.api-flow__dot--req', { autoAlpha: 0, duration: 0.2 })
-          .to(q('.api-flow__node--api'), { '--lit': 1, duration: 0.4 }, '<')
-          .to('.api-flow__dot--res', { autoAlpha: 1, duration: 0.25 }, '+=0.15')
-          .to('.api-flow__dot--res', { top: '0%', duration: 1.3 }, '<')
-          .to(q('.api-flow__lane--res'), { '--lit': 1, duration: 0.4 }, '<')
-          .to('.api-flow__dot--res', { autoAlpha: 0, duration: 0.2 })
-          .to(qa('.api-flow__dest li'), { '--lit': 1, duration: 0.4, stagger: 0.15 }, '<')
-          .to(lit, { '--lit': 0, duration: 0.8 }, '+=0.8')
-      }, root)
-      return () => mm.revert()
-    },
-    { scope: root },
-  )
+/* ---------------------------------------------------------------- syntax highlighting
+   A tiny tokenizer per language: it only colours, the text is untouched (so the HTML carries the full example). */
+const RX = {
+  bash: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(--[\w-]+)|(\bcurl\b)/g,
+  python: /("(?:[^"\\]|\\.)*")|(\b(?:import|from|with|as)\b)|(\b\d+\b)|(\b(?:print|open)\b|\b[A-Za-z_]\w*(?=\())/g,
+  json: /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\b\d+(?:\.\d+)?\b)|([[\]{},])/g,
+}
+const GROUPS = { bash: ['str', 'flag', 'cmd'], python: ['str', 'kw', 'num', 'fn'], json: ['str', 'colon', 'num', 'punct'] }
+
+function tokens(line, lang) {
+  const out = []
+  const re = new RegExp(RX[lang].source, 'g')
+  let last = 0
+  let m
+  while ((m = re.exec(line))) {
+    if (m.index > last) out.push(['', line.slice(last, m.index)])
+    if (lang === 'json' && m[1]) {
+      out.push([m[2] ? 'key' : 'str', m[1]])
+      if (m[2]) out.push(['punct', m[2]])
+    } else {
+      const g = GROUPS[lang].findIndex((_, i) => m[i + 1] !== undefined)
+      out.push([GROUPS[lang][g], m[0]])
+    }
+    last = m.index + m[0].length
+  }
+  if (last < line.length) out.push(['', line.slice(last)])
+  return out
+}
+
+function Code({ code, lang }) {
   return (
-    <div className="api-flow" ref={root} role="group" aria-label="Request and response flow: your application sends a GET request to the Alphractal API and receives a JSON response">
-      <div className="api-flow__node api-flow__node--app">
-        <p className="api-flow__label">YOUR APPLICATION</p>
-        <ul className="api-flow__dest" aria-label="Typical destinations">
-          {DESTINATIONS.map((d) => (
-            <li key={d}>{d}</li>
-          ))}
-        </ul>
-      </div>
-      <div className="api-flow__lanes">
-        <div className="api-flow__lane api-flow__lane--req">
-          <i className="api-flow__line" aria-hidden="true" />
-          <i className="api-flow__dot api-flow__dot--req" aria-hidden="true" />
-          <code className="api-flow__req">GET /btc/market/PriceUSD</code>
-        </div>
-        <div className="api-flow__lane api-flow__lane--res">
-          <i className="api-flow__line" aria-hidden="true" />
-          <i className="api-flow__dot api-flow__dot--res" aria-hidden="true" />
-          <span className="api-flow__res">JSON RESPONSE</span>
-        </div>
-      </div>
-      <div className="api-flow__node api-flow__node--api">
-        <p className="api-flow__label">ALPHRACTAL API</p>
-      </div>
-    </div>
+    <code>
+      {code.split('\n').map((ln, i) => (
+        <span className="api-ln" key={i}>
+          {tokens(ln, lang).map(([c, t], k) =>
+            c === 'str' && t.includes('${') ? (
+              <span className="tk-str" key={k}>
+                {t.split(/(\$\{[^}]+\})/).map((p, j) => (p.startsWith('${') ? <span className="tk-var" key={j}>{p}</span> : p))}
+              </span>
+            ) : c ? (
+              <span className={`tk-${c}`} key={k}>
+                {t}
+              </span>
+            ) : (
+              t
+            ),
+          )}
+        </span>
+      ))}
+    </code>
   )
 }
 
+/* Typed, not pasted: on first view the request types itself, then the response streams in. The full text is always in the HTML,
+   the reveal is a clip, so no-JS and reduced motion get the finished example. */
+const clipStart = 'inset(0 100% 0 0)'
+const clipEnd = 'inset(0 0% 0 0)'
+const typeLines = (tl, lines, at, per = 0.011) => {
+  let t = at
+  lines.forEach((l) => {
+    const n = Math.max(3, l.textContent.length)
+    const d = Math.max(0.08, n * per)
+    tl.to(l, { clipPath: clipEnd, duration: d, ease: `steps(${n})` }, t)
+    t += d
+  })
+  return t
+}
+
 function CodePanel() {
+  const root = useRef(null)
+  const played = useRef(false)
   const [tab, setTab] = useState('curl')
   const [copied, setCopied] = useState(false)
   const cur = TABS.find((t) => t.id === tab)
@@ -219,8 +213,53 @@ function CodePanel() {
       /* clipboard blocked: the code stays selectable */
     }
   }
+
+  // first view: type the request, then stream the response
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add(MQ.motion, () => {
+        const all = gsap.utils.toArray('.api-ln', root.current)
+        gsap.set(all, { clipPath: clipStart })
+        const st = ScrollTrigger.create({
+          trigger: root.current,
+          start: 'top 72%',
+          once: true,
+          onEnter: () => {
+            const req = gsap.utils.toArray('.api-panel:not([hidden]) .api-ln', root.current)
+            const res = gsap.utils.toArray('.api-pane--res .api-ln', root.current)
+            const tl = gsap.timeline({ onComplete: () => (played.current = true) })
+            const t = typeLines(tl, req, 0.2)
+            // the response arrives faster than it was typed: it is a stream
+            res.forEach((l, i) => tl.to(l, { clipPath: clipEnd, duration: 0.5, ease: 'power2.out' }, t + 0.35 + i * 0.16))
+            tl.to('.api-demo__after', { autoAlpha: 1, duration: 0.5 }, '>-0.2')
+          },
+        })
+        gsap.set('.api-demo__after', { autoAlpha: 0 })
+        return () => st.kill()
+      })
+      return () => mm.revert()
+    },
+    { scope: root },
+  )
+
+  // switching tabs: the new example types in quickly
+  useGSAP(
+    () => {
+      if (!played.current) return undefined
+      const mm = gsap.matchMedia()
+      mm.add(MQ.motion, () => {
+        const lines = gsap.utils.toArray('.api-panel:not([hidden]) .api-ln', root.current)
+        gsap.fromTo('.api-panel:not([hidden])', { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' })
+        gsap.fromTo(lines, { clipPath: clipStart }, { clipPath: clipEnd, duration: 0.45, ease: 'power2.out', stagger: 0.05 })
+      })
+      return () => mm.revert()
+    },
+    { scope: root, dependencies: [tab], revertOnUpdate: false },
+  )
+
   return (
-    <div className="api-demo" data-reveal="up">
+    <div className="api-demo" data-reveal="up" ref={root}>
       <div className="api-demo__head">
         <h3>Request Bitcoin price data</h3>
         <p>Authenticate with your API key and read the returned time series.</p>
@@ -249,9 +288,9 @@ function CodePanel() {
             </button>
           </div>
           {TABS.map((t) => (
-            <div key={t.id} role="tabpanel" id={`api-panel-${t.id}`} aria-labelledby={`api-tab-${t.id}`} hidden={tab !== t.id}>
+            <div key={t.id} className="api-panel" role="tabpanel" id={`api-panel-${t.id}`} aria-labelledby={`api-tab-${t.id}`} hidden={tab !== t.id}>
               <pre className="api-code" tabIndex={0}>
-                <code>{t.code}</code>
+                <Code code={t.code} lang={t.lang} />
               </pre>
             </div>
           ))}
@@ -262,17 +301,67 @@ function CodePanel() {
             <p className="api-pane__title">Example response shape</p>
           </div>
           <pre className="api-code" tabIndex={0}>
-            <code>{RESPONSE}</code>
+            <Code code={RESPONSE} lang="json" />
           </pre>
           <p className="api-pane__note">Illustrative values from the endpoint documentation. This is not a live market quote.</p>
         </div>
       </div>
-      <p className="api-demo__explain">
-        <code className="api-inl">time</code> identifies the data point in UTC. <code className="api-inl">priceUSD</code> is the USD price field. Other endpoints return their own documented fields and response shapes.
-      </p>
-      <ExtLink className="btn btn--ink" href={ENDPOINT_DOC}>
-        View this endpoint
-      </ExtLink>
+      <div className="api-demo__after">
+        <p className="api-demo__explain">
+          <code className="api-inl">time</code> identifies the data point in UTC. <code className="api-inl">priceUSD</code> is the USD price field. Other endpoints return their own documented fields and response shapes.
+        </p>
+        <ExtLink className="btn btn--ink" href={ENDPOINT_DOC}>
+          View this endpoint
+        </ExtLink>
+      </div>
+    </div>
+  )
+}
+
+/* Plans: the history column carries the point (blue, heavier) and a thin bar per row that grows to its reach on entry. */
+function PlansTable() {
+  const root = useRef(null)
+  useLive(root, (el) => {
+    const bars = [...el.querySelectorAll('.api-reach i')]
+    gsap.set(bars, { scaleX: 0 })
+    let tl = null
+    return {
+      start() {
+        tl = gsap.to(bars, { scaleX: 1, duration: 1.3, stagger: 0.18, ease: 'power3.out' })
+      },
+      kill() {
+        if (tl) tl.kill()
+      },
+    }
+  })
+  return (
+    <div className="ptable-wrap api-plans" ref={root}>
+      <table className="ptable">
+        <caption className="api-sr">API limits by plan</caption>
+        <thead>
+          <tr>
+            <th scope="col">Plan</th>
+            <th scope="col">Requests per minute</th>
+            <th scope="col" className="api-hist">Historical access</th>
+            <th scope="col">Resolution</th>
+          </tr>
+        </thead>
+        <tbody>
+          {PLAN_ROWS.map(([plan, rpm, hist, res, reach]) => (
+            <tr key={plan}>
+              <th scope="row">{plan}</th>
+              <td data-label="Requests per minute">{rpm}</td>
+              <td className="api-hist" data-label="Historical access">
+                {hist}
+                <span className={`api-reach${reach ? '' : ' is-contract'}`} style={{ '--r': reach || 1 }} aria-hidden="true">
+                  <i />
+                </span>
+              </td>
+              <td data-label="Resolution">{res}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -285,34 +374,40 @@ export default function Api() {
 
   return (
     <PageShell>
-      <ProductHero
-        current="api"
+      <PageHero
         eyebrow="ALPHRACTAL API"
         title="Crypto market intelligence for your applications."
-        sub="Query market, on-chain, derivatives, liquidation, sentiment and macro data through a REST API. Build research pipelines, analytics tools and automated workflows with documented endpoints and JSON responses."
-        primary={{ label: 'Read the docs', href: DOCS }}
-        secondary={{ label: 'Get an API key', href: DASH }}
-        line="API access is available across plans. Supported metrics, history and usage depend on your plan and API key."
-        visual={<FlowDiagram />}
+        sub="Build trading models, research pipelines and automated workflows with Alphractal’s market, on-chain, derivatives, liquidation, sentiment and macro data."
+        actions={
+          <>
+            <GlowButton href={DOCS}>Read the docs</GlowButton>
+            <ExtLink className="link-arrow phero__more" href={DASH}>
+              Get an API key <span>→</span>
+            </ExtLink>
+            <p className="api-stat">
+              <b>100K+</b> API requests per day
+            </p>
+          </>
+        }
+        visual={<HeroFlow />}
       />
 
       <PBlock
         id="coverage"
-        eyebrow="DATA COVERAGE"
         title="Choose the data your workflow needs."
         intro="Discover asset-level time series, cross-asset views and metadata. Availability varies by endpoint, asset and exchange."
       >
         <ul className="api-fam" data-stagger>
           {FAMILIES.map((f) => (
-            <li className="api-fam__card" data-item key={f.title}>
-              <svg className="api-fam__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                {ICONS[f.icon]}
-              </svg>
-              <h3>{f.title}</h3>
-              <p>{f.text}</p>
-              <p className="api-fam__ex">
-                <b>Examples</b> {f.ex}
-              </p>
+            <li className="api-fam__item" data-item key={f.title}>
+              <FamilyDraw kind={f.kind} />
+              <div className="api-fam__txt">
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+                <p className="api-fam__ex">
+                  <b>Examples</b> {f.ex}
+                </p>
+              </div>
             </li>
           ))}
         </ul>
@@ -358,11 +453,10 @@ export default function Api() {
         </div>
       </PBlock>
 
-      <PBlock id="integrate" eyebrow="FIRST INTEGRATION" title="From API key to structured data.">
+      <PBlock id="integrate" title="From API key to structured data.">
         <ol className="api-steps" data-stagger>
-          {STEPS.map((s, i) => (
+          {STEPS.map((s) => (
             <li className="api-step" data-item key={s.title}>
-              <b className="api-step__n">{String(i + 1).padStart(2, '0')}</b>
               <h3>{s.title}</h3>
               <p>{s.text}</p>
               <ExtLink className="link-arrow" href={s.href}>
@@ -374,7 +468,7 @@ export default function Api() {
         <CodePanel />
       </PBlock>
 
-      <PBlock id="behavior" eyebrow="OPERATIONAL DETAILS" title="Know how the API behaves.">
+      <PBlock id="behavior" title="Know how the API behaves.">
         <div className="ptable-wrap api-ops">
           <table className="ptable">
             <caption className="api-sr">How the API behaves</caption>
@@ -404,58 +498,28 @@ export default function Api() {
           ))}
         </ul>
 
-        <h3 className="api-h3 api-h3--gap">Handle access and usage limits explicitly.</h3>
-        <div className="ptable-wrap api-ops api-ops--status">
-          <table className="ptable">
-            <caption className="api-sr">Status codes</caption>
-            <thead>
-              <tr>
-                <th scope="col">Status</th>
-                <th scope="col">Meaning</th>
-              </tr>
-            </thead>
-            <tbody>
-              {STATUS.map(([k, v]) => (
-                <tr key={k}>
-                  <th scope="row">{k}</th>
-                  <td>{v}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="api-err">
+          <div>
+            <h3 className="api-h3">Handle access and usage limits explicitly.</h3>
+            <p className="api-clarify">Use the documented status and error details when handling a failed request. A plan restriction, an exhausted credit balance and a rate limit require different handling.</p>
+          </div>
+          <ol className="api-status" data-stagger aria-label="Status codes">
+            {STATUS.map(([code, text]) => (
+              <li data-item key={code}>
+                <b className="api-status__code">{code}</b>
+                <p>{text}</p>
+              </li>
+            ))}
+          </ol>
         </div>
-        <p className="api-clarify">Use the documented status and error details when handling a failed request. A plan restriction, an exhausted credit balance and a rate limit require different handling.</p>
       </PBlock>
 
       <PBlock
         id="plans"
-        eyebrow="ACCESS & PLANS"
         title="Choose access that fits your workflow."
         intro="API access is available across Alphractal plans. Your plan and API key determine the supported metrics, historical depth, resolutions and request limits. Check the plans page for current pricing, credit allocations and top-ups."
       >
-        <div className="ptable-wrap api-plans">
-          <table className="ptable">
-            <caption className="api-sr">API limits by plan</caption>
-            <thead>
-              <tr>
-                <th scope="col">Plan</th>
-                <th scope="col">Requests per minute</th>
-                <th scope="col">Historical access</th>
-                <th scope="col">Resolution</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PLAN_ROWS.map(([plan, rpm, hist, res]) => (
-                <tr key={plan}>
-                  <th scope="row">{plan}</th>
-                  <td data-label="Requests per minute">{rpm}</td>
-                  <td data-label="Historical access">{hist}</td>
-                  <td data-label="Resolution">{res}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PlansTable />
         <p className="api-clarify">Limits can differ for legacy plans and institutional agreements. Confirm the limits attached to your API key in the dashboard. Full history means the available history of a metric, not the same start date for every series.</p>
         <div className="api-links">
           <ExtLink className="btn btn--ink" href={PLANS}>
@@ -476,25 +540,33 @@ export default function Api() {
         </aside>
       </PBlock>
 
-      <PBlock id="api-or-mcp" eyebrow="API OR MCP" title="Build with the API. Connect through MCP.">
-        <div className="pcards pcards--2" data-stagger>
-          <article className="pcard" data-item>
-            <div className="pcard__body">
-              <p className="ptag">API</p>
-              <p>Use HTTP requests when your application controls the integration, scheduling and response handling.</p>
-              <ExtLink className="pcard__link link-arrow" href={DOCS}>
-                Read API documentation <span>→</span>
-              </ExtLink>
-            </div>
+      <PBlock id="api-or-mcp" title="Build with the API. Connect through MCP." className="api-last">
+        <div className="api-ch" data-stagger>
+          <article className="api-ch__col" data-item>
+            <p className="api-ch__tag">API</p>
+            <p>Use HTTP requests when your application controls the integration, scheduling and response handling.</p>
+            <pre className="api-ch__code" aria-hidden="true">
+              <code>
+                <span className="tk-cmd">GET</span> /btc/market/PriceUSD{'\n'}
+                <span className="tk-key">X-Api-Key</span>: ••••••••••••
+              </code>
+            </pre>
+            <ExtLink className="link-arrow" href={DOCS}>
+              Read API documentation <span>→</span>
+            </ExtLink>
           </article>
-          <article className="pcard" data-item>
-            <div className="pcard__body">
-              <p className="ptag">MCP</p>
-              <p>Connect compatible AI clients and agents to Alphractal tools through the Model Context Protocol.</p>
-              <ExtLink className="pcard__link link-arrow" href="/platform/mcp">
-                Explore MCP <span>→</span>
-              </ExtLink>
-            </div>
+          <article className="api-ch__col" data-item>
+            <p className="api-ch__tag">MCP</p>
+            <p>Connect compatible AI clients and agents to Alphractal tools through the Model Context Protocol.</p>
+            <pre className="api-ch__code" aria-hidden="true">
+              <code>
+                <span className="tk-cmd">tools/call</span>{'\n'}
+                {'  '}name: <span className="tk-str">get_metric_data</span>
+              </code>
+            </pre>
+            <ExtLink className="link-arrow" href="/platform/mcp">
+              Explore MCP <span>→</span>
+            </ExtLink>
           </article>
         </div>
       </PBlock>

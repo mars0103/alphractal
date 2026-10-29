@@ -1,0 +1,203 @@
+/* Alternative home hero (/home-b): copy centred on top, WebGL scene underneath. */
+.hero2 {
+  position: relative;
+  height: 100vh;
+  min-height: 680px;
+  background: radial-gradient(120% 80% at 50% 100%, #07104a 0%, var(--ink) 62%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.hero2__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero2__copy {
+  position: relative;
+  z-index: 2;
+  padding-top: clamp(110px, 15vh, 150px);
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  text-align: center;
+  pointer-events: none;
+}
+.hero2__copy a {
+  pointer-events: auto;
+}
+.hero2__title {
+  max-width: 22ch;
+  font-size: clamp(32px, 4.2vw, 58px);
+  line-height: 1.04;
+  color: var(--on-dark);
+  text-wrap: balance;
+}
+.hero2__sub {
+  max-width: 58ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #a4abbb;
+  text-wrap: balance;
+}
+.hero2__cta {
+  margin-top: 6px;
+}
+.hero2::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, var(--ink));
+  pointer-events: none;
+}
+@media (max-width: 991px) {
+  .hero2 {
+    min-height: 100svh;
+  }
+}
+
+/* Live tag, bottom-left of the chart area */
+.hero2__live {
+  position: absolute;
+  z-index: 3;
+  left: clamp(20px, 3.2vw, 56px);
+  bottom: clamp(28px, 6vh, 64px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(11, 13, 20, 0.55);
+  font: 600 12px/1 var(--font-body, Inter, system-ui, sans-serif);
+  letter-spacing: 0.08em;
+  color: #a4abbb;
+}
+.hero2__live i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7f8aa6;
+}
+.hero2__live.is-live {
+  color: #e8ecf8;
+}
+.hero2__live.is-live i {
+  background: #22d39b;
+  box-shadow: 0 0 0 0 rgba(34, 211, 155, 0.6);
+  animation: hero2-pulse 1.6s ease-out infinite;
+}
+.hero2__live span {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #a4abbb;
+}
+@keyframes hero2-pulse {
+  to {
+    box-shadow: 0 0 0 9px rgba(34, 211, 155, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero2__live.is-live i {
+    animation: none;
+  }
+}
+
+/* Long / Short, shown when the scene has finished building */
+.hero2__call {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: clamp(28px, 6vh, 64px);
+  transform: translate(-50%, 16px);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s, transform 0.8s, visibility 0.8s;
+}
+.hero2__call.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+.hero2__call p {
+  margin: 0;
+  font-size: 14px;
+  color: #cdd3e4;
+}
+.hero2__call small {
+  font-size: 11.5px;
+  color: #7f8aa6;
+}
+.hero2__call-btns {
+  display: flex;
+  gap: 12px;
+}
+.hero2__dir {
+  min-width: 128px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  border: 1px solid;
+  background: rgba(11, 13, 20, 0.6);
+  font: 700 15px/1 var(--font-body, Inter, system-ui, sans-serif);
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.25s;
+}
+.hero2__dir:hover {
+  transform: translateY(-2px);
+}
+.hero2__dir--long {
+  color: #22d39b;
+  border-color: rgba(34, 211, 155, 0.6);
+}
+.hero2__dir--short {
+  color: #ff5d73;
+  border-color: rgba(255, 93, 115, 0.6);
+}
+.hero2__dir--long:hover,
+.hero2__dir--long.is-picked {
+  background: #22d39b;
+  color: #04140d;
+}
+.hero2__dir--short:hover,
+.hero2__dir--short.is-picked {
+  background: #ff5d73;
+  color: #1a0409;
+}
+@media (max-width: 991px) {
+  .hero2__live {
+    display: none;
+  }
+}
+
+/* Stage caption while the camera moves */
+.hero2__cap {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: clamp(110px, 16vh, 150px);
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 40px));
+  margin: 0;
+  text-align: center;
+  font-size: clamp(18px, 1.9vw, 26px);
+  line-height: 1.3;
+  color: var(--on-dark);
+  text-wrap: balance;
+  animation: hero2-cap 0.7s ease-out both;
+  pointer-events: none;
+}
+.hero2__cap:empty {
+  display: none;
+}
+@keyframes hero2-cap {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+}

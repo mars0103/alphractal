@@ -209,7 +209,6 @@ export default function AlphaAiDemo() {
           <i />
         </span>
         <span className="aiapp__url mono">app.alphractal.com/alpha-ai</span>
-        <span className="aiapp__tag mono">{chat.illustrative}</span>
       </div>
 
       <div className="aiapp__screen">
