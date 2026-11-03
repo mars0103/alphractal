@@ -25,6 +25,7 @@ export default {
     },
   },
   hero3: {
+    aiName: 'Alpha AI',
     title: ['The next-generation analytics platform', 'for the entire crypto market.'],
     alert: 'Alert triggered: elevated funding, fading momentum. Long liquidation clusters below.',
     reply: 'Set up the short. Right now.',
@@ -95,7 +96,7 @@ export default {
       sentiment: 'Sentiment',
     },
     pitch: {
-      cryptos: 'Price, market cap, realized price, open interest and on-chain signals — live on 1,000+ assets.',
+      cryptos: 'Price, market cap, realized price, open interest and on-chain signals, live on 1,000+ assets.',
       ai: 'Ask in plain English. Every answer cites the metrics it used, so you can open the chart behind it.',
       screeners: 'Rank the whole market by RSI, MACD, funding or a signal you define yourself.',
       alerts: 'Price, on-chain and derivatives triggers, delivered to email or Telegram the moment they fire.',
@@ -337,7 +338,7 @@ export default {
       },
       {
         title: 'Trade in Alpha Terminal',
-        text: 'Investigate setups with embedded metrics and AI. Uncover market dynamics beyond price action, refine your entry, stop and target, and execute—all in one workspace.',
+        text: 'Investigate setups with embedded metrics and AI. Uncover market dynamics beyond price action, refine your entry, stop and target, and execute, all in one workspace.',
         shot: 'step-4-recording',
         shotNote: 'Alpha Terminal',
       },
@@ -372,7 +373,7 @@ export default {
         key: 'api',
         to: '/platform/api',
         title: 'API',
-        text: 'The most powerful crypto data API. On-chain, derivatives, sentiment and macro—built for your applications, trading models and automated workflows.',
+        text: 'The most powerful crypto data API. On-chain, derivatives, sentiment and macro, built for your applications, trading models and automated workflows.',
         stat: '100K+',
         statLabel: 'API requests per day',
       },
@@ -393,7 +394,7 @@ export default {
         to: '/platform/research',
         title: 'Research & Academy',
         text: 'In-house research led by Rafael, our Chief Research Officer, with a PhD in Physics and 12+ years of market experience. Original analysis connects market data, cycle dynamics and the reasoning behind each thesis.',
-        person: 'Rafael',
+        person: 'Rafael Teles',
         role: 'Chief Research Officer · PhD in Physics · 12+ years of market experience',
         photo: '/team/rafael.jpg',
         alt: 'An Alphractal research report with an embedded chart',
@@ -405,7 +406,7 @@ export default {
     title: 'An AI that has to show its work.',
     body: [
       'A general-purpose model will answer anything you ask about Bitcoin. It will also answer confidently when it has no data.',
-      'Alpha AI can only cite metrics from a whitelist. Every claim it makes renders as a citation pill — click it and the underlying chart opens. When the data isn’t there, it says so.',
+      'Alpha AI can only cite metrics from a whitelist. Every claim it makes renders as a citation pill, click it and the underlying chart opens. When the data isn’t there, it says so.',
       'It reads live platform data, not cached responses.',
     ],
     chat: {
@@ -465,7 +466,7 @@ export default {
     ],
   },
   proof: {
-    phrase: '63% of surveyed users cancelled subscriptions to other platforms. With the data they needed in Alphractal, they reported better trading results—without constantly switching between platforms.',
+    phrase: '63% of surveyed users cancelled subscriptions to other platforms. With the data they needed in Alphractal, they reported better trading results, without constantly switching between platforms.',
     postsLabel: 'Posts from people who use Alphractal',
   },
   terminal: {

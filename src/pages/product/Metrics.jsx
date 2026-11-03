@@ -149,7 +149,7 @@ const MODELS = [
     tech: 'Inputs: Price USD · CVDD · CVDD Model 2.',
     href: `${ACADEMY}/metric/on-chain/cvdd`,
     linkLabel: 'Understand CVDD',
-    chart: ['cvdd', 'Illustrative CVDD Channel: price, CVDD and CVDD Model 2'],
+    image: ['/metrics/cvdd-channel.webp', 1200, 469, 'CVDD Channel on Alphractal: price with CVDD, Alpha CVDD and the CVDD multiple bands'],
   },
   {
     tag: 'ALPHRACTAL PROPRIETARY',
@@ -158,7 +158,7 @@ const MODELS = [
     tech: 'Focus: Bitcoin cycle timing and recurring market structure.',
     href: `${ACADEMY}/metric/on-chain/repetition-fractal-cycle`,
     linkLabel: 'Understand the model',
-    chart: ['fractal', 'Illustrative Repetition Fractal Cycle: earlier cycles under the current one'],
+    image: ['/metrics/fractal-cycle.webp', 1200, 535, 'Repetition Fractal Cycle on Alphractal: Bitcoin price with the roughly four-year cycles marked'],
   },
   {
     title: 'Accumulation-Distribution Cycle Index',
@@ -167,7 +167,7 @@ const MODELS = [
     tech: 'Scale: 0–100 · Focus: longer-term cycle context.',
     href: `${ACADEMY}/metric/on-chain/adci`,
     linkLabel: 'Understand ADCI',
-    chart: ['adci', 'Illustrative ADCI line on a 0 to 100 scale'],
+    image: ['/metrics/adci.webp', 2880, 1620, 'Accumulation-Distribution Cycle Index (ADCI) chart on Alphractal'],
   },
   {
     title: 'Tactical Bull-Bear Sentiment Index',
@@ -176,7 +176,7 @@ const MODELS = [
     tech: 'Examples: 90-day and 116-day lookbacks · Scale: 0–100.',
     href: `${ACADEMY}/metric/on-chain/tbbi`,
     linkLabel: 'Understand TBBI',
-    chart: ['tbbi', 'Illustrative TBBI in 90-day and 116-day lookback windows'],
+    image: ['/metrics/tbbi.webp', 2880, 1620, 'Tactical Bull-Bear Sentiment Index (TBBI) chart on Alphractal'],
   },
   {
     title: 'Structural Market Bands',
@@ -184,7 +184,7 @@ const MODELS = [
     tech: 'Outputs: upper and lower support bands · upper and lower resistance bands.',
     href: 'https://app.alphractal.com/cryptos/chart?category=Valuation+Models&subCategory=Valuation+Models&chart=Structural+Market+Bands&asset=btc&chartType=C024',
     linkLabel: 'Explore the chart',
-    chart: ['bands', 'Illustrative Structural Market Bands: four bands with price between them'],
+    image: ['/metrics/structural-market-bands.webp', 2880, 1620, 'Structural Market Bands chart on Alphractal'],
   },
   {
     title: 'Liquidation Levels',
@@ -192,7 +192,7 @@ const MODELS = [
     tech: 'Views: heatmap · price zones. Levels are statistical estimates, not a complete record of exchange positions.',
     href: `${ACADEMY}/metric/derivatives/liquidation-levels`,
     linkLabel: 'Understand liquidation levels',
-    chart: ['heat', 'Illustrative liquidation levels heatmap with a price line'],
+    image: ['/metrics/liquidation.webp', 2880, 1620, 'Liquidation Levels heatmap on Alphractal'],
   },
 ]
 
@@ -433,7 +433,7 @@ export default function Metrics() {
           {MODELS.map((m) => (
             <article className="mx-model" key={m.title}>
               <div className="mx-model__media">
-                <MetricChart kind={m.chart[0]} label={m.chart[1]} W={640} H={330} dur={2.6} zoom={2.4} />
+                <img src={m.image[0]} width={m.image[1]} height={m.image[2]} alt={m.image[3]} loading="lazy" decoding="async" />
               </div>
               <div className="mx-model__body">
                 {m.tag && <p className="ptag">{m.tag}</p>}

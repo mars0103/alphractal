@@ -95,10 +95,15 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(20px, 5vw, 80px);
   align-items: start;
-  margin-top: clamp(24px, 3vw, 40px);
 }
 .aai-problem p {
   margin: 0;
+}
+.aai-problem__l {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  min-width: 0;
 }
 .aai-problem__r {
   display: grid;
@@ -113,31 +118,30 @@
 .aai-trace {
   --p: 1;
   position: relative;
+  /* the line runs vertical: question, sources, answer from top to bottom */
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 3.4fr) minmax(0, 4fr);
-  gap: clamp(20px, 3vw, 48px);
-  margin-top: clamp(36px, 4vw, 56px);
-  padding-top: 30px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  padding: 0 0 0 28px;
 }
 .aai-trace__line {
   --p: 1;
   position: absolute;
   left: 0;
-  right: 0;
   top: 0;
-  height: 1px;
+  bottom: 0;
+  width: 1px;
   background: var(--ink);
-  transform-origin: left center;
-  transform: scaleX(var(--p));
+  transform-origin: top;
+  transform: scaleY(var(--p));
 }
 .aai-trace__run {
   --x: 0;
   position: absolute;
-  top: -3px;
-  left: calc(var(--x) * 100%);
+  left: -3px;
+  top: calc(var(--x) * 100%);
   width: 7px;
   height: 7px;
-  margin-left: -3px;
   border-radius: 50%;
   background: var(--blue);
   pointer-events: none;
@@ -150,8 +154,8 @@
   /* a node on the line where each part starts */
   content: '';
   position: absolute;
-  left: 0;
-  top: -34px;
+  left: -31px;
+  top: 6px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -159,8 +163,9 @@
 }
 .aai-trace__src {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px 18px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -171,16 +176,6 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
-}
-.aai-trace__src li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: -34px;
-  height: 14px;
-  width: 1px;
-  background: var(--ink);
-  transform: translateY(8px);
 }
 .aai-trace__a .aai-ans {
   margin-bottom: 14px;
@@ -221,13 +216,14 @@
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 2 5;
 }
+/* These two are drawn with a dash length measured in user units (getTotalLength), so the stroke must scale with the svg:
+   with non-scaling-stroke the dash would be measured in screen pixels and stop short whenever the svg renders wider. */
 .aai-pc__line,
 .aai-qc__line {
   fill: none;
   stroke: var(--ink);
   stroke-width: 1.4;
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
 }
 .aai-pc__mark line,
 .aai-qc__mark line {
@@ -285,10 +281,6 @@
 /* Chart copilot: wide, the chart first, the text under it on the right */
 .aai-mode--chart {
   grid-template-columns: minmax(0, 1fr);
-}
-.aai-mode--chart .aai-mode-text {
-  justify-self: end;
-  max-width: 460px;
 }
 /* Voice: narrow, a short column on the left */
 .aai-mode--voice {
@@ -367,6 +359,15 @@
 .aai-qc__dot {
   transform-box: fill-box;
 }
+.aai-qc__dot {
+  transform-origin: 50% 50%;
+  animation: aai-qc-pulse 2.8s ease-in-out infinite;
+}
+@keyframes aai-qc-pulse {
+  50% {
+    transform: scale(1.9);
+  }
+}
 
 /* Deep Research scene */
 .aai-deep__body {
@@ -398,7 +399,7 @@
 .aai-sections li {
   font-family: var(--font-display);
   font-size: clamp(20px, 2.2vw, 30px);
-  font-weight: 500;
+  font-weight: 300;
   line-height: 1.25;
   padding: 6px 0;
   color: var(--ink);
@@ -586,6 +587,10 @@
   .aai-chart {
     flex-direction: column;
   }
+  /* in a column the chart's flex-basis of 0 would collapse it to no height */
+  .aai-chart .aai-zoom {
+    flex: none;
+  }
   .aai-cpanel {
     width: 100%;
     border-left: 0;
@@ -596,37 +601,6 @@
   .aai-cpanel__in {
     min-width: 0;
     padding-left: 0;
-  }
-  /* the line turns vertical: question, sources, answer from top to bottom */
-  .aai-trace {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 0 0 0 26px;
-    gap: 24px;
-  }
-  .aai-trace__line {
-    right: auto;
-    bottom: 0;
-    width: 1px;
-    height: auto;
-    transform-origin: top;
-    transform: scaleY(var(--p));
-  }
-  .aai-trace__run {
-    left: -3px;
-    top: calc(var(--x) * 100%);
-    margin-left: 0;
-  }
-  .aai-trace__col::before {
-    left: -29px;
-    top: 6px;
-  }
-  .aai-trace__src li::before {
-    display: none;
-  }
-  .aai-trace__src {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 6px 18px;
   }
 }
 @media (max-width: 640px) {
@@ -646,8 +620,64 @@
 
 @media (prefers-reduced-motion: reduce) {
   .aai-consult__dots b,
+  .aai-qc__dot,
   .aai-mic.is-live::after,
   .aai-quote [data-typing]::after {
     animation: none !important;
   }
+}
+
+/* ---------- Four ways: a dark, centred header with a blue aurora; the scenes below stay on paper ---------- */
+.aai-how {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(84px, 10vw, 150px) clamp(64px, 7vw, 110px);
+  background: #07080d;
+  color: var(--on-dark);
+  text-align: center;
+}
+.aai-how__aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.aai-how__head {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  max-width: 720px;
+  margin-inline: auto;
+  justify-items: center;
+}
+.aai-how .h2 {
+  color: #fff;
+}
+.aai-how .eyebrow,
+.aai-how .lede {
+  color: #aab3c9;
+}
+.aai-how-body {
+  padding-top: clamp(32px, 4vw, 56px);
+}
+/* the dark header already divides the page: the first mode needs no rule or air above it */
+.aai-modes > .aai-mode:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.aai-how-body .aai-modes {
+  margin-top: 0;
+}
+.aai-mode-n {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(75, 107, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(75, 107, 255, 0.1);
+  color: var(--blue);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
 }

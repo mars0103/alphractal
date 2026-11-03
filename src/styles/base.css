@@ -171,7 +171,8 @@ ul {
   letter-spacing: var(--track-ui);
   white-space: nowrap;
   overflow: hidden;
-  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), background-color 0.3s;
+  /* no transform transition: GSAP animates the button's transform (arrivals), and a CSS transition on top of it leaves the button stuck mid-way */
+  transition: box-shadow 0.4s var(--ease-out), background-color 0.3s;
 }
 .btn--sm {
   --h: 44px;

@@ -384,9 +384,6 @@ export default function Api() {
             <ExtLink className="link-arrow phero__more" href={DASH}>
               Get an API key <span>→</span>
             </ExtLink>
-            <p className="api-stat">
-              <b>100K+</b> API requests per day
-            </p>
           </>
         }
         visual={<HeroFlow />}

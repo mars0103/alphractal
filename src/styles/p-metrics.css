@@ -583,3 +583,14 @@
     animation: none;
   }
 }
+
+/* Models: the real Alphractal charts, shown as they are */
+.mx-model__media {
+  min-width: 0;
+}
+.mx-model__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}

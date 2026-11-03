@@ -10,7 +10,7 @@ import CountUp from '../components/CountUp.jsx'
 import TextShimmer from '../components/TextShimmer.jsx'
 import GlassLogoReveal from '../components/GlassLogoReveal.jsx'
 import { Section } from '../components/PageBlocks.jsx'
-/* Block 9: the Home's social-proof block, same component (PostsStack: 10 stacked 9:16 posts). The Home also passes a `phrase`
+/* Block 9: the Home's social-proof block, same component (PostsStack: 10 stacked 9:16 posts). The Home passes a `phrase`, and so does this page now
    above the cards; the About brief only asks for the cards and their animation, so it is left out here. */
 import PostsStack from '../components/PostsStack.jsx'
 
@@ -149,15 +149,20 @@ function Timeline({ data }) {
         if (!pinned) return undefined
 
         let idx = 0 // 0 = every dot off ... steps = every dot on
-        let busy = false
+        let tween = null
+        let lastAt = 0
         let state = 'idle' // 'holding' while the scroll is taken over; 'released' once the last (or first) step has been passed
+        // Every gesture moves to the next dot right away: a new gesture retargets a tween that is still running instead of
+        // being ignored until it ends, and only a very short lockout keeps one flick of the wheel from jumping two dots.
         const goTo = (n) => {
-          busy = true
           idx = n
-          tl.tweenTo(`s${n}`, { duration: 1.05, ease: 'power2.inOut', onComplete: () => gsap.delayedCall(0.18, () => (busy = false)) })
+          if (tween) tween.kill()
+          tween = tl.tweenTo(`s${n}`, { duration: 0.5, ease: 'power2.out' })
         }
         const step = (dir) => {
-          if (busy) return
+          const now = performance.now()
+          if (now - lastAt < 220) return
+          lastAt = now
           const n = idx + dir
           if (n < 0 || n > steps) {
             finish()
@@ -194,8 +199,9 @@ function Timeline({ data }) {
         const hold = (from) => {
           state = 'holding'
           idx = from === 'below' ? steps : 0
+          if (tween) tween.kill()
           tl.pause().seek(from === 'below' ? `s${steps}` : 0)
-          busy = false
+          lastAt = 0
           st.scroll(st.start) // a fast scroll can overshoot the section: bring it back to where it is held
           obs.enable()
           window.addEventListener('keydown', keys)
@@ -384,7 +390,7 @@ export default function About() {
 
   return (
     <PageShell>
-      <PageHero eyebrow={p.eyebrow} title={p.title} sub={p.sub} visual={stats} backdrop={<CrowdScene fill fallback={<Crowd />} />} />
+      <PageHero eyebrow={p.eyebrow} title={p.title} sub={p.sub} visual={stats} grid={false} backdrop={<><CrowdScene fill fallback={<Crowd />} /><div className="abt-fog" aria-hidden="true" /></>} />
 
       <Story body={p.body} />
       <Timeline data={p} />
@@ -502,7 +508,7 @@ export default function About() {
         </div>
       </Section>
 
-      <PostsStack label={t.proof.postsLabel} />
+      <PostsStack phrase={p.postsPhrase} label={t.proof.postsLabel} />
     </PageShell>
   )
 }

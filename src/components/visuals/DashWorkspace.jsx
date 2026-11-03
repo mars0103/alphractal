@@ -110,6 +110,8 @@ export function Workspace() {
         stage.style.position = 'relative'
         if (mobile) stage.style.height = `${Math.round(Math.min(window.innerHeight * 0.86 - 20, 760))}px`
         gsap.set(Object.values(m), { position: 'absolute', autoAlpha: 0 })
+        // no empty first frame: the alert and the screener are already on the surface when the section comes into view
+        gsap.set([m.alerts, m.scr], { autoAlpha: 1 })
         put(m.alerts, A0)
         put(m.scr, C0)
         put(m.sth, S0)

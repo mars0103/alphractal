@@ -6,6 +6,7 @@ import { gsap, ScrollTrigger, useGSAP, MQ } from '../lib/gsap.js'
 import GradientWaves from '../components/GradientWaves.jsx'
 import Starfield from '../components/Starfield.jsx'
 import TextShimmer from '../components/TextShimmer.jsx'
+import TerminalBlock from './TerminalBlock.jsx'
 
 const W = 1600
 const H = 800
@@ -39,19 +40,21 @@ function buildChart() {
   }
   const d = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('')
   const tip = price[N - 1]
+  // make the last point of every series land exactly on the white tip
+  const pin = (pts) => ((pts[pts.length - 1] = tip), pts)
 
-  // companion metrics ride the same x range and loosely follow the price, so they read as one chart
-  const mk = (seed, scale, shift, amp) => {
-    const rr = rng(seed)
-    let w = 0
-    return price.map(([x, y], i) => {
-      w = w * 0.84 + (rr() - 0.5) * amp
+  // companion metrics: smooth, rounded curves that start apart and close in on the white line until they meet at its tip
+  const trend = (t) => 640 - 550 * (t ** 0.92) + Math.sin(t * 17) * 22 * (0.4 + t) * 0.5
+  const mk = (side, amp, phase) =>
+    price.map(([x], i) => {
       const t = i / (N - 1)
-      return [x, y * scale + shift + w + Math.sin(t * 11 + seed) * amp * 0.5]
+      const k = Math.min(1, Math.max(0, (t - 0.5) / 0.5))
+      const close = 1 - k * k * (3 - 2 * k) // 1 → 0 across the last half
+      const off = side * (70 + amp * Math.sin(t * 7 + phase)) * close
+      return [x, trend(t) + off]
     })
-  }
-  const funding = mk(3, 0.72, 40, 30)
-  const oi = mk(11, 0.55, 150, 24)
+  const funding = mk(-1, 34, 0.6)
+  const oi = mk(1, 40, 2.4)
 
   // Whale vs Retail delta: thin green/red bars hanging off a zero line across the whole chart (behind the price)
   const bars = []
@@ -63,7 +66,7 @@ function buildChart() {
     bars.push({ x, y: v >= 0 ? zero - v * 100 : zero, h: Math.abs(v) * 100, up: v >= 0 })
   }
 
-  return { price: d(price), funding: d(funding), oi: d(oi), bars, zero, tip, N }
+  return { price: d(price), funding: d(pin(funding)), oi: d(pin(oi)), bars, zero, tip, N }
 }
 
 export default function Hero3() {
@@ -79,6 +82,9 @@ export default function Hero3() {
       const mm = gsap.matchMedia()
 
       mm.add(PIN_QUERY, () => {
+        // the second section is rendered inside this pin (see .h3__next); the standalone copy on the page steps aside
+        const hero = root.current
+        hero.classList.add('is-pinned')
         const priceEl = q('.h3__price')
         const cam = q('.h3__cam')
         const dot = q('.h3__dot')
@@ -94,6 +100,10 @@ export default function Hero3() {
         const icon = q('.h3__icon')
         const flash = q('.h3__flash')
         const total = priceEl.getTotalLength()
+        const clip = q('.h3__clip')
+        const nameEl = q('.h3__ainame')
+        const next = q('.h3__next')
+        const nextIn = q('.h3__next-in')
 
         const aiStar = q('.h3__aistar')
         const starPos = { x: 0, y: 0, size: 44 }
@@ -107,6 +117,7 @@ export default function Hero3() {
           const ty = (1 - S.f) * 0 + S.f * (S.ay - z * pt.y) + S.drop
           cam.setAttribute('transform', `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${z.toFixed(4)})`)
           priceEl.style.strokeDashoffset = String(1 - S.p)
+          clip.setAttribute('width', (pt.x + 600).toFixed(1)) // the indicators are revealed up to the white tip, so all three rise together
           cam.style.setProperty('--sw', String(1 / z))
           dot.setAttribute('cx', pt.x)
           dot.setAttribute('cy', pt.y)
@@ -149,9 +160,8 @@ export default function Hero3() {
           })
         }
         renderBars()
-        gsap.set('.h3__aux', { strokeDasharray: 1, strokeDashoffset: 1 })
         gsap.set(live, { autoAlpha: 0 })
-        gsap.set([ai, user, star, icon, flash], { autoAlpha: 0 })
+        gsap.set([ai, nameEl, user, star, icon, flash, next], { autoAlpha: 0 })
         gsap.set(aiText, { autoAlpha: 0 })
         gsap.set('.h3__legend li', { autoAlpha: 0, y: 8 })
         render()
@@ -177,38 +187,39 @@ export default function Hero3() {
         })
         const R = { onUpdate: render }
 
-        // ---- 1 · the title steps back, the chart starts to climb ----
-        tl.to('.h3__copy', { scale: 0.58, yPercent: -26, duration: 1.4, transformOrigin: '50% 0%' }, 0)
-        tl.to('.h3__cta', { autoAlpha: 0, y: 10, duration: 0.6 }, 0)
-        tl.to(S, { p: 0.55, f: 0.7, z: 1.15, duration: 2.2, ease: 'none', ...R }, 0.2)
+        // ---- 1 · the title steps back, the chart (and its two indicators) start to climb ----
+        tl.to('.h3__copy', { scale: 0.58, yPercent: -26, duration: 1.0, transformOrigin: '50% 0%' }, 0)
+        tl.to('.h3__cta', { autoAlpha: 0, y: 10, duration: 0.5 }, 0)
+        tl.to(S, { p: 0.55, f: 0.7, z: 1.4, duration: 1.5, ease: 'none', ...R }, 0.1)
 
-        // ---- 2 · it reaches the top and the camera pushes in ----
-        tl.to('.h3__copy', { autoAlpha: 0, duration: 0.7 }, 2.2)
-        tl.to(S, { p: 1, f: 1, z: 1.75, ax: mobile ? 800 : 700, ay: mobile ? 330 : 400, duration: 2.4, ...R }, 2.4)
-        tl.to(live, { autoAlpha: 1, duration: 0.3 }, 4.3)
-        tl.to(S, { q: 1, duration: 0.8, ease: 'sine.out', ...R }, 4.4)
+        // ---- 2 · it reaches the top, where the lines meet, and the camera pushes in close ----
+        tl.to('.h3__copy', { autoAlpha: 0, duration: 0.5 }, 1.3)
+        tl.to(S, { p: 1, f: 1, z: 2.6, ax: mobile ? 800 : 700, ay: mobile ? 330 : 400, duration: 1.6, ...R }, 1.5)
+        tl.to(live, { autoAlpha: 1, duration: 0.3 }, 2.8)
+        tl.to(S, { q: 1, duration: 0.6, ease: 'sine.out', ...R }, 2.9)
 
         // ---- 3 · the blue Alpha tile (star in the middle) enters from the right edge of the screen and glides in beside the point ----
         // It is the same tile the answer pill opens from, so the hand-off at step 4 is seamless.
-        tl.set(star, { autoAlpha: 1 }, 5.0)
-        tl.fromTo(star, { x: () => stage.getBoundingClientRect().width, y: 70 }, { x: 0, duration: 1.5, ease: 'power3.out', immediateRender: false }, 5.0)
-        tl.fromTo(star, { y: 70 }, { y: 0, duration: 1.5, ease: 'sine.inOut', immediateRender: false }, 5.0)
+        tl.set(star, { autoAlpha: 1 }, 3.3)
+        tl.fromTo(star, { x: () => stage.getBoundingClientRect().width, y: 70 }, { x: 0, duration: 1.0, ease: 'power3.out', immediateRender: false }, 3.3)
+        tl.fromTo(star, { y: 70 }, { y: 0, duration: 1.0, ease: 'sine.inOut', immediateRender: false }, 3.3)
 
-        // ---- 4 · it opens into the answer, the point goes red, the trader replies ----
-        tl.set(ai, { autoAlpha: 1 }, 6.6)
-        tl.set(star, { autoAlpha: 0 }, 6.6)
-        tl.fromTo(ai, { '--w': 0 }, { '--w': 1, duration: 0.9, immediateRender: false }, 6.6)
-        tl.to(aiText, { autoAlpha: 1, duration: 0.5 }, 7.2)
-        tl.to(ai, { '--hot': 1, duration: 0.7 }, 7.4)
-        tl.to(live, { color: '#ff2d3a', duration: 0.6 }, 7.4)
-        tl.fromTo(user, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, immediateRender: false }, 8.1)
+        // ---- 4 · it opens into the answer, the point goes red, the trader replies and the camera leans in a touch more ----
+        tl.set(ai, { autoAlpha: 1 }, 4.4)
+        tl.set(star, { autoAlpha: 0 }, 4.4)
+        tl.to(nameEl, { autoAlpha: 1, duration: 0.4 }, 4.4)
+        tl.fromTo(ai, { '--w': 0 }, { '--w': 1, duration: 0.9, immediateRender: false }, 4.4)
+        tl.to(aiText, { autoAlpha: 1, duration: 0.5 }, 5.0)
+        tl.to(ai, { '--hot': 1, duration: 0.7 }, 5.2)
+        tl.to(live, { color: '#ff2d3a', duration: 0.6 }, 5.2)
+        tl.fromTo(user, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, immediateRender: false }, 5.9)
+        tl.to(S, { z: 2.9, duration: 0.9, ease: 'sine.inOut', ...R }, 5.9)
 
         // ---- 5 · the full chart: more metrics, support and resistance ----
-        tl.to('.h3__chart-sec', { autoAlpha: 1, duration: 0.6 }, 9.0)
-        tl.to(S, { z: 0.95, ax: mobile ? 760 : 700, ay: 235, duration: 1.8, ...R }, 9.0)
-        tl.to('.h3__aux', { strokeDashoffset: 0, duration: 1.6, stagger: 0.2, ease: 'none' }, 9.2)
-        tl.to(S, { bars: 1, duration: 1.6, ease: 'none', onUpdate: renderBars }, 9.4)
-        tl.to('.h3__legend li', { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.1 }, 10.2)
+        tl.to('.h3__chart-sec', { autoAlpha: 1, duration: 0.6 }, 7.0)
+        tl.to(S, { z: 0.95, ax: mobile ? 760 : 700, ay: 235, duration: 1.8, ...R }, 7.0)
+        tl.to(S, { bars: 1, duration: 1.6, ease: 'none', onUpdate: renderBars }, 7.2)
+        tl.to('.h3__legend li', { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.1 }, 8.0)
         tl.to({}, { duration: 0.8 })
 
         // ---- 6 · Alpha AI closes back into its star, the trader's card leaves and the chart slides away ----
@@ -230,9 +241,18 @@ export default function Hero3() {
             marginLeft: -size / 2,
             marginTop: -size / 2,
           })
+          // the second section lives inside the star: same star, same centre, scaled with the icon
+          const w = size * 0.62
+          const cx = sr.width / 2 + starPos.x * k
+          const cy = sr.height / 2 + starPos.y * k
+          next.style.setProperty('--ms', `${w.toFixed(1)}px`)
+          next.style.setProperty('--mx', `${(cx - w / 2).toFixed(1)}px`)
+          next.style.setProperty('--my', `${(cy - w / 2).toFixed(1)}px`)
+          hero.dataset.navTheme = S.iz > 0.75 ? 'paper' : 'dark'
         }
-        const t6 = 12.2
+        const t6 = 10.0
         tl.to(aiText, { autoAlpha: 0, duration: 0.35 }, t6)
+        tl.to(nameEl, { autoAlpha: 0, duration: 0.35 }, t6)
         tl.to(ai, { '--w': 0, duration: 0.9, ease: 'power3.inOut' }, t6 + 0.2)
         tl.to(ai, { '--hot': 0, duration: 0.7 }, t6 + 0.2)
         tl.to(live, { color: '#2f66ff', duration: 0.6 }, t6 + 0.2)
@@ -249,16 +269,20 @@ export default function Hero3() {
         tl.fromTo(G, { g: 0 }, { g: 1, duration: 1.5, ease: 'power3.inOut', onUpdate: place, immediateRender: false }, tg + 0.2)
         tl.to({}, { duration: 0.4 })
 
-        // ---- 7 · zoom into the white of the star; the scroll is released on a white screen ----
+        // ---- 7 · zoom into the star: the second section is already showing inside it, and fills the screen as it opens ----
         const t7 = tl.duration()
+        tl.set(next, { autoAlpha: 1 }, t7)
+        tl.fromTo(nextIn, { scale: 1.12 }, { scale: 1, duration: 2.2, ease: 'power3.in', immediateRender: false }, t7)
         tl.to(S, { iz: 1, duration: 2.2, ease: 'power3.in', onUpdate: place }, t7)
-        tl.to(flash, { autoAlpha: 1, duration: 0.5, ease: 'power1.in' }, t7 + 1.8)
 
         return () => {
           gsap.set(
-            ['.h3__copy', '.h3__cta', '.h3__cta-in', '.h3__title', '.h3__chart-sec', '.h3__aux', '.h3__legend li', live, ai, aiText, user, star, icon, flash],
+            ['.h3__copy', '.h3__cta', '.h3__cta-in', '.h3__title', '.h3__chart-sec', '.h3__legend li', live, ai, nameEl, aiText, user, star, icon, flash, next, nextIn],
             { clearProps: 'all' },
           )
+          hero.classList.remove('is-pinned')
+          hero.dataset.navTheme = 'dark'
+          next.style.cssText = ''
           cam.removeAttribute('transform')
           priceEl.style.strokeDashoffset = ''
         }
@@ -286,6 +310,9 @@ export default function Hero3() {
           <div className="h3__chartwrap" role="img" aria-label={c.chartLabel}>
             <svg className="h3__svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <defs>
+                <clipPath id="h3clip">
+                  <rect className="h3__clip" x="-600" y="-1500" width="600" height="3000" />
+                </clipPath>
                 <linearGradient id="h3fade" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0" stopColor="#fff" stopOpacity="0" />
                   <stop offset=".18" stopColor="#fff" stopOpacity="1" />
@@ -298,8 +325,10 @@ export default function Hero3() {
                   {chart.bars.map((b) => (
                     <rect key={b.x} className="h3__bar" x={b.x} y={b.y} width="3.4" height={b.h} fill={b.up ? '#34d37a' : '#ff4d4d'} />
                   ))}
-                  <path className="h3__aux h3__aux--a" d={chart.funding} pathLength="1" />
-                  <path className="h3__aux h3__aux--b" d={chart.oi} pathLength="1" />
+                </g>
+                <g clipPath="url(#h3clip)">
+                  <path className="h3__aux h3__aux--a" d={chart.funding} />
+                  <path className="h3__aux h3__aux--b" d={chart.oi} />
                 </g>
                 <path className="h3__price" d={chart.price} pathLength="1" />
                 <g className="h3__live">
@@ -349,6 +378,9 @@ export default function Hero3() {
               <path d={STAR} fill="#fff" stroke="#6f86ff" strokeWidth=".16" strokeLinejoin="round" />
             </svg>
           </div>
+          <span className="h3__ainame" aria-hidden="true">
+            {c.aiName}
+          </span>
           <div className="h3__ai">
             <svg className="h3__aistar" viewBox="-1.3 -1.3 2.6 2.6" aria-hidden="true">
               <path d={STAR} fill="#fff" stroke="#6f86ff" strokeWidth=".16" strokeLinejoin="round" />
@@ -376,6 +408,15 @@ export default function Hero3() {
               </linearGradient>
             </defs>
           </svg>
+        </div>
+        <div className="h3__next">
+          <div className="h3__next-in">
+            <div className="col-lines" aria-hidden="true">
+              <i />
+              <i />
+            </div>
+            <TerminalBlock embedded />
+          </div>
         </div>
         <div className="h3__flash" aria-hidden="true" />
       </div>

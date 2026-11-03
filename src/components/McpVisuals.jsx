@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { gsap } from '../lib/gsap.js'
 import { useLive } from '../lib/live.js'
 
@@ -160,6 +160,21 @@ const ROWS = [
 
 export function ConnectDraw() {
   const root = useRef(null)
+  const [copied, setCopied] = useState(false)
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(URL)
+    } catch {
+      const t = document.createElement('textarea')
+      t.value = URL
+      document.body.appendChild(t)
+      t.select()
+      document.execCommand('copy')
+      t.remove()
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1800)
+  }
   useLive(root, (el, state) => {
     const under = el.querySelector('.mcpx-cu')
     const text = el.querySelector('.mcpx-cu-url')
@@ -204,8 +219,8 @@ export function ConnectDraw() {
   })
 
   return (
-    <div ref={root} className="mcpx-draw" role="img" aria-label="Choose your AI client, then paste the server URL">
-      <svg viewBox="0 0 450 250" focusable="false" aria-hidden="true">
+    <div ref={root} className="mcpx-draw">
+      <svg viewBox="0 0 450 250" role="img" aria-label="Choose your AI client, then paste the server URL" focusable="false">
         <line className="mcpx-ln" x1="0" x2="450" y1="42" y2="42" />
         {TABS.map((t, i) => (
           <text key={t} className={`mcpx-cu-tab${i === 0 ? ' is-on' : ''}`} x={i * TAB_W + 2} y="28">
@@ -229,6 +244,9 @@ export function ConnectDraw() {
           <circle key={`c${i}`} className="mcpx-cu-dot" cx="10" cy={166 + i * 30} r="3" />
         ))}
       </svg>
+      <button type="button" className={`mcpx-copybtn${copied ? ' is-copied' : ''}`} onClick={copyUrl} aria-label="Copy the server URL">
+        <span>{copied ? 'Copied' : 'Copy'}</span>
+      </button>
     </div>
   )
 }

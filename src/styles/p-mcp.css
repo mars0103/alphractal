@@ -307,12 +307,9 @@
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   gap: clamp(24px, 5vw, 80px);
-  align-items: center;
+  align-items: start;
   padding-top: clamp(22px, 2.6vw, 34px);
   border-top: 1px solid var(--rule-soft);
-}
-.mcpx-step:nth-child(3) .mcpx-step__text {
-  order: 2;
 }
 /* the real capture takes the whole column so it can be read */
 .mcpx-step--wide {
@@ -719,9 +716,6 @@
   .mcpx-step {
     grid-template-columns: minmax(0, 1fr);
   }
-  .mcpx-step:nth-child(3) .mcpx-step__text {
-    order: 0;
-  }
   .mcpx-rel__row {
     grid-template-columns: minmax(0, 1fr) auto;
   }
@@ -757,4 +751,83 @@
     opacity: 0.5;
     transform: translate(-50%, var(--rest));
   }
+}
+
+/* ---------- How it works: a dark, centred header with a soft blue aurora; the steps below stay on paper ---------- */
+.mcpx-dark {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(84px, 10vw, 150px) clamp(56px, 6vw, 96px);
+  background: #07080d;
+  color: var(--on-dark);
+  text-align: center;
+}
+.mcpx-dark__head {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  max-width: 760px;
+  margin-inline: auto;
+  justify-items: center;
+}
+.mcpx-dark .h2 {
+  color: #fff;
+}
+.mcpx-dark .eyebrow {
+  color: #aab3c9;
+}
+.pblock.mcpx-how {
+  padding-top: clamp(32px, 4vw, 56px);
+}
+.mcpx-how .mcpx-steps > .mcpx-step:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* Step 1: a real copy button laid over the drawn copy icon */
+.mcpx-draw {
+  position: relative;
+}
+.mcpx-copybtn {
+  position: absolute;
+  left: 87%;
+  top: 33.5%;
+  width: 9.5%;
+  height: 17%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.mcpx-copybtn:hover {
+  background: rgba(75, 107, 255, 0.1);
+}
+.mcpx-copybtn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.mcpx-copybtn span {
+  position: absolute;
+  right: calc(100% + 8px);
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--on-dark);
+  font: 500 12px/1 var(--font-ui);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.mcpx-copybtn:hover span,
+.mcpx-copybtn:focus-visible span,
+.mcpx-copybtn.is-copied span {
+  opacity: 1;
+}
+.mcpx-copybtn.is-copied span {
+  background: var(--blue);
 }

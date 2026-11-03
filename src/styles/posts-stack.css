@@ -1,7 +1,6 @@
-/* PostsStack: the ten approved posts as 9:16 glass cards. Base = a swipeable row facing front (phones, tablets, reduced motion,
-   server render). `.is-stack` (set by the component on desktop with motion) = the pinned pile in the left corner. */
+/* PostsStack: the ten approved posts as 9:16 cards riding an ellipse (see components/PostsStack.jsx).
+   Base = a swipeable row facing front (server render, no JS). `.is-ring` (set once the client has measured the stage) = the ring. */
 .ps {
-  --ps-line: rgba(111, 134, 255, 0.55);
   position: relative;
   isolation: isolate;
   background: #030409;
@@ -22,230 +21,106 @@
 .ps__pin {
   position: relative;
   z-index: 1;
-  padding-block: clamp(84px, 11vw, 150px) clamp(64px, 8vw, 110px);
+  padding-block: clamp(72px, 9vw, 120px) clamp(48px, 6vw, 88px);
 }
-/* the bottom melts into the next section (How it works, var(--ink)), so the cards' reflection is never cut by a hard edge */
+/* the bottom melts into the next section (How it works, var(--ink)) */
 .ps__pin::after {
   content: '';
   position: absolute;
   inset: auto 0 0 0;
-  height: clamp(140px, 30vh, 320px);
+  height: clamp(100px, 20vh, 220px);
   z-index: 4;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(11, 13, 20, 0) 0%,
-    rgba(11, 13, 20, 0.35) 35%,
-    rgba(11, 13, 20, 0.78) 68%,
-    var(--ink) 100%
-  );
+  background: linear-gradient(to bottom, rgba(11, 13, 20, 0) 0%, rgba(11, 13, 20, 0.7) 60%, var(--ink) 100%);
 }
 .ps__phrase {
   max-width: 30em;
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(24px, 2.7vw, 40px);
+  font-size: clamp(22px, 2.5vw, 38px);
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.22;
   text-wrap: pretty;
   color: #fff;
 }
-
-/* ---- row layout ---- */
-.ps__stage {
-  margin-top: clamp(36px, 5vw, 64px);
+.ps__head {
+  margin-bottom: clamp(24px, 4vw, 48px);
 }
-.ps__list {
+
+/* ---- stage ---- */
+.ps__stage {
+  position: relative;
   display: flex;
   gap: 16px;
-  margin: 0;
-  padding: 0 0 36px;
-  list-style: none;
+  padding: 0 clamp(20px, 3.2vw, 56px);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.ps__list::-webkit-scrollbar {
-  display: none;
-}
-.ps__item {
-  flex: 0 0 auto;
-  width: clamp(190px, 54vw, 280px);
-  aspect-ratio: 9 / 16;
-  scroll-snap-align: start;
-  outline: none;
 }
 .ps__card {
   position: relative;
-  width: 100%;
-  height: 100%;
-}
-.ps__face {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 7%;
-  border-radius: 22px;
-  border: 1px solid var(--ps-line);
-  background: linear-gradient(155deg, rgba(60, 80, 190, 0.34) 0%, rgba(14, 20, 52, 0.96) 38%, #080b1c 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 50px -24px rgba(40, 70, 255, 0.5);
+  flex: none;
+  width: min(78vw, 300px);
+  scroll-snap-align: center;
+  border-radius: 14px;
   overflow: hidden;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(111, 134, 255, 0.45), 0 24px 50px -18px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(47, 102, 255, 0.5);
 }
-.ps__face img {
+.ps__card img {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 100%;
-  object-fit: contain; /* the whole post, never cropped */
-  border-radius: 10px;
+  pointer-events: none;
   user-select: none;
-  -webkit-user-drag: none;
-}
-.ps__item:focus-visible .ps__face {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
-}
-.ps__edge,
-.ps__back,
-.ps__refl {
-  display: none;
 }
 
-/* ---- the 3D cards (three.js canvas laid over the pin; the css cards below stay as the accessible, focusable list) ---- */
-.ps__gl {
-  display: none;
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-}
-.ps.is-3d .ps__gl {
+/* ---- ring ---- */
+.is-ring .ps__stage {
   display: block;
-}
-.ps.is-3d .ps__card {
-  visibility: hidden;
-}
-.ps.is-3d .ps__item {
-  pointer-events: none;
-}
-.ps.is-3d .ps__head {
-  position: relative;
-  z-index: 3;
-  pointer-events: none;
-}
-
-/* ---- stack layout (desktop, motion) ---- */
-.ps.is-stack .ps__pin {
-  height: 100vh;
-  height: 100svh;
-  display: flex;
-  flex-direction: column;
-  padding-block: clamp(84px, 10vh, 120px) clamp(20px, 4vh, 48px);
-  box-sizing: border-box;
-}
-.ps.is-stack .ps__stage {
-  flex: 1;
-  min-height: 0;
-  margin-top: clamp(16px, 3vh, 36px);
-}
-.ps.is-stack .ps__list {
-  --cw: 300px;
-  --ch: 530px;
-  position: absolute;
-  inset: 0 clamp(20px, 3.2vw, 56px);
-  display: block;
+  height: clamp(620px, 90vh, 800px);
   padding: 0;
-  overflow: visible;
-  scroll-snap-type: none;
-  perspective: 1700px;
-  perspective-origin: 38% 45%;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+  outline: none;
 }
-.ps.is-stack .ps__stage {
-  position: relative;
+.is-ring .ps__stage:active {
+  cursor: grabbing;
 }
-.ps.is-stack .ps__item {
+.is-ring .ps__stage:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(111, 134, 255, 0.7);
+}
+.is-ring .ps__card {
   position: absolute;
-  left: 0;
-  top: calc(50% - var(--ch) * 0.64);
-  width: var(--cw);
-  height: var(--ch);
-  aspect-ratio: auto;
-  transform-style: preserve-3d;
-  will-change: transform;
-  cursor: default;
-}
-.ps.is-stack .ps__card {
-  transform-style: preserve-3d;
+  top: 50%;
   will-change: transform;
 }
-.ps.is-stack .ps__face {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-/* the thin side: bright blue, as thick as a card */
-.ps.is-stack .ps__edge {
-  display: block;
+/* the sentence sits in the space the ring leaves, behind the cards */
+.ps__centre {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 12px;
-  height: 100%;
-  border-radius: 6px;
-  transform-origin: 0 50%;
-  transform: translateZ(-12px) rotateY(-90deg);
-  background: linear-gradient(180deg, #a9b7ff, #5470ff 40%, #2638d8);
-  box-shadow: 0 0 18px rgba(88, 116, 255, 0.55);
-}
-.ps.is-stack .ps__back {
-  display: block;
-  position: absolute;
-  inset: 0;
-  border-radius: 22px;
-  transform: translateZ(-12px) rotateY(180deg);
-  background: #0a0e24;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-/* reflection: the same card, flipped under the first one and fading out */
-.ps.is-stack .ps__refl {
-  display: block;
-  position: absolute;
-  left: 0;
-  top: calc(100% + 8px);
-  width: 100%;
-  height: 100%;
-  transform: scaleY(-1);
-  opacity: 0.4;
+  inset-block: 0;
+  /* the sentence ends at the right column line, never past it */
+  right: max(clamp(20px, 3.2vw, 56px), calc(50% - var(--col) / 2 + 28px));
+  z-index: 0;
+  display: flex;
+  align-items: center;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 66%, rgba(0, 0, 0, 0.9) 100%);
-  mask-image: linear-gradient(to bottom, transparent 66%, rgba(0, 0, 0, 0.9) 100%);
+  animation: ps-in 0.9s ease-out both;
 }
-.ps.is-stack .ps__refl .ps__face {
-  box-shadow: none;
+@keyframes ps-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
 }
-/* the lifted card glows */
-.ps.is-stack .ps__item.is-up .ps__face {
-  border-color: rgba(170, 186, 255, 0.95);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(130, 150, 255, 0.5), 0 0 60px rgba(60, 90, 255, 0.55), 0 40px 70px -30px rgba(0, 0, 0, 0.9);
+.ps__stage--left .ps__phrase {
+  max-width: none;
+  font-size: clamp(22px, 2.1vw, 34px);
 }
-.ps.is-stack .ps__item:focus-visible .ps__face {
-  outline-offset: 4px;
-}
-
 @media (max-width: 991px) {
-  .ps__pin {
-    padding-block: 72px 56px;
-  }
-  .ps__list {
-    margin-inline: calc(clamp(20px, 3.2vw, 56px) * -1);
-    padding-inline: clamp(20px, 3.2vw, 56px);
-    scroll-padding-inline: clamp(20px, 3.2vw, 56px);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ps__stars {
-    opacity: 0.5;
+  .is-ring .ps__stage {
+    height: clamp(460px, 70vh, 560px);
   }
 }

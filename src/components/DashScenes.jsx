@@ -223,7 +223,7 @@ export default function DashScenes({ className = '' }) {
           <span className="dsc__scan" />
           {COINS.map(([sym, color, w, up], i) => (
             <div className="dsc__row" key={sym} style={{ '--i': i, '--w': w, '--c': color }}>
-              <span className="dsc__coin" />
+              <img className="dsc__coin" src={`/coins/${sym.toLowerCase()}.svg`} alt="" width="22" height="22" />
               <b>{sym}</b>
               <span className="dsc__track">
                 <u className={up ? '' : 'is-down'} />

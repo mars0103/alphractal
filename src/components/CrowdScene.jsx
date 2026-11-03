@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 /* About hero backdrop: a big, dense field of small dark 3D figures filling the whole hero, seen from above and at an angle,
-   all turned toward the text on the left. Five of them in the right half are lit blue, and each throws a pool of blue light on
+   all turned toward the text on the left. Eight of them in the right half (two rows of four) are lit blue, and each throws a pool of blue light on
    the crowd around it (real point lights, so the neighbours catch it), as in the reference. On entering, the five light up slowly
    one after the other; with a mouse, the five blue ones rise as the pointer passes near them (a wave through the five) and settle
    back slowly. The grey crowd never moves. It renders only while something moves. Reduced motion: the five are lit and nothing reacts. three.js is loaded on demand; without WebGL the caller's fallback (the flat SVG crowd) stays. */
@@ -11,14 +11,17 @@ const COLS = 41
 const ROWS = 24
 const YAW = -0.7 // everyone is turned toward the text, on the left
 const LIT = [
-  [3.0, 7],
-  [6.2, 9],
-  [8.4, 6],
-  [4.6, 12],
-  [7.4, 13],
-] // [x, row] of the five lit figures, in world units across and rows back from the front
+  [5.0, 9],
+  [5.8, 9],
+  [6.6, 9],
+  [7.4, 9],
+  [5.4, 10],
+  [6.2, 10],
+  [7.0, 10],
+  [7.8, 10],
+] // [x, row] of the eight lit figures: a row of four in front and a row of four right behind it
 const ENTRY_DELAY = 500 // ms before the five start to light
-const ENTRY_STAGGER = 0.5 // s between one lighting and the next
+const ENTRY_STAGGER = 0.3 // s between one lighting and the next
 const ENTRY_TIME = 2.4 // s each takes to come fully on
 const WAVE_R2 = 3.2 * 3.2 // reach of the pointer's wave (squared), in world units
 const LIFT_Y = 0.7 // how high a blue figure rises, whole and undistorted
@@ -168,9 +171,16 @@ export default function CrowdScene({ fallback, fill = false }) {
           const wide = W / H
           camera.aspect = wide
           // seen from above and at an angle, the five lit figures landing in the right half, under the top-right corner
-          camera.position.set(-4.5, 9.6, 12.8)
-          camera.lookAt(1.5, 0, -5.4)
-          camera.fov = wide > 1.2 ? 32 : 46
+          if (wide < 1) {
+            // phones: a tall frame, so look straight at the lit group (it would sit off the right edge otherwise)
+            camera.position.set(0.4, 9.6, 8.8)
+            camera.lookAt(6.4, 0, -9.4)
+            camera.fov = 40
+          } else {
+            camera.position.set(-4.5, 9.6, 12.8)
+            camera.lookAt(1.5, 0, -5.4)
+            camera.fov = wide > 1.2 ? 32 : 46
+          }
           camera.updateProjectionMatrix()
           renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
           renderer.setSize(W, H, false)

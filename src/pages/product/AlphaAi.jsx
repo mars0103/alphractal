@@ -9,6 +9,7 @@ import PageHero from '../../components/PageHero.jsx'
 import GlowButton from '../../components/GlowButton.jsx'
 import AlphaSphere from '../../components/AlphaSphere.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
+import Aurora from '../../components/Aurora.jsx'
 import { ExtLink, PBlock, Rows } from '../../components/ProductBlocks.jsx'
 
 /* /platform/alpha-ai — centred hero over a particle sphere, the problem, four ways to ask, related, closing CTA.
@@ -137,36 +138,47 @@ function Trace() {
     const runner = el.querySelector('.aai-trace__run')
     const len = path.getTotalLength()
     let tl = null
-    let run = null
-    q.textContent = ''
-    gsap.set(line, { '--p': 0 })
-    gsap.set([...cols, ...src, ...words, ...marks], { autoAlpha: 0 })
-    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len })
-    gsap.set(runner, { autoAlpha: 0 })
+    const hidden = [...cols, ...src, ...words, ...marks]
+    // everything back to its empty state, ready for the next pass
+    const reset = () => {
+      q.textContent = ''
+      q.parentNode.removeAttribute('data-typing')
+      gsap.set(line, { '--p': 0 })
+      gsap.set(hidden, { autoAlpha: 0 })
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len })
+      gsap.set(runner, { '--x': 0, autoAlpha: 0 })
+    }
+    reset()
     return {
       start() {
-        tl = gsap.timeline()
-        tl.to(line, { '--p': 1, duration: 3.4, ease: 'power1.inOut' }, 0)
-        tl.to(cols[0], { autoAlpha: 1, duration: 0.4 }, 0)
-        typeTo(tl, q, full, 1.6, 0.2)
-        tl.to(src, { autoAlpha: 1, duration: 0.5, stagger: 0.28 }, 1.1)
-        tl.to(cols[1], { autoAlpha: 1, duration: 0.1 }, 1.1)
-        tl.to(cols[2], { autoAlpha: 1, duration: 0.1 }, 2.3)
-        tl.to(words, { autoAlpha: 1, duration: 0.3, stagger: 0.07 }, 2.4)
-        tl.to(path, { strokeDashoffset: 0, duration: 1.8, ease: 'power1.inOut' }, 2.6)
-        tl.to(marks, { autoAlpha: 1, duration: 0.4, stagger: 0.5 }, 3.2)
-        // a small point keeps travelling the line from question to answer
-        tl.call(() => {
-          run = gsap.fromTo(runner, { '--x': 0, autoAlpha: 0 }, { '--x': 1, autoAlpha: 1, duration: 5.5, ease: 'none', repeat: -1, repeatDelay: 1.5 })
-        })
+        // The dot travels the line top to bottom and each part appears as it reaches it; at the end it resets and loops.
+        const T = 7.5
+        const H = el.offsetHeight || 1
+        const at = (i) => Math.min(0.85, (cols[i].offsetTop + 6) / H) * T
+        const tq = 0
+        const ts = at(1)
+        const ta = at(2)
+        tl = gsap.timeline({ repeat: -1, onRepeat: reset })
+        tl.to(runner, { '--x': 1, duration: T, ease: 'none' }, 0)
+        tl.to(runner, { autoAlpha: 1, duration: 0.2 }, 0)
+        tl.to(line, { '--p': 1, duration: T, ease: 'none' }, 0)
+        tl.to(cols[0], { autoAlpha: 1, duration: 0.3 }, tq)
+        typeTo(tl, q, full, 1.6, tq + 0.2)
+        tl.to(cols[1], { autoAlpha: 1, duration: 0.2 }, ts)
+        tl.to(src, { autoAlpha: 1, duration: 0.4, stagger: 0.35 }, ts)
+        tl.to(cols[2], { autoAlpha: 1, duration: 0.2 }, ta)
+        tl.to(words, { autoAlpha: 1, duration: 0.3, stagger: 0.07 }, ta + 0.1)
+        tl.to(path, { strokeDashoffset: 0, duration: 1.8, ease: 'power1.inOut' }, ta + 0.3)
+        tl.to(marks, { autoAlpha: 1, duration: 0.4, stagger: 0.5 }, ta + 1.0)
+        // hold the finished answer, then fade out before the loop starts over
+        tl.to([...cols, runner], { autoAlpha: 0, duration: 0.6 }, T + 1.8)
+        tl.to({}, { duration: 0.3 }, T + 2.4)
       },
       toggle(on) {
         if (tl) tl.paused(!on)
-        if (run) run.paused(!on)
       },
       kill() {
         if (tl) tl.kill()
-        if (run) run.kill()
       },
     }
   })
@@ -210,19 +222,23 @@ function Trace() {
 
 function Problem() {
   return (
-    <PBlock id="problem" eyebrow="THE PROBLEM" title="A market answer needs market data.">
+    <PBlock id="problem">
       <div className="aai-problem">
-        <p className="lede" data-reveal="up">
-          A convincing explanation is only useful when you can understand what supports it. Without the right data, a market summary can miss the positioning, context and risks behind a move.
-        </p>
-        <div className="aai-problem__r" data-reveal="up">
-          <p>
-            Alpha AI connects your questions to Alphractal’s analytics. Explore on-chain behavior, derivatives, sentiment and macro context, then follow the available data and chart references to examine the analysis yourself.
+        <div className="aai-problem__l">
+          <p className="eyebrow" data-reveal="fade">THE PROBLEM</p>
+          <h2 className="h2" data-reveal="lines">A market answer needs market data.</h2>
+          <p className="lede" data-reveal="up">
+            A convincing explanation is only useful when you can understand what supports it. Without the right data, a market summary can miss the positioning, context and risks behind a move.
           </p>
-          <p>Test theses, cross evidence and observe next steps.</p>
+          <div className="aai-problem__r" data-reveal="up">
+            <p>
+              Alpha AI connects your questions to Alphractal’s analytics. Explore on-chain behavior, derivatives, sentiment and macro context, then follow the available data and chart references to examine the analysis yourself.
+            </p>
+            <p>Test theses, cross evidence and observe next steps.</p>
+          </div>
         </div>
+        <Trace />
       </div>
-      <Trace />
     </PBlock>
   )
 }
@@ -238,9 +254,10 @@ function Selector({ on }) {
   )
 }
 
-function ModeText({ title, text, className = '' }) {
+function ModeText({ n, title, text, className = '' }) {
   return (
     <div className={`aai-mode-text ${className}`}>
+      <span className="aai-mode-n" aria-hidden="true">{n}</span>
       <h3>{title}</h3>
       <p>{text}</p>
     </div>
@@ -272,7 +289,6 @@ function QuickScene() {
     const dot = el.querySelector('.aai-qc__dot')
     const len = path.getTotalLength()
     let tl = null
-    let pulse = null
     q.textContent = ''
     gsap.set(consult, { autoAlpha: 0 })
     gsap.set(src, { opacity: 0.25 })
@@ -290,18 +306,13 @@ function QuickScene() {
         tl.to(path, { strokeDashoffset: 0, duration: 3.6, ease: 'power1.inOut' }, 4.8)
         tl.to(marks[0], { autoAlpha: 1, duration: 0.4 }, 5.4)
         tl.to(marks[1], { autoAlpha: 1, duration: 0.4 }, 6.9)
-        tl.to(dot, { autoAlpha: 1, duration: 0.4 }, 8.2)
-        tl.call(() => {
-          pulse = gsap.to(dot, { scale: 1.9, svgOrigin: dot.getAttribute('data-o'), duration: 1.4, yoyo: true, repeat: -1, ease: 'sine.inOut' })
-        })
+        tl.to(dot, { autoAlpha: 1, duration: 0.4 }, 8.2) // the pulse itself is a CSS animation on the dot (see .aai-qc__dot)
       },
       toggle(on) {
         if (tl) tl.paused(!on)
-        if (pulse) pulse.paused(!on)
       },
       kill() {
         if (tl) tl.kill()
-        if (pulse) pulse.kill()
       },
     }
   })
@@ -610,26 +621,36 @@ function VoiceScene() {
 
 function Modes() {
   return (
-    <PBlock id="how" eyebrow="HOW IT WORKS" title="Four ways to ask." intro="Start with a question, investigate a thesis or explore the chart in front of you.">
+    <div id="how">
+      <header className="aai-how">
+        <Aurora colorStops={['#0a1470', '#1a35d0', '#0a1470']} amplitude={1.2} blend={1} height={0.22} speed={0.7} glow={0.45} brightness={0.85} opacity={0.9} layers={2} direction="top" className="aai-how__aurora" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+        <div className="container aai-how__head">
+          <p className="eyebrow" data-reveal="fade">HOW IT WORKS</p>
+          <h2 className="h2" data-reveal="lines">Four ways to ask.</h2>
+          <p className="lede" data-reveal="up">Start with a question, investigate a thesis or explore the chart in front of you.</p>
+        </div>
+      </header>
+      <PBlock rule={false} className="aai-how-body">
       <div className="aai-modes">
         <article className="aai-mode aai-mode--quick" data-reveal="up">
-          <ModeText title="Quick Ask" text="Ask a focused question about an asset, metric or market condition. Get a direct explanation and follow up as your analysis develops." />
+          <ModeText n={1} title="Quick Ask" text="Ask a focused question about an asset, metric or market condition. Get a direct explanation and follow up as your analysis develops." />
           <QuickScene />
         </article>
         <article className="aai-mode aai-mode--deep" data-reveal="up">
-          <ModeText title="Deep Research" text="Take a market thesis further with multi-step analysis across relevant data sources. Bring the findings together in a structured report you can review in detail." />
+          <ModeText n={2} title="Deep Research" text="Take a market thesis further with multi-step analysis across relevant data sources. Bring the findings together in a structured report you can review in detail." />
           <DeepScene />
         </article>
         <article className="aai-mode aai-mode--chart" data-reveal="up">
+          <ModeText n={3} title="Chart copilot" text="Ask about the chart in front of you. Keep the asset and metric in context while you explore what the data means for your thesis." />
           <ChartScene />
-          <ModeText title="Chart copilot" text="Ask about the chart in front of you. Keep the asset and metric in context while you explore what the data means for your thesis." />
         </article>
         <article className="aai-mode aai-mode--voice" data-reveal="up">
+          <ModeText n={4} title="Voice" text="Speak your question and turn it into text, then continue the conversation with Alpha AI." />
           <VoiceScene />
-          <ModeText title="Voice" text="Speak your question and turn it into text, then continue the conversation with Alpha AI." />
         </article>
       </div>
     </PBlock>
+    </div>
   )
 }
 

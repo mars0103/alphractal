@@ -54,7 +54,7 @@ const CATEGORIES = [
     label: 'Get Started',
     kind: 'start',
     text: 'Find your way around Alphractal, understand the data and build your first analysis.',
-    example: { name: 'Our data — how it works', href: `${ACADEMY}/lesson/foundations/03-our-data` },
+    example: { name: 'Our data: how it works', href: `${ACADEMY}/lesson/foundations/03-our-data` },
     cta: { label: 'Start learning', href: `${ACADEMY}/learn` },
   },
   {

@@ -15,7 +15,7 @@ import FinalCta from '../sections/FinalCta.jsx'
 
 export default function HomeB() {
   const { lang, t } = useI18n()
-  useMeta({ title: "Alphractal — Hero B", description: t.hero.steps[0].sub, noindex: true })
+  useMeta({ title: "Alphractal | Hero B", description: t.hero.steps[0].sub, noindex: true })
   const root = useRef(null)
 
   useReveals(root, [lang])

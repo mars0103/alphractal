@@ -309,23 +309,23 @@ export default function TerminalPreview() {
           <dl className={`tm__levels mono${applied ? ' is-filled' : ''}`}>
             <div>
               <dt>{ui.entry}</dt>
-              <dd>{applied ? fmt(entry) : '—'}</dd>
+              <dd>{applied ? fmt(entry) : '-'}</dd>
             </div>
             <div>
               <dt>{ui.stop}</dt>
-              <dd>{applied ? fmt(stop) : '—'}</dd>
+              <dd>{applied ? fmt(stop) : '-'}</dd>
             </div>
             <div>
               <dt>{ui.target}</dt>
-              <dd>{applied ? fmt(target) : '—'}</dd>
+              <dd>{applied ? fmt(target) : '-'}</dd>
             </div>
             <div>
               <dt>{ui.rr}</dt>
-              <dd>{applied ? `1 : ${rr.toFixed(1)}` : '—'}</dd>
+              <dd>{applied ? `1 : ${rr.toFixed(1)}` : '-'}</dd>
             </div>
             <div>
               <dt>{ui.risk}</dt>
-              <dd>{applied ? `$${fmt(risk, 0)}` : '—'}</dd>
+              <dd>{applied ? `$${fmt(risk, 0)}` : '-'}</dd>
             </div>
           </dl>
 

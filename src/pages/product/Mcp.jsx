@@ -10,6 +10,7 @@ import McpLogos from '../../components/McpLogos.jsx'
 import McpCatalog from '../../components/McpCatalog.jsx'
 import { ConditionsSeq, ConnectDraw, GroundedChat, ProblemChat, RecurringSeq, ThesisSeq } from '../../components/McpVisuals.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
+import Aurora from '../../components/Aurora.jsx'
 import { ExtLink, PBlock, ProductFaq, Shot } from '../../components/ProductBlocks.jsx'
 
 /* /platform/mcp — hero with the AI-client marks, problem (a conversation drawn on paper), how it works (three steps, one
@@ -147,11 +148,6 @@ const CATALOG = [
   },
 ]
 
-const RELATED = [
-  { title: 'API', text: 'Build a direct integration with Alphractal’s REST API.', href: '/platform/api', label: 'Explore the API' },
-  { title: 'Alpha AI', text: 'Explore the assistant inside the platform.', href: '/platform/alpha-ai', label: 'Explore Alpha AI' },
-]
-
 const FAQ = [
   { q: 'What is MCP?', a: 'MCP is a standard that lets an AI client connect to external tools and data. Alphractal uses it to make supported platform data and actions available inside compatible assistants and agents.' },
   { q: 'Is this the same as Alpha AI?', a: 'Alpha AI is the assistant inside Alphractal. MCP lets a compatible external assistant use Alphractal tools and data. The model, interface and available features depend on that client.' },
@@ -241,7 +237,15 @@ export default function Mcp() {
           <Problem />
         </PBlock>
 
-        <PBlock id="how" eyebrow="HOW IT WORKS" title="Connect your assistant in three steps." className="mcpx-sec mcpx-how">
+        <div id="how">
+        <header className="mcpx-dark">
+          <Aurora colorStops={['#0a1470', '#1a35d0', '#0a1470']} amplitude={1.2} blend={1} height={0.22} speed={0.7} glow={0.45} brightness={0.85} opacity={0.9} layers={2} direction="top" className="mcpx-dark__aurora" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+          <div className="container mcpx-dark__head">
+            <p className="eyebrow" data-reveal="fade">HOW IT WORKS</p>
+            <h2 className="h2" data-reveal="lines">Connect your assistant in three steps.</h2>
+          </div>
+        </header>
+        <PBlock className="mcpx-sec mcpx-how" rule={false}>
           <ol className="mcpx-steps">
             {STEPS.map((s) => (
               <li className={`mcpx-step${s.wide ? ' mcpx-step--wide' : ''}`} key={s.n}>
@@ -260,6 +264,7 @@ export default function Mcp() {
             </ExtLink>
           </p>
         </PBlock>
+        </div>
 
         <PBlock id="get" eyebrow="WHAT YOU GET" title="Put Alphractal data to work in your workflow." className="mcpx-sec">
           <div className="mcpx-ex" data-stagger>
@@ -286,21 +291,6 @@ export default function Mcp() {
 
         <ProductFaq title="MCP questions, answered." items={FAQ} />
 
-        <PBlock id="related" className="mcpx-sec mcpx-related">
-          <ul className="mcpx-rel">
-            {RELATED.map((r) => (
-              <li key={r.title}>
-                <ExtLink className="mcpx-rel__row" href={r.href} aria-label={r.label}>
-                  <h3>{r.title}</h3>
-                  <p>{r.text}</p>
-                  <span className="mcpx-rel__go" aria-hidden="true">
-                    →
-                  </span>
-                </ExtLink>
-              </li>
-            ))}
-          </ul>
-        </PBlock>
       </div>
 
       <FinalCta

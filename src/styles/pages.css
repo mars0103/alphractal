@@ -4053,3 +4053,52 @@
   fill: rgba(18, 161, 90, 0.25);
   fill: color-mix(in srgb, var(--zc, var(--z-long)) 28%, transparent);
 }
+
+/* Solutions: a dark, centred title band with a soft blue aurora; the rows below stay on paper */
+.inst-dark {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(84px, 10vw, 150px) clamp(56px, 6vw, 96px);
+  background: #07080d;
+  color: var(--on-dark);
+  text-align: center;
+}
+.inst-dark__head {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  max-width: 760px;
+  margin-inline: auto;
+  justify-items: center;
+}
+.inst-dark .eyebrow {
+  color: #aab3c9;
+}
+.inst-dark .h2 {
+  color: #fff;
+}
+.inst-solutions {
+  padding-top: clamp(40px, 5vw, 72px);
+}
+
+/* About: a dark haze over the crowd where the title sits, so the copy reads clearly and the crowd fades into the dark */
+.abt-fog {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50% 45% at 20% 56%, rgba(7, 8, 13, 0.55), rgba(7, 8, 13, 0.25) 55%, transparent 80%),
+    linear-gradient(to bottom, rgba(7, 8, 13, 0.55), rgba(7, 8, 13, 0.1) 32%, transparent 52%);
+}
+
+/* Phones: the lit group sits in the middle of a tall frame, so the depth-of-field blur is kept to the very bottom */
+@media (max-width: 991px) {
+  .abt-crowd3d--fill::before {
+    mask-image: linear-gradient(to top, #000 0%, #000 14%, transparent 34%);
+    -webkit-mask-image: linear-gradient(to top, #000 0%, #000 14%, transparent 34%);
+  }
+  .abt-crowd3d--fill::after {
+    mask-image: linear-gradient(to top, #000 0%, #000 8%, transparent 24%);
+    -webkit-mask-image: linear-gradient(to top, #000 0%, #000 8%, transparent 24%);
+  }
+}

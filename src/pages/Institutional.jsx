@@ -4,6 +4,7 @@ import { LINKS, SOLUTION_LINKS } from '../lib/facts.js'
 import { MEDIA_LOGOS } from '../lib/media-logos.js'
 import PageShell from '../components/PageShell.jsx'
 import PageHero from '../components/PageHero.jsx'
+import Aurora from '../components/Aurora.jsx'
 import GlowButton from '../components/GlowButton.jsx'
 import Accordion from '../components/Accordion.jsx'
 import { Section } from '../components/PageBlocks.jsx'
@@ -20,9 +21,10 @@ const SUPPORT_ICONS = ['users', 'chat', 'layers', 'shield']
    SOLUTION_LINKS in lib/facts.js, TODO(links review)). */
 function Solutions({ p }) {
   return (
-    <Section id="solutions" className="inst-solutions">
-      <div className="container">
-        <div className="section__head">
+    <div id="solutions">
+      <header className="inst-dark">
+        <Aurora colorStops={['#0a1470', '#1a35d0', '#0a1470']} amplitude={1.2} blend={1} height={0.22} speed={0.7} glow={0.45} brightness={0.85} opacity={0.9} layers={2} direction="top" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+        <div className="container inst-dark__head">
           <p className="eyebrow" data-reveal="fade">
             {p.eyebrow}
           </p>
@@ -30,6 +32,9 @@ function Solutions({ p }) {
             {p.title}
           </h2>
         </div>
+      </header>
+      <Section rule={false} className="inst-solutions">
+      <div className="container">
         <div className="inst-sols">
           {p.items.map((it, i) => {
             const Scene = SCENES[it.key]
@@ -64,7 +69,8 @@ function Solutions({ p }) {
           })}
         </div>
       </div>
-    </Section>
+      </Section>
+    </div>
   )
 }
 

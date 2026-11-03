@@ -45,7 +45,7 @@ export default {
       hero: {
         eyebrow: 'ALPHA AI',
         title: 'An analyst that has to show its work.',
-        sub: 'Ask in plain English. Every answer cites the metrics it used — click a citation and the chart opens underneath.',
+        sub: 'Ask in plain English. Every answer cites the metrics it used, click a citation and the chart opens underneath.',
         primary: 'Start free',
         secondary: 'See the four modes',
         secondaryHref: '#how',
@@ -99,7 +99,7 @@ export default {
       hero: {
         eyebrow: 'DATA',
         title: 'Four data domains. One definition of each.',
-        sub: 'On-chain, derivatives, sentiment and macro — 1,500+ metrics with consistent definitions, 14 years of on-chain history and 17+ exchanges behind them.',
+        sub: 'On-chain, derivatives, sentiment and macro, 1,500+ metrics with consistent definitions, 14 years of on-chain history and 17+ exchanges behind them.',
         primary: 'Start free',
         secondary: 'Browse the models',
         secondaryHref: '#models',
@@ -147,7 +147,7 @@ export default {
       models: {
         eyebrow: 'PROPRIETARY',
         title: '23 charts you can’t open anywhere else.',
-        sub: 'Not resold vendor data. Models computed in-house from raw on-chain and derivatives data — and the ones our users ask for by name.',
+        sub: 'Not resold vendor data. Models computed in-house from raw on-chain and derivatives data, and the ones our users ask for by name.',
         body: 'When we ask people what brought them here, more than half name a specific chart. The value isn’t the count. It’s that a handful of these have no substitute.',
         cta: 'Browse the models',
         hint: 'A selection of the models',
@@ -169,7 +169,7 @@ export default {
       macro: {
         eyebrow: 'MACRO',
         title: '46 macro panels, next to your on-chain charts.',
-        sub: 'Global liquidity, rates, recession signals, policy uncertainty and risk regime — on the same screen and the same timeline as the crypto data.',
+        sub: 'Global liquidity, rates, recession signals, policy uncertainty and risk regime, on the same screen and the same timeline as the crypto data.',
         body: 'Crypto has spent a decade pretending it trades independently of rates and liquidity. The desks that outperform stopped pretending. Reorder the panels, resize them, and drop any of them into a dashboard beside a funding chart.',
         hint: 'Independent panels you can reorder',
       },
@@ -191,7 +191,7 @@ export default {
       problem: {
         title: 'An agent that reads, and one that deletes your alerts.',
         text: [
-          'Point your client at one URL. 39 read tools that never touch your account. 8 write tools that can create and edit alerts and favourites — separated on purpose, and off by default.',
+          'Point your client at one URL. 39 read tools that never touch your account. 8 write tools that can create and edit alerts and favourites, separated on purpose, and off by default.',
           'The read/write split is the most important thing in the catalog. It’s the difference between an agent that reads your data and one that deletes your alerts.',
         ],
       },
@@ -257,7 +257,7 @@ export default {
       hero: {
         eyebrow: 'API',
         title: 'The most powerful crypto data API.',
-        sub: 'On-chain, derivatives, sentiment and macro—built for your applications, trading models and automated workflows.',
+        sub: 'On-chain, derivatives, sentiment and macro, built for your applications, trading models and automated workflows.',
         primary: 'Read the docs',
         secondary: 'See API tiers',
         secondaryHref: '#tiers',
@@ -293,7 +293,7 @@ export default {
         title: 'What each plan gives the API.',
         cols: ['Plan', 'Credits', 'Rate', 'History', 'Also'],
         rows: [
-          ['Starter', 'Pay-per-call', '30 / min', '7 days', '—'],
+          ['Starter', 'Pay-per-call', '30 / min', '7 days', '-'],
           ['Pro', '500k a month', '200 / min', '12 months', 'CSV / JSON export'],
           ['Max', '2M a month', '500 / min', 'Complete', 'Webhooks'],
           ['Institutional', '5M+', 'Up to 800 / min', 'Complete', 'Custom endpoints'],
@@ -354,7 +354,7 @@ export default {
         sub: 'Funding above the 99th percentile AND DXY rising. Most tools make you watch that in two tabs and connect it yourself.',
         body: [
           'Threshold, cross and percentage-move conditions on any metric, composed with AND/OR across on-chain, derivatives and macro. Delivered by email, Telegram, webhook or in-app.',
-          'The public marketplace lists curated alert templates with honest 30, 90 and 365-day hit rates — including the ones that don’t fire often. Subscribe in one click.',
+          'The public marketplace lists curated alert templates with honest 30, 90 and 365-day hit rates, including the ones that don’t fire often. Subscribe in one click.',
         ],
         rule: {
           when: 'When',
@@ -380,7 +380,7 @@ export default {
       screeners: {
         eyebrow: 'SCREENERS',
         title: 'Rank the market, not one asset.',
-        sub: 'Altseason index, buy/sell pressure, correlation heatmap, risk and trend scores — with saved presets for the screens you run every morning.',
+        sub: 'Altseason index, buy/sell pressure, correlation heatmap, risk and trend scores, with saved presets for the screens you run every morning.',
         illustrative: 'Illustrative ranking',
       },
       related: ['metrics', 'research', 'alpha-ai'],
@@ -399,7 +399,7 @@ export default {
       problem: {
         title: 'A static PDF is out of date the moment it’s published.',
         text: [
-          'Our reports carry the chart, not a picture of the chart — so the number in paragraph three is the number right now.',
+          'Our reports carry the chart, not a picture of the chart, so the number in paragraph three is the number right now.',
           'There is also a Daily Brief, and any report can live at a public URL.',
         ],
       },
@@ -549,7 +549,7 @@ export default {
           // Working name per the team's note — confirm the commercial name before publishing.
           name: 'Alphractal Intelligence for Terminals',
           title: 'The terminal that talks back, inside yours.',
-          text: 'The assisted-trading intelligence behind the Alpha Terminal, available to other trading platforms. Your users keep trading on your terminal — our intelligence helps them place every trade better.',
+          text: 'The assisted-trading intelligence behind the Alpha Terminal, available to other trading platforms. Your users keep trading on your terminal, our intelligence helps them place every trade better.',
           support: 'Our proprietary research inside the trading chart, guidance on where to enter, protect and take profit, and a check on every position while it is open.',
         },
         {
@@ -582,7 +582,7 @@ export default {
     faq: [
       {
         q: 'Can we integrate Alphractal intelligence into our own terminal?',
-        a: 'Yes. The assisted-trading intelligence behind the Alpha Terminal is available as a layer inside other trading platforms — talk to our team about what that integration looks like for yours.',
+        a: 'Yes. The assisted-trading intelligence behind the Alpha Terminal is available as a layer inside other trading platforms, talk to our team about what that integration looks like for yours.',
       },
       {
         q: 'Can we buy the API on its own?',
@@ -594,7 +594,7 @@ export default {
       },
       {
         q: 'Can we commission custom research?',
-        a: 'Yes — on a specific asset, ecosystem, exchange or thesis, built by our research team.',
+        a: 'Yes, on a specific asset, ecosystem, exchange or thesis, built by our research team.',
       },
       {
         q: 'Which data and markets do you cover?',
@@ -640,6 +640,7 @@ export default {
       { name: 'Victoria', linkedin: 'https://www.linkedin.com/in/victoriagcs/', role: 'Head of Product', photo: '/team/victoria.jpg', bio: 'Turns product strategy and user needs into a clearer platform experience. At Alphractal, she leads product direction and helps connect research, design and development.' },
     ],
     researchTitle: 'Research',
+    postsPhrase: 'Shaped by the feedback of the traders and analysts who use Alphractal every day.',
     research:
       'We study market structure, crypto cycles and the conditions behind the data. A metric can tell a different story as the market changes. Our research explores that context and turns it into models, explanations and tools people can use in their own analysis.',
     directionTitle: 'Direction',
@@ -686,13 +687,13 @@ export default {
       ['Metrics', '70 core', 'Full library, incl. proprietary', 'Same as Pro', 'Same as Pro'],
       ['Assets', '100+', '1,000+', '1,000+', '1,000+'],
       ['Alerts', '1', '20', '100', '500+'],
-      ['Dashboards', '—', '10', '25', 'Unlimited'],
+      ['Dashboards', '-', '10', '25', 'Unlimited'],
       ['Alpha AI', 'On free metrics', 'Unlimited chat', 'Same as Pro', 'Same as Pro'],
       ['Research credits', '3', '20 / month', '50 / month', 'Unlimited'],
       ['History', '7 days', '12 months', 'Complete', 'Complete'],
       ['API', 'Pay-per-call · 30/min', '500k credits · 200/min', '2M · 500/min · webhooks', '5M+ · custom endpoints'],
-      ['Export', '—', 'CSV / JSON', 'CSV / JSON', 'CSV / JSON'],
-      ['SLA', '—', '24h', '4h', '1h + dedicated manager'],
+      ['Export', '-', 'CSV / JSON', 'CSV / JSON', 'CSV / JSON'],
+      ['SLA', '-', '24h', '4h', '1h + dedicated manager'],
     ],
     note: 'The price of paid plans comes from the app and is never fixed on this page.',
   },

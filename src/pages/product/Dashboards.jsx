@@ -1,9 +1,12 @@
 import '../../styles/p-dashboards.css'
 import { useMeta } from '../../hooks/useMeta.js'
 import { LINKS } from '../../lib/facts.js'
+import { useRef } from 'react'
 import PageShell from '../../components/PageShell.jsx'
 import GlowButton from '../../components/GlowButton.jsx'
 import HeroGrid from '../../components/HeroGrid.jsx'
+import Aurora from '../../components/Aurora.jsx'
+import GradientWaves from '../../components/GradientWaves.jsx'
 import FinalCta from '../../sections/FinalCta.jsx'
 import { Section } from '../../components/PageBlocks.jsx'
 import { ExtLink } from '../../components/ProductBlocks.jsx'
@@ -18,6 +21,7 @@ import { AlertScene, ScreenerScene } from '../../components/visuals/DashScenes.j
 const PLANS = 'https://app.alphractal.com/plans'
 
 export default function Dashboards() {
+  const hero = useRef(null)
   useMeta({
     title: 'Crypto Dashboards, Alerts & Screeners | Alphractal',
     description: 'Build crypto research dashboards, monitor supported metrics with alerts and compare assets through Alphractal screeners. Create a view that fits your analysis.',
@@ -25,8 +29,10 @@ export default function Dashboards() {
 
   return (
     <PageShell>
-      <section className="dx" data-nav-theme="dark">
+      <section ref={hero} className="dx" data-nav-theme="dark">
         <HeroGrid />
+        <GradientWaves scrollTrigger={hero} className="dx__waves" />
+        <div className="hero__grain" aria-hidden="true" />
         <div className="container dx__open">
           <h1 className="display dx__title" data-reveal="lines" data-delay="0.15">
             Your market. Your signals. Your workspace.
@@ -43,7 +49,8 @@ export default function Dashboards() {
 
       <Workspace />
 
-      <Section id="alerts" theme="paper">
+      <Section id="alerts" dark rule={false} className="dx-dark">
+        <Aurora colorStops={['#0a1470', '#1a35d0', '#0a1470']} amplitude={1.2} blend={1} height={0.22} speed={0.7} glow={0.45} brightness={0.85} opacity={0.9} layers={2} direction="top" className="dx-dark__aurora" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 460, pointerEvents: 'none' }} />
         <div className="container">
           <div className="split split--even split--top dash-head">
             <h2 className="h2" data-reveal="lines">
