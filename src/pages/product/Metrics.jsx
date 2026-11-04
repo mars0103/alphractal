@@ -149,7 +149,7 @@ const MODELS = [
     tech: 'Inputs: Price USD · CVDD · CVDD Model 2.',
     href: `${ACADEMY}/metric/on-chain/cvdd`,
     linkLabel: 'Understand CVDD',
-    image: ['/metrics/cvdd-channel.webp', 1200, 469, 'CVDD Channel on Alphractal: price with CVDD, Alpha CVDD and the CVDD multiple bands'],
+    image: ['/metrics/cvdd-channel.webp', 2880, 1620, 'CVDD Channel on Alphractal: price with CVDD, Alpha CVDD and the CVDD multiple bands'],
   },
   {
     tag: 'ALPHRACTAL PROPRIETARY',
@@ -158,7 +158,7 @@ const MODELS = [
     tech: 'Focus: Bitcoin cycle timing and recurring market structure.',
     href: `${ACADEMY}/metric/on-chain/repetition-fractal-cycle`,
     linkLabel: 'Understand the model',
-    image: ['/metrics/fractal-cycle.webp', 1200, 535, 'Repetition Fractal Cycle on Alphractal: Bitcoin price with the roughly four-year cycles marked'],
+    image: ['/metrics/fractal-cycle.webp', 2880, 1620, 'Repetition Fractal Cycle on Alphractal: Bitcoin price with the roughly four-year cycles marked'],
   },
   {
     title: 'Accumulation-Distribution Cycle Index',

@@ -2,85 +2,65 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { useMeta } from '../hooks/useMeta.js'
 import { LINKS } from '../lib/facts.js'
 import PageShell from '../components/PageShell.jsx'
-import { Section } from '../components/PageBlocks.jsx'
-import TerminalPreview from '../components/TerminalPreview.jsx'
+import TechText from '../components/TechText.jsx'
+import '../styles/p-terminal.css'
 
 /*
- * The copy stays still (no countdown, no urgency); the terminal below is a working preview of
- * what is coming, clearly marked testnet, and it never sends anything. The roadmap disclaimer
- * is mandatory and verbatim (brief §5.5).
+ * Waitlist page: one dark, immersive screen (hero only) and the footer. The wordmark is the React Bits
+ * "Tech Text" (letters turn into dashed vector paths under the cursor); the full title stays in the h1 for
+ * readers and crawlers. Nothing here implies the terminal executes orders.
  */
 export default function Terminal() {
   const { t } = useI18n()
   const p = t.pages.terminal
-  useMeta({ title: 'Alpha Terminal · Alphractal', description: p.body[0] })
+  useMeta({ title: 'Alpha Terminal · Alphractal', description: `${p.sub} ${p.body[0]}` })
 
   return (
     <PageShell className="terminal-page">
-      <section className="tpage" data-nav-theme="paper">
-        <div className="container tpage__grid">
-          <div>
-            <span className="badge mono">{p.eyebrow}</span>
-            <h1 className="display tpage__title">{p.title}</h1>
-          </div>
-          <div className="tpage__copy">
-            {p.body.map((b, i) => (
-              <p className={i ? 'tpage__p' : 'lede'} key={b}>
+      <section className="tterm" data-nav-theme="dark">
+        <div className="tterm__bg" aria-hidden="true">
+          <i className="tterm__glow tterm__glow--a" />
+          <i className="tterm__glow tterm__glow--b" />
+          <i className="tterm__grid" />
+          <i className="tterm__dots" />
+        </div>
+        <div className="container tterm__inner">
+          <h1 className="tterm__h1">
+            <span className="tterm__sr">{p.title}</span>
+            <span className="tterm__word" aria-hidden="true">
+              <TechText
+                text={p.wordmark}
+                fontFamily="'Albert Sans Variable', 'Albert Sans', system-ui, sans-serif"
+                fontWeight={600}
+                fontSize={220}
+                letterSpacing={-0.045}
+                color="#ffffff"
+                accentColor="#4b6bff"
+                align="left"
+                labels={false}
+                guides={false}
+                specks={10}
+                reach={170}
+              />
+            </span>
+            <span className="tterm__tag" aria-hidden="true">
+              {p.tagline}
+            </span>
+          </h1>
+          <div className="tterm__copy">
+            <p className="tterm__sub">{p.sub}</p>
+            {p.body.map((b) => (
+              <p className="tterm__p" key={b}>
                 {b}
               </p>
             ))}
-            <p className="tpage__promise">{p.promise}</p>
-            <dl className="tpage__status mono">
-              <dt>{p.status}</dt>
-              <dd>{p.statusValue}</dd>
-            </dl>
-            <a className="btn btn--ink" href={LINKS.waitlist}>
+            <p className="tterm__promise">{p.promise}</p>
+            <a className="btn tterm__btn" href={LINKS.waitlist}>
               {p.cta}
             </a>
-            <p className="terminal__legal mono">{p.disclaimer}</p>
           </div>
         </div>
       </section>
-
-      <Section id="preview" dark className="tprev">
-        <div className="container">
-          <div className="tprev__head">
-            <p className="eyebrow" data-reveal="fade">
-              {p.previewEyebrow}
-            </p>
-            <h2 className="h2" data-reveal="lines">
-              {p.previewTitle}
-            </h2>
-          </div>
-          <div data-reveal="up">
-            <TerminalPreview />
-          </div>
-        </div>
-      </Section>
-
-      <Section id="what">
-        <div className="container">
-          <p className="eyebrow">{p.factsTitle}</p>
-          <ul className="tfacts">
-            {p.facts.map(([k, v]) => (
-              <li key={k}>
-                <h3>{k}</h3>
-                <p>{v}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      <Section id="direction">
-        <div className="container split split--even split--top">
-          <div>
-            <p className="eyebrow">{p.directionEyebrow}</p>
-            <span className="badge mono tpage__tag">{p.directionTag}</span>
-          </div>
-          <p className="lede tpage__dir">{p.direction}</p>
-        </div>
-      </Section>
     </PageShell>
   )
 }

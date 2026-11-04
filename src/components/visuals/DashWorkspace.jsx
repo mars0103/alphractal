@@ -75,8 +75,9 @@ export function Workspace() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia()
-      mm.add({ desk: `${MQ.desktop} and ${MQ.motion}`, mob: `${MQ.mobile} and ${MQ.motion}` }, (ctx) => {
-        const mobile = !!ctx.conditions.mob
+      // Phones and tablets get no assembly: the finished workspace is shown as a plain stacked column (see p-dashboards.css),
+      // which is also what SSR and reduced motion read. The scroll-built story is desktop only.
+      mm.add(`${MQ.desktop} and ${MQ.motion}`, () => {
         const q = (s) => root.current.querySelector(s)
         const ws = q('.dx-ws')
         const stage = q('.dx-stage')
@@ -88,17 +89,11 @@ export function Workspace() {
         const hit = q('.dx-hit')
 
         // where every module is at each moment of the story (the neighbours' rects change as the others move)
-        // desktop: a 2 x 3 grid. Phones: the same story on one column, modules moving up and down instead of sideways.
-        const R = mobile
-          ? {
-              A0: [0, 0.05, 1, 0.14], C0: [0, 0.22, 1, 0.34], S0: [0, 0.04, 1, 0.5], S1: [0, 0.17, 1, 0.19], S2: [0, 0.17, 1, 0.19],
-              M0: [0, 0.5, 1, 0.4], M1: [0, 0.36, 1, 0.2], O0: [0, 0.66, 1, 0.3],
-              FIN: { alerts: [0, 0, 1, 0.17], sth: [0, 0.17, 1, 0.19], mvrv: [0, 0.36, 1, 0.2], scr: [0, 0.56, 1, 0.26], oi: [0, 0.82, 1, 0.18] },
-            }
-          : {
-              A0: [0.22, 0.08, 0.56, 0.22], C0: [0.22, 0.34, 0.56, 0.34], S0: [0.1, 0.04, 0.8, 0.66], S1: [0.54, 0, 0.46, 0.4], S2: [0.5, 0, 0.5, 0.46],
-              M0: [0.25, 0.5, 0.5, 0.45], M1: [0, 0, 0.5, 0.46], O0: [0.2, 0.62, 0.6, 0.38], FIN: FINAL,
-            }
+        // a 2 x 3 grid
+        const R = {
+          A0: [0.22, 0.08, 0.56, 0.22], C0: [0.22, 0.34, 0.56, 0.34], S0: [0.1, 0.04, 0.8, 0.66], S1: [0.54, 0, 0.46, 0.4], S2: [0.5, 0, 0.5, 0.46],
+          M0: [0.25, 0.5, 0.5, 0.45], M1: [0, 0, 0.5, 0.46], O0: [0.2, 0.62, 0.6, 0.38], FIN: FINAL,
+        }
         const { A0, C0, S0, S1, S2, M0, M1, O0, FIN } = R
 
         const head = (r) => [r[0] + 0.05, r[1] + 0.035]
@@ -108,7 +103,6 @@ export function Workspace() {
         root.current.classList.add('is-live')
         stage.style.display = 'block'
         stage.style.position = 'relative'
-        if (mobile) stage.style.height = `${Math.round(Math.min(window.innerHeight * 0.86 - 20, 760))}px`
         gsap.set(Object.values(m), { position: 'absolute', autoAlpha: 0 })
         // no empty first frame: the alert and the screener are already on the surface when the section comes into view
         gsap.set([m.alerts, m.scr], { autoAlpha: 1 })
@@ -123,7 +117,7 @@ export function Workspace() {
 
         const tl = gsap.timeline({
           defaults: { ease: 'power2.inOut' },
-          scrollTrigger: { trigger: root.current, start: 'top top', end: mobile ? '+=300%' : '+=320%', pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true },
+          scrollTrigger: { trigger: root.current, start: 'top top', end: '+=320%', pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true },
         })
 
         // Moves a module between two rects, optionally dragging the cursor (and the corner handle) with it.
@@ -236,6 +230,8 @@ export function Builder() {
   const root = useRef(null)
 
   useLive(root, (el) => {
+    // phones and tablets: the finished layout as a stacked column, no looping demo (see p-dashboards.css)
+    if (window.matchMedia(MQ.mobile).matches) return { start() {} }
     const q = (s) => el.querySelector(s)
     const stage = q('.bd-stage')
     const m = Object.fromEntries(BMODS.map((x) => [x.k, q(`[data-mod="${x.k}"]`)]))

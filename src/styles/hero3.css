@@ -63,16 +63,6 @@
   color: #38bdf8;
   stroke: #38bdf8;
 }
-.h3__res,
-.h3__sup {
-  stroke-width: calc(2.2px * var(--sw, 1));
-}
-.h3__res {
-  stroke: #4ee05a;
-}
-.h3__sup {
-  stroke: #f59a2b;
-}
 .h3__bar {
   opacity: 0.55;
 }
@@ -347,7 +337,7 @@
      left gutter and the trader's bubble with the right one, so neither runs off the screen (the anchor is the screen centre). */
   .h3__cards {
     left: 50%;
-    top: 58%;
+    top: max(28%, 236px); /* up near the top, under the header: Alpha AI first, the trader's reply just below it */
   }
   .h3__fly,
   .h3__ai {
@@ -361,7 +351,7 @@
   .h3__user {
     left: auto;
     right: calc(16px - 50vw);
-    top: -14px;
+    top: -22px;
     gap: 10px;
     padding: 0 16px 0 10px;
     font-size: 13px;

@@ -129,17 +129,19 @@
 @media (max-width: 991px) {
   .sc { grid-template-columns: 1fr; }
   .sc-panel { padding-top: 0; }
+  /* Builder on phones: the finished workspace as a stacked column. Every module keeps its own box and its own height, so
+     nothing is cropped, nothing overlaps the text under it, and there is no looping demo to read. */
+  .bd-bar { padding-inline: 0; }
+  .bd-stage { height: auto; display: flex; flex-direction: column; gap: 10px; }
+  .bd-cell, .bd .dx-cursor, .bd .dx-handle { display: none; }
+  .bd-mod { position: static; left: auto !important; top: auto !important; width: auto !important; height: auto !important; }
+  .bd .dx-mod__in { height: auto; }
+  .bd .dxc { flex: none; aspect-ratio: 2 / 1; }
 }
 @media (max-width: 640px) {
   .sc-row { grid-template-columns: minmax(70px, .9fr) repeat(2, minmax(0, 1fr)); gap: 12px; }
   .sc-row > :nth-child(n+4) { display: none; }
   .al-note { justify-self: stretch; }
-}
-/* phones while the workspace plays: it fills one screen and the charts fill their module, as on desktop */
-@media (max-width: 991px) {
-  .dx-scene.is-live { min-height: 100svh; padding: 72px 12px 16px; }
-  .dx-scene.is-live .dxc { flex: 1 1 0; aspect-ratio: auto; min-height: 0; }
-  .dx-scene.is-live .dx-mod { padding: 3px 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .dxc__dot { animation: none; }

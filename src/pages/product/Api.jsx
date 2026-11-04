@@ -100,14 +100,6 @@ const STATUS = [
   ['503', 'The API may reject the request when credit accounting is temporarily unavailable.'],
 ]
 
-/* reach = how far back the plan sees, drawn as a bar (illustrative scale: 7 days < 12 months < full history; a contract is open-ended) */
-const PLAN_ROWS = [
-  ['Starter (Free)', '30', 'Up to 7 days, where available', 'Supported endpoints and plan limits apply', 0.1],
-  ['Pro', '200', 'Up to 12 months, where available', '1 hour and above, where supported', 0.42],
-  ['Max', '500', 'Full available history for the metric', 'All supported resolutions for the metric', 1],
-  ['Institutional', 'Custom', 'Contract-specific', 'Contract-specific', 0],
-]
-
 const FAQ = [
   { q: 'How do I get an API key?', a: <>Sign in to your Alphractal account and open the <ExtLink className="faq__link" href={DASH}>API dashboard</ExtLink>. Your key determines access to endpoints and the usage limits that apply.</> },
   { q: 'Can I use the API on the free plan?', a: 'API access is available on the Starter plan, subject to endpoint permissions, credit availability and plan limits. Check the dashboard before making a request.' },
@@ -318,54 +310,6 @@ function CodePanel() {
   )
 }
 
-/* Plans: the history column carries the point (blue, heavier) and a thin bar per row that grows to its reach on entry. */
-function PlansTable() {
-  const root = useRef(null)
-  useLive(root, (el) => {
-    const bars = [...el.querySelectorAll('.api-reach i')]
-    gsap.set(bars, { scaleX: 0 })
-    let tl = null
-    return {
-      start() {
-        tl = gsap.to(bars, { scaleX: 1, duration: 1.3, stagger: 0.18, ease: 'power3.out' })
-      },
-      kill() {
-        if (tl) tl.kill()
-      },
-    }
-  })
-  return (
-    <div className="ptable-wrap api-plans" ref={root}>
-      <table className="ptable">
-        <caption className="api-sr">API limits by plan</caption>
-        <thead>
-          <tr>
-            <th scope="col">Plan</th>
-            <th scope="col">Requests per minute</th>
-            <th scope="col" className="api-hist">Historical access</th>
-            <th scope="col">Resolution</th>
-          </tr>
-        </thead>
-        <tbody>
-          {PLAN_ROWS.map(([plan, rpm, hist, res, reach]) => (
-            <tr key={plan}>
-              <th scope="row">{plan}</th>
-              <td data-label="Requests per minute">{rpm}</td>
-              <td className="api-hist" data-label="Historical access">
-                {hist}
-                <span className={`api-reach${reach ? '' : ' is-contract'}`} style={{ '--r': reach || 1 }} aria-hidden="true">
-                  <i />
-                </span>
-              </td>
-              <td data-label="Resolution">{res}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 export default function Api() {
   useMeta({
     title: 'Crypto Data API: On-Chain, Derivatives & Macro | Alphractal',
@@ -511,21 +455,7 @@ export default function Api() {
         </div>
       </PBlock>
 
-      <PBlock
-        id="plans"
-        title="Choose access that fits your workflow."
-        intro="API access is available across Alphractal plans. Your plan and API key determine the supported metrics, historical depth, resolutions and request limits. Check the plans page for current pricing, credit allocations and top-ups."
-      >
-        <PlansTable />
-        <p className="api-clarify">Limits can differ for legacy plans and institutional agreements. Confirm the limits attached to your API key in the dashboard. Full history means the available history of a metric, not the same start date for every series.</p>
-        <div className="api-links">
-          <ExtLink className="btn btn--ink" href={PLANS}>
-            View plans
-          </ExtLink>
-          <ExtLink className="link-arrow" href={DASH}>
-            Check your API access <span>→</span>
-          </ExtLink>
-        </div>
+      <PBlock id="institutional-api">
         <aside className="api-inst" data-reveal="up">
           <div>
             <h3>Building for an institutional workflow?</h3>

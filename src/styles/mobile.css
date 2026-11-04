@@ -76,3 +76,20 @@
     --hbg: rgba(250, 250, 249, 0.98);
   }
 }
+
+/* Phones: copy never touches the two column rules (they sit 16px from the screen edge). Every closing block, footer-side text
+   and dark header that is not already inside `.section .container` gets the same inner padding as the rest of the page. */
+@media (max-width: 991px) {
+  .cta__stack,
+  .cons .cons__copy,
+  .rs-open .container,
+  .inst-trust .container,
+  .mcpx-dark__head,
+  .tterm .container {
+    padding-inline: 28px;
+  }
+  .cta__title,
+  .cta__sub {
+    padding-inline: 0;
+  }
+}

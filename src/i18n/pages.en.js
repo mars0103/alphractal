@@ -434,15 +434,14 @@ export default {
 
   /* ---------------------------------------------------------------------- Terminal */
   terminal: {
-    eyebrow: 'IN TESTNET',
-    title: 'Research is where the decision starts. Not where it ends.',
+    wordmark: 'Alpha Terminal',
+    title: 'Alpha Terminal: Your levels, already in the order field.',
+    tagline: 'Your levels, already in the order field.',
+    sub: 'Analysis and execution, without switching platforms.',
     body: [
-      'Alphractal tells you what the market is doing. Today you carry that read somewhere else to act on it.',
-      'Alpha Terminal closes the gap: a non-custodial trading surface on Hyperliquid, with our proprietary overlays drawn inside the trading chart, and entry, stop and target levels read from live order-book depth.',
+      'A non-custodial trading surface on Hyperliquid, with our proprietary overlays drawn inside the trading chart, and entry, stop and target levels read from live order-book depth.',
     ],
-    promise: 'Suggestions fill the order field. Nothing submits until you do.',
-    status: 'Status',
-    statusValue: 'In testnet. The preview below is a simulation.',
+    promise: 'Nothing submits until you do.',
     cta: 'Join the waitlist',
     disclaimer: 'Directional, not a commitment. Timelines can change. Nothing here is financial advice.',
     previewEyebrow: 'THE PREVIEW',

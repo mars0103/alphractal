@@ -306,3 +306,22 @@
     transition: none;
   }
 }
+/* The two column rules through this block. The board's fade (z 4) is paper-coloured and washes the page-level rules out
+   (they came out faint and in pieces), so the block draws its own, over the fade, down its full height. */
+.cons::before,
+.cons::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+  z-index: 6;
+  pointer-events: none;
+}
+.cons::before {
+  left: calc(50% - var(--col) / 2);
+}
+.cons::after {
+  left: calc(50% + var(--col) / 2 - 1px);
+}

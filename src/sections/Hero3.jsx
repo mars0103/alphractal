@@ -320,8 +320,6 @@ export default function Hero3() {
               </defs>
               <g className="h3__cam">
                 <g className="h3__chart-sec">
-                  <line className="h3__res" x1="-200" x2="1400" y1="190" y2="190" />
-                  <line className="h3__sup" x1="-200" x2="1400" y1="330" y2="330" />
                   {chart.bars.map((b) => (
                     <rect key={b.x} className="h3__bar" x={b.x} y={b.y} width="3.4" height={b.h} fill={b.up ? '#34d37a' : '#ff4d4d'} />
                   ))}
