@@ -337,7 +337,7 @@
      left gutter and the trader's bubble with the right one, so neither runs off the screen (the anchor is the screen centre). */
   .h3__cards {
     left: 50%;
-    top: max(28%, 236px); /* up near the top, under the header: Alpha AI first, the trader's reply just below it */
+    top: max(26%, 224px); /* up near the top, under the header: Alpha AI first, the trader's reply just below it */
   }
   .h3__fly,
   .h3__ai {

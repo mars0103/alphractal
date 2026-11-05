@@ -194,7 +194,7 @@ export default function Hero3() {
 
         // ---- 2 · it reaches the top, where the lines meet, and the camera pushes in close ----
         tl.to('.h3__copy', { autoAlpha: 0, duration: 0.5 }, 1.3)
-        tl.to(S, { p: 1, f: 1, z: 2.6, ax: mobile ? 800 : 700, ay: mobile ? 330 : 400, duration: 1.6, ...R }, 1.5)
+        tl.to(S, { p: 1, f: 1, z: 2.6, ax: mobile ? 800 : 700, ay: mobile ? 470 : 400, duration: 1.6, ...R }, 1.5)
         tl.to(live, { autoAlpha: 1, duration: 0.3 }, 2.8)
         tl.to(S, { q: 1, duration: 0.6, ease: 'sine.out', ...R }, 2.9)
 
