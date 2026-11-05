@@ -1092,3 +1092,74 @@
     opacity: 0;
   }
 }
+
+/* Step 4 (Alpha Terminal) has no recording on purpose: the product is announced, not shown. Abstract shapes under a blur,
+   with "Coming soon" over them. Nothing here depicts the real interface. */
+.hw__soon {
+  position: relative;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  overflow: hidden;
+  background: #04082b;
+  text-align: center;
+}
+.hw__soon-bg {
+  position: absolute;
+  inset: -8%;
+  filter: blur(18px);
+  opacity: 0.9;
+}
+.hw__soon-bg i {
+  position: absolute;
+  border-radius: 8px;
+}
+.hw__soon-bg i:nth-child(1) {
+  left: 8%;
+  top: 22%;
+  width: 56%;
+  height: 8px;
+  background: #4b6bff;
+  transform: rotate(-9deg);
+  box-shadow: 0 60px 0 0 rgba(52, 211, 122, 0.55), 0 110px 0 0 rgba(255, 77, 77, 0.45);
+}
+.hw__soon-bg i:nth-child(2) {
+  right: 6%;
+  top: 18%;
+  width: 24%;
+  height: 56%;
+  background: rgba(251, 248, 248, 0.18);
+}
+.hw__soon-bg i:nth-child(3) {
+  left: 6%;
+  bottom: 14%;
+  width: 60%;
+  height: 22%;
+  background: linear-gradient(90deg, rgba(34, 40, 255, 0.55), rgba(52, 211, 122, 0.35));
+}
+.hw__soon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 8, 30, 0.45);
+}
+.hw__soon-t,
+.hw__soon-s {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+.hw__soon-t {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(26px, 3.4vw, 46px);
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.hw__soon-s {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(251, 248, 248, 0.7);
+}

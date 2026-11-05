@@ -77,8 +77,8 @@ export default {
       { key: 'sentiment', label: 'Sentiment' },
       { key: 'macro', label: 'Macro' },
     ],
-    terminalShot: 'Alpha Terminal · real platform screenshot',
-    terminalShotNote: 'Liquidation Levels on the chart, with the Long button',
+    terminalShot: 'Coming soon',
+    terminalShotNote: 'Alpha Terminal',
   },
   band: [
     { key: 'traders', label: 'Traders & Analysts', suffix: '' },

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { gsap, useGSAP, MQ } from '../lib/gsap.js'
-import Placeholder from '../components/Placeholder.jsx'
 import Starfield from '../components/Starfield.jsx'
 import '../styles/home.css'
 
@@ -142,7 +141,15 @@ export default function HowItWorks() {
                         disablePictureInPicture
                       />
                     ) : (
-                      <Placeholder dark className="hw__ph" name={s.shot} note={s.shotNote} ratio={REC_RATIO} />
+                      <div className="hw__soon" style={{ aspectRatio: REC_RATIO }} role="img" aria-label="Alpha Terminal, coming soon">
+                        <div className="hw__soon-bg" aria-hidden="true">
+                          <i />
+                          <i />
+                          <i />
+                        </div>
+                        <p className="hw__soon-t">Coming soon</p>
+                        <p className="hw__soon-s">Alpha Terminal</p>
+                      </div>
                     )}
                   </div>
                 </div>

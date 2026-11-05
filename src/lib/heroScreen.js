@@ -335,30 +335,42 @@ export function createScreen(copy, existing) {
     ctx.fillStyle = 'rgba(251,248,248,0.03)'
     rr(ctx, x, y, w, h, 6)
     ctx.fill()
-    ctx.setLineDash([7, 6])
-    ctx.strokeStyle = 'rgba(251,248,248,0.28)'
-    ctx.lineWidth = 1.4
+    ctx.save()
+    rr(ctx, x, y, w, h, 6)
+    ctx.clip()
+    // Abstract, blurred stand-in for a trading screen (a price line, volume bars, a side column). It is deliberately not the
+    // real Terminal UI: the product is not shown before launch, only announced.
+    const blur = 'filter' in ctx
+    if (blur) ctx.filter = 'blur(9px)'
+    ctx.globalAlpha = a * 0.9
+    ctx.strokeStyle = '#4b6bff'
+    ctx.lineWidth = 5
+    ctx.beginPath()
+    for (let i = 0; i <= 24; i++) {
+      const px = x + 30 + ((w * 0.62) / 24) * i
+      const py = y + h * 0.55 - Math.sin(i * 0.5) * 26 - i * 6 + (i % 3) * 8
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)
+    }
     ctx.stroke()
-    ctx.setLineDash([])
+    for (let i = 0; i < 26; i++) {
+      ctx.fillStyle = i % 4 === 0 ? 'rgba(255,77,77,0.55)' : 'rgba(52,211,122,0.5)'
+      const bh = 14 + ((i * 37) % 46)
+      ctx.fillRect(x + 30 + i * ((w * 0.62) / 26), y + h - 36 - bh, 10, bh)
+    }
+    ctx.fillStyle = 'rgba(251,248,248,0.22)'
+    for (let i = 0; i < 9; i++) rr(ctx, x + w * 0.7, y + 30 + i * 34, w * 0.25, 18, 4), ctx.fill()
+    if (blur) ctx.filter = 'none'
+    ctx.globalAlpha = a
+    ctx.fillStyle = 'rgba(8,10,22,0.45)'
+    ctx.fillRect(x, y, w, h)
+    ctx.restore()
     ctx.textAlign = 'center'
-    ctx.fillStyle = '#4b6bff'
-    rr(ctx, W / 2 - 54, y + h / 2 - 66, 108, 24, 3)
-    ctx.fill()
     ctx.fillStyle = '#fff'
-    ctx.font = `600 12px ${FONT}`
-    ctx.fillText('PLACEHOLDER', W / 2, y + h / 2 - 49)
-    ctx.fillStyle = 'rgba(251,248,248,0.78)'
-    ctx.font = `600 26px ${DISPLAY}`
-    ctx.fillText(copy.terminalShot, W / 2, y + h / 2 - 8)
-    ctx.fillStyle = 'rgba(251,248,248,0.55)'
-    ctx.font = `400 16px ${FONT}`
-    ctx.fillText(copy.terminalShotNote, W / 2, y + h / 2 + 22)
-    ctx.fillStyle = '#1ead64'
-    rr(ctx, W - 190, H - 100, 120, 44, 5)
-    ctx.fill()
-    ctx.fillStyle = '#fff'
-    ctx.font = `600 18px ${FONT}`
-    ctx.fillText('Long', W - 130, H - 72)
+    ctx.font = `600 54px ${DISPLAY}`
+    ctx.fillText(copy.terminalShot, W / 2, y + h / 2 + 6)
+    ctx.fillStyle = 'rgba(251,248,248,0.7)'
+    ctx.font = `500 18px ${FONT}`
+    ctx.fillText(copy.terminalShotNote, W / 2, y + h / 2 + 42)
     ctx.restore()
   }
 
