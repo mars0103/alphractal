@@ -194,7 +194,7 @@ export default function Hero3() {
 
         // ---- 2 · it reaches the top, where the lines meet, and the camera pushes in close ----
         tl.to('.h3__copy', { autoAlpha: 0, duration: 0.5 }, 1.3)
-        tl.to(S, { p: 1, f: 1, z: 2.6, ax: mobile ? 800 : 700, ay: mobile ? 470 : 400, duration: 1.6, ...R }, 1.5)
+        tl.to(S, { p: 1, f: 1, z: 2.6, ax: mobile ? 800 : 700, ay: mobile ? 500 : 400, duration: 1.6, ...R }, 1.5)
         tl.to(live, { autoAlpha: 1, duration: 0.3 }, 2.8)
         tl.to(S, { q: 1, duration: 0.6, ease: 'sine.out', ...R }, 2.9)
 
@@ -217,7 +217,7 @@ export default function Hero3() {
 
         // ---- 5 · the full chart: more metrics, support and resistance ----
         tl.to('.h3__chart-sec', { autoAlpha: 1, duration: 0.6 }, 7.0)
-        tl.to(S, { z: 0.95, ax: mobile ? 760 : 700, ay: 235, duration: 1.8, ...R }, 7.0)
+        tl.to(S, { z: 0.95, ax: mobile ? 760 : 700, ay: mobile ? 500 : 235, duration: 1.8, ...R }, 7.0)
         tl.to(S, { bars: 1, duration: 1.6, ease: 'none', onUpdate: renderBars }, 7.2)
         tl.to('.h3__legend li', { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.1 }, 8.0)
         tl.to({}, { duration: 0.8 })
